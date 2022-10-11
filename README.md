@@ -2,7 +2,7 @@
 
 ## 계획서
 
-     https://peppered-estimate-067.notion.site/71de63e68df245bc93187039d681a12c
+     https://www.notion.so/71de63e68df245bc93187039d681a12c
 
 ## 사용 API
 
