@@ -1,7 +1,14 @@
 package teamproject.capstone.recipe.domain.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Getter
+@Setter
 public class Row {
     @JsonProperty("MANUAL14")
     private String manual14;

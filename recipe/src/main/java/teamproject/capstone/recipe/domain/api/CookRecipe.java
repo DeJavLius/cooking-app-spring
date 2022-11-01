@@ -1,10 +1,15 @@
 package teamproject.capstone.recipe.domain.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.util.List;
 
-public class Cookrcp01 {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class CookRecipe {
     @JsonProperty("RESULT")
     private Result result;
     @JsonProperty("row")
