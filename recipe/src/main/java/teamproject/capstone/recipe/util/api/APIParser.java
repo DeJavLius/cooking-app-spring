@@ -12,7 +12,7 @@ class APIParser {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final APIManager apiManager = new APIManager();
 
-    public CookRecipe parseStringToCookRecipe() throws IOException {
+    public CookRecipe parseURLToCookRecipe() throws IOException {
         URL apiUrl = apiManager.getApi().getAPIUrl();
         return objectMapper.readValue(apiUrl, CookRecipe.class);
     }

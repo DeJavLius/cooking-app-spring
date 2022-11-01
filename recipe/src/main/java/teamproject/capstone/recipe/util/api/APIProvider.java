@@ -32,18 +32,25 @@ public class APIProvider {
             try {
                 CookRecipe needValueCheck = requestOpenAPIFromURL();
                 CookRecipe checkedData = apiError.cookRecipeRightValueCheck(needValueCheck);
+
                 cookRecipes.add(checkedData);
             } catch (Exception e) {
-                e.getStackTrace();
+                break;
             }
 
-            valueIncrease();
+            indexValueIncrease();
         }
+
+        return cookRecipes;
+    }
+
+    private void defaultIndex() {
+        this.endIndex = ConstValues.MAXIMUM_REQUEST;
     }
 
     private CookRecipe requestOpenAPIFromURL() {
         try {
-            return apiParser.parseStringToCookRecipe();
+            return apiParser.parseURLToCookRecipe();
         } catch (IOException e) {
             e.getStackTrace();
             log.error("wrong json value : can't parse Json to String need to check");
@@ -51,11 +58,7 @@ public class APIProvider {
         }
     }
 
-    private void defaultIndex() {
-        this.endIndex = ConstValues.MAXIMUM_REQUEST;
-    }
-
-    private void valueIncrease() {
+    private void indexValueIncrease() {
         startIndex += ConstValues.MAXIMUM_REQUEST;
         endIndex += ConstValues.MAXIMUM_REQUEST;
     }

@@ -2,10 +2,10 @@ package teamproject.capstone.recipe.util.api;
 
 import java.net.URL;
 
-class API {
+class OpenAPI {
     private URL APIUrl;
 
-    API(URL APIUrl) {
+    OpenAPI(URL APIUrl) {
         this.APIUrl = APIUrl;
     }
 

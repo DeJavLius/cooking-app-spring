@@ -8,7 +8,7 @@ import java.net.URL;
 
 @Slf4j
 class APIManager {
-    private API api;
+    private OpenAPI openApi;
 
     private URL requestOpenAPIJSON(int startIndex, int endIndex) throws MalformedURLException {
         return new URL(ConstValues.RECIPE_OPEN_API + "api/" + ConstValues.API_KEY +
@@ -17,14 +17,14 @@ class APIManager {
 
     public void urlAvailability(int startIndex, int endIndex) {
         try {
-            api = new API(requestOpenAPIJSON(startIndex, endIndex));
+            openApi = new OpenAPI(requestOpenAPIJSON(startIndex, endIndex));
         } catch (MalformedURLException mal) {
             mal.printStackTrace();
             log.error("wrong url or wrong api key");
         }
     }
 
-    public API getApi() {
-        return api;
+    public OpenAPI getApi() {
+        return openApi;
     }
 }
