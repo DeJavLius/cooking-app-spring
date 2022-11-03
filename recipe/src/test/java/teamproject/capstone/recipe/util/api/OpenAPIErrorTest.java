@@ -36,7 +36,7 @@ class OpenAPIErrorTest {
         OpenRecipe cr = new OpenRecipe(re, null, null);
 
         // when, then
-        assertThrowsExactly(NoSuchElementException.class, () -> {
+        assertThrowsExactly(IllegalArgumentException.class, () -> {
             openApiError.cookRecipeRightValueCheck(cr);
         });
     }
