@@ -3,36 +3,40 @@ package teamproject.capstone.recipe.controller.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.domain.api.Row;
-import teamproject.capstone.recipe.util.api.OpenAPIProvider;
+import teamproject.capstone.recipe.service.api.OpenAPIService;
+import teamproject.capstone.recipe.util.api.OpenAPIHandler;
+import teamproject.capstone.recipe.util.api.OpenAPISerializer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@RestController
 public class OpenAPIController {
-    // /api/ac3c23441c1c4a1e9696/COOKRCP01/json/1/1061
     private final OpenAPIService openAPIService;
-
-    private final OpenAPIProvider openApiProvider = new OpenAPIProvider();
+    private final OpenAPIHandler openApiHandler;
 
     @GetMapping("/v1")
-    public List<OpenRecipe> responseOpenAPI(@RequestParam String page, @RequestParam String size) {
+    public List<OpenAPIRecipe> responseOpenAPI(@RequestParam String page, @RequestParam String size) {
         return null;
     }
 
     @PostMapping("/v1/save")
     public void saveOpenAPI() {
-        List<OpenRecipe> openRecipes = openApiProvider.requestAllOpenAPI();
-        List<Row> totalRecipes = new ArrayList<>();
+        List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI();
+        List<OpenRecipe> totalRecipes = new ArrayList<>();
 
-        for (OpenRecipe cr : openRecipes) {
-            totalRecipes.addAll(cr.getRow());
+        for (OpenAPIRecipe cr : openAPIRecipes) {
+            totalRecipes.addAll(cr.getRow().stream().map(OpenAPISerializer::rowToOpenRecipe).collect(Collectors.toList()));
         }
+
+        openAPIService.createAll(totalRecipes);
     }
     // provider
     /*
@@ -62,14 +66,6 @@ public class OpenAPIController {
 
     // parser
     /*
-    static class CookRecipeTaker {
-        @JsonProperty("COOKRCP01")
-        CookRecipe cookRecipe;
-
-        public CookRecipe getCookRecipe() {
-            return this.cookRecipe;
-        }
-    }
 
     public CookRecipe parseURLToCookRecipe(URL apiUrl) throws IOException {
         log.info("test of apiURL : {}", apiUrl);

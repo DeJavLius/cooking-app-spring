@@ -3,7 +3,7 @@ package teamproject.capstone.recipe.util.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,30 +24,30 @@ public class OpenAPIHandler {
     private int endIndex = 0;
     private int totalIndex = 0;
 
-    public List<OpenRecipe> requestAllOpenAPI() {
-        List<OpenRecipe> openRecipes = new ArrayList<>();
+    public List<OpenAPIRecipe> requestAllOpenAPI() {
+        List<OpenAPIRecipe> openAPIRecipes = new ArrayList<>();
 
-        return takeAllCookRecipes(openRecipes);
+        return takeAllCookRecipes(openAPIRecipes);
     }
 
-    private List<OpenRecipe> takeAllCookRecipes(List<OpenRecipe> openRecipes) {
+    private List<OpenAPIRecipe> takeAllCookRecipes(List<OpenAPIRecipe> openAPIRecipes) {
         defaultIndex();
         while (true) {
             openApiProvider.urlIndexRangeScan(startIndex, endIndex);
-            OpenRecipe requestCR = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
+            OpenAPIRecipe requestCR = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
 
             setTotalIndex(Integer.parseInt(requestCR.getTotalCount()));
 
             if (startIndex > totalIndex) {
                 break;
             } else {
-                openRecipes.add(requestCR);
+                openAPIRecipes.add(requestCR);
             }
 
             indexValueIncrease();
         }
 
-        return openRecipes;
+        return openAPIRecipes;
     }
 
     private void defaultIndex() {
@@ -58,16 +58,16 @@ public class OpenAPIHandler {
         this.totalIndex = totalIndex;
     }
 
-    private OpenRecipe cookRecipeRequest(URL apiUrl) {
+    private OpenAPIRecipe cookRecipeRequest(URL apiUrl) {
         try {
-            OpenRecipe needValueCheck = requestOpenAPIFromURL(apiUrl);
+            OpenAPIRecipe needValueCheck = requestOpenAPIFromURL(apiUrl);
             return openApiError.cookRecipeRightValueCheck(needValueCheck);
         } catch (Exception e) {
             throw new NullPointerException();
         }
     }
 
-    private OpenRecipe requestOpenAPIFromURL(URL apiUrl) {
+    private OpenAPIRecipe requestOpenAPIFromURL(URL apiUrl) {
         try {
             return apiParser.parseURLToCookRecipe(apiUrl);
         } catch (IOException e) {

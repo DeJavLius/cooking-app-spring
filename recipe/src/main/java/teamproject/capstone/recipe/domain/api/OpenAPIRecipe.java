@@ -9,9 +9,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class RecipeData {
-    @JsonProperty("meta")
-    private Meta meta;
-    @JsonProperty("values")
-    private List<OpenRecipe> openRecipes;
+public class OpenAPIRecipe {
+    @JsonProperty("RESULT")
+    private Result result;
+    @JsonProperty("row")
+    private List<Row> row;
+    @JsonProperty("total_count")
+    private String totalCount;
 }

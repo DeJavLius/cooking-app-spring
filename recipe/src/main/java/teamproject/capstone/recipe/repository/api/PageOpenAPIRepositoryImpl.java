@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
-import teamproject.capstone.recipe.entity.api.OpenAPIEntity;
+import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,27 +19,28 @@ public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport impleme
     @PersistenceContext
     private EntityManager em;
 
-    private QOpenAPIEntity openAPIEntity = QOpenAPIEntity.openAPIEntity;
+    private QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
     public PageOpenAPIRepositoryImpl() {
-        super(OpenAPIEntity.class);
+        super(OpenRecipeEntity.class);
     }
 
     @Override
     public Page<Object[]> openAPIPageHandling(Pageable pageable) {
-        JPQLQuery<Tuple> openAPIHandle = jpqlQueryInit();
+        JPQLQuery<Tuple> openAPIDataHandle = jpqlQueryInit();
 
-        openAPIHandle.offset(pageable.getOffset());
-        openAPIHandle.limit(pageable.getPageSize());
+        openAPIDataHandle.offset(pageable.getOffset());
+        openAPIDataHandle.limit(pageable.getPageSize());
 
-        List<Tuple> result = openAPIHandle.fetch();
+        List<Tuple> result = openAPIDataHandle.fetch();
 
-        long count = openAPIHandle.fetchCount();
+        long count = openAPIDataHandle.fetchCount();
         return new PageImpl<>(result.stream().map(Tuple::toArray).collect(Collectors.toList()), pageable, count);
     }
 
     public JPQLQuery<Tuple> jpqlQueryInit() {
-        JPQLQuery<OpenAPIEntity> jpqlQuery = from(openAPIEntity);
-        return jpqlQuery.select(openAPIEntity);
+//        JPQLQuery<OpenRecipeEntity> jpqlQuery = from(openRecipeEntity);
+//        return jpqlQuery.select(openRecipeEntity);
+        return null;
     }
 }

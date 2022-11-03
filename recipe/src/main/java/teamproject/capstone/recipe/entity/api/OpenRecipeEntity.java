@@ -1,11 +1,9 @@
 package teamproject.capstone.recipe.entity.api;
 
 import lombok.*;
+import javax.persistence.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
+@Table(name = "open_recipe")
 @Entity
 @Builder
 @AllArgsConstructor
@@ -13,8 +11,10 @@ import javax.persistence.Id;
 @ToString
 @Getter
 @Setter
-public class OpenAPIEntity {
+public class OpenRecipeEntity {
     @Id
+    private Long id;
+    @Column
     private Long rcpSeq;
     @Column
     private String rcpNm;
@@ -27,17 +27,17 @@ public class OpenAPIEntity {
     @Column
     private String hashTag;
     @Column
-    private String infoFat;
+    private Double infoFat;
     @Column
-    private String infoEng;
+    private Double infoEng;
     @Column
-    private String infoCar;
+    private Double infoCar;
     @Column
-    private String infoPro;
+    private Double infoPro;
     @Column
-    private String infoWgt;
+    private Double infoWgt;
     @Column
-    private String infoNa;
+    private Double infoNa;
     @Column
     private String attFileNoMk;
     @Column

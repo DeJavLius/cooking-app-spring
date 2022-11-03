@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OpenAPIMeta {
     @JsonProperty("COOKRCP01")
-    OpenRecipe openRecipe;
+    OpenAPIRecipe openAPIRecipe;
 
-    public OpenRecipe getOpenRecipe() {
-        return this.openRecipe;
+    public OpenAPIRecipe getOpenRecipe() {
+        return this.openAPIRecipe;
     }
 }
