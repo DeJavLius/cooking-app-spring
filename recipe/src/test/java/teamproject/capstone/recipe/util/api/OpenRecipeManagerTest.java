@@ -9,7 +9,7 @@ import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OpenAPIManagerTest {
+class OpenRecipeManagerTest {
     public OpenAPIProvider openApiProvider = OpenAPIProvider.getInstance();
 
     private static final String RECIPE_OPEN_API = "https://openapi.foodsafetykorea.go.kr";

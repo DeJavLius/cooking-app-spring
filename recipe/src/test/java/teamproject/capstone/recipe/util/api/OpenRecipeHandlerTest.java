@@ -1,25 +1,25 @@
 package teamproject.capstone.recipe.util.api;
 
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OpenAPIHandlerTest {
+class OpenRecipeHandlerTest {
     OpenAPIHandler openApiHandler = new OpenAPIHandler();
 
     @Test
     void requestAllOpenAPI() {
         // given
-        List<OpenRecipe> openRecipes = new ArrayList<>();
+        List<OpenAPIRecipe> openAPIRecipes = new ArrayList<>();
 
         // when
-        openRecipes = openApiHandler.requestAllOpenAPI();
+        openAPIRecipes = openApiHandler.requestAllOpenAPI();
 
         // then
-        assertThat(openRecipes.size()).isEqualTo(2);
+        assertThat(openAPIRecipes.size()).isEqualTo(2);
     }
 }

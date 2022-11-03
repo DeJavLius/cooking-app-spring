@@ -2,26 +2,25 @@ package teamproject.capstone.recipe.util.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.Result;
 import teamproject.capstone.recipe.domain.api.Row;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-class OpenAPIErrorTest {
+class OpenRecipeErrorTest {
     public final OpenAPIError openApiError = new OpenAPIError();
 
     @Test
     void testErrorCode_334() {
         // given
         Result re = new Result(null, "ERROR-334");
-        OpenRecipe cr = new OpenRecipe(re, null, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(re, null, null);
 
         // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
@@ -33,7 +32,7 @@ class OpenAPIErrorTest {
     void testErrorCode_200() {
         // given
         Result re = new Result(null, "INFO-200");
-        OpenRecipe cr = new OpenRecipe(re, null, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(re, null, null);
 
         // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
@@ -44,7 +43,7 @@ class OpenAPIErrorTest {
     @Test
     void testErrorNull() {
         // given
-        OpenRecipe cr = new OpenRecipe(null, null, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(null, null, null);
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
@@ -56,10 +55,10 @@ class OpenAPIErrorTest {
     void testErrorNormal() {
         // given
         Result re = new Result(null, "INFO-000");
-        OpenRecipe cr = new OpenRecipe(re, null, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(re, null, null);
 
         // when
-        OpenRecipe v = openApiError.cookRecipeRightValueCheck(cr);
+        OpenAPIRecipe v = openApiError.cookRecipeRightValueCheck(cr);
 
         // then
         assertThat(v.getResult().getMsg()).isEqualTo(re.getMsg());
@@ -71,10 +70,10 @@ class OpenAPIErrorTest {
         Row r = new Row(null, null, null, null, null, null);
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        OpenRecipe cr = new OpenRecipe(null, rs, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenRecipe v = openApiError.cookRecipeValueCheck(cr);
+        OpenAPIRecipe v = openApiError.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isNull();
@@ -91,10 +90,10 @@ class OpenAPIErrorTest {
         Row r = new Row("pro", "wei", "na", "seq", "way2", "rcp");
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        OpenRecipe cr = new OpenRecipe(null, rs, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenRecipe v = openApiError.cookRecipeValueCheck(cr);
+        OpenAPIRecipe v = openApiError.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
@@ -111,7 +110,7 @@ class OpenAPIErrorTest {
         Row r = new Row(null, null, null, null, null, null);
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        OpenRecipe cr = new OpenRecipe(null, rs, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
@@ -126,10 +125,10 @@ class OpenAPIErrorTest {
         Row r = new Row("pro", "wei", "na", "seq", "way2", "rcp");
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        OpenRecipe cr = new OpenRecipe(null, rs, null);
+        OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenRecipe v = openApiError.cookRecipeInnerValueCheck(cr);
+        OpenAPIRecipe v = openApiError.cookRecipeInnerValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
