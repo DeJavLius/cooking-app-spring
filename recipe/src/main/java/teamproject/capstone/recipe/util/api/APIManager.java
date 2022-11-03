@@ -1,7 +1,6 @@
 package teamproject.capstone.recipe.util.api;
 
 import lombok.extern.slf4j.Slf4j;
-import teamproject.capstone.recipe.util.api.values.ConstValues;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -9,13 +8,15 @@ import java.net.URL;
 @Slf4j
 class APIManager {
     private OpenAPI openApi;
+    private static final String RECIPE_OPEN_API = "https://openapi.foodsafetykorea.go.kr";
+    private static final String API_KEY = "ac3c23441c1c4a1e9696";
 
     private URL requestOpenAPIJSON(int startIndex, int endIndex) throws MalformedURLException {
-        return new URL(ConstValues.RECIPE_OPEN_API + "api/" + ConstValues.API_KEY +
+        return new URL(RECIPE_OPEN_API + "api/" + API_KEY +
                 "COOKRCP01/json/" + startIndex + "/" + endIndex);
     }
 
-    public void urlAvailability(int startIndex, int endIndex) {
+    public void urlIndexRangeScan(int startIndex, int endIndex) {
         try {
             openApi = new OpenAPI(requestOpenAPIJSON(startIndex, endIndex));
         } catch (MalformedURLException mal) {

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-class OpenAPIErrorTest {
+class APIErrorTest {
     public final APIError apiError = new APIError();
 
     @Test
@@ -23,7 +23,7 @@ class OpenAPIErrorTest {
         Result re = new Result(null, "ERROR-334");
         CookRecipe cr = new CookRecipe(re, null, null);
 
-        // when, taken
+        // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
             apiError.cookRecipeRightValueCheck(cr);
         });
@@ -35,7 +35,7 @@ class OpenAPIErrorTest {
         Result re = new Result(null, "INFO-200");
         CookRecipe cr = new CookRecipe(re, null, null);
 
-        // when, taken
+        // when, then
         assertThrowsExactly(NoSuchElementException.class, () -> {
             apiError.cookRecipeRightValueCheck(cr);
         });
@@ -46,7 +46,7 @@ class OpenAPIErrorTest {
         // given
         CookRecipe cr = new CookRecipe(null, null, null);
 
-        // when, taken
+        // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
             apiError.cookRecipeRightValueCheck(cr);
         });
@@ -61,7 +61,7 @@ class OpenAPIErrorTest {
         // when
         CookRecipe v = apiError.cookRecipeRightValueCheck(cr);
 
-        // taken
+        // then
         assertThat(v.getResult().getMsg()).isEqualTo(re.getMsg());
     }
 
@@ -76,7 +76,7 @@ class OpenAPIErrorTest {
         // when
         CookRecipe v = apiError.cookRecipeValueCheck(cr);
 
-        // taken
+        // then
         assertThat(v.getRow().get(0).getInfoPro()).isNull();
         assertThat(v.getRow().get(0).getInfoWgt()).isNull();
         assertThat(v.getRow().get(0).getInfoNa()).isNull();
@@ -96,7 +96,7 @@ class OpenAPIErrorTest {
         // when
         CookRecipe v = apiError.cookRecipeValueCheck(cr);
 
-        // taken
+        // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
         assertThat(v.getRow().get(0).getInfoWgt()).isEqualTo(r.getInfoWgt());
         assertThat(v.getRow().get(0).getInfoNa()).isEqualTo(r.getInfoNa());
@@ -113,7 +113,7 @@ class OpenAPIErrorTest {
         rs.add(r);
         CookRecipe cr = new CookRecipe(null, rs, null);
 
-        // when, taken
+        // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
             apiError.cookRecipeInnerValueCheck(cr);
         }
@@ -131,7 +131,7 @@ class OpenAPIErrorTest {
         // when
         CookRecipe v = apiError.cookRecipeInnerValueCheck(cr);
 
-        // taken
+        // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
         assertThat(v.getRow().get(0).getInfoWgt()).isEqualTo(r.getInfoWgt());
         assertThat(v.getRow().get(0).getInfoNa()).isEqualTo(r.getInfoNa());
