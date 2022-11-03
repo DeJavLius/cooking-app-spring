@@ -1,73 +1,39 @@
 package teamproject.capstone.recipe.util.api;
 
 import lombok.extern.slf4j.Slf4j;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Slf4j
-public class OpenAPIProvider {
-    private final OpenAPIManager openApiManager = new OpenAPIManager();
-    private final OpenAPIParser apiParser = new OpenAPIParser();
-    private final OpenAPIError openApiError = new OpenAPIError();
-    private static final int MAXIMUM_REQUEST = 1000;
+class OpenAPIProvider {
+    private static final OpenAPIProvider INSTANCE = new OpenAPIProvider();
+    private static final String RECIPE_OPEN_API = "https://openapi.foodsafetykorea.go.kr";
+    private static final String API_KEY = "ac3c23441c1c4a1e9696";
 
-    private int startIndex = 1;
-    private int endIndex = 0;
+    private OpenAPI openApi;
 
-    public List<OpenRecipe> requestAllOpenAPI() {
-        List<OpenRecipe> openRecipes = new ArrayList<>();
+    private OpenAPIProvider() { }
 
-        return takeAllCookRecipes(openRecipes);
+    public static OpenAPIProvider getInstance() {
+        return INSTANCE;
     }
 
-    private List<OpenRecipe> takeAllCookRecipes(List<OpenRecipe> openRecipes) {
-        defaultIndex();
-        while (true) {
-            openApiManager.urlIndexRangeScan(startIndex, endIndex);
-            OpenRecipe requestCR = cookRecipeRequest();
-
-            if (requestCR != null) {
-                openRecipes.add(requestCR);
-            } else {
-                break;
-            }
-
-            indexValueIncrease();
-        }
-
-        return openRecipes;
+    private URL requestOpenAPIJSON(int startIndex, int endIndex) throws MalformedURLException {
+        return new URL(RECIPE_OPEN_API + "/api/" + API_KEY +
+                "/COOKRCP01/json/" + startIndex + "/" + endIndex);
     }
 
-    private void defaultIndex() {
-        this.endIndex = MAXIMUM_REQUEST;
-    }
-
-    private OpenRecipe cookRecipeRequest() {
+    public void urlIndexRangeScan(int startIndex, int endIndex) {
         try {
-            OpenRecipe needValueCheck = requestOpenAPIFromURL();
-            log.info("test of requestOpenAPI : {}", needValueCheck);
-            return openApiError.cookRecipeRightValueCheck(needValueCheck);
-        } catch (Exception e) {
-            throw new NullPointerException();
+            openApi = new OpenAPI(requestOpenAPIJSON(startIndex, endIndex));
+        } catch (MalformedURLException mal) {
+            mal.printStackTrace();
+            log.error("wrong url or wrong api key");
         }
     }
 
-    private OpenRecipe requestOpenAPIFromURL() {
-        try {
-            log.info("test of parseURLToCookRecipe : {}", apiParser.parseURLToCookRecipe());
-            return apiParser.parseURLToCookRecipe();
-        } catch (IOException e) {
-            e.getStackTrace();
-            log.error("wrong json value : can't parse Json to String need to check");
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private void indexValueIncrease() {
-        startIndex += MAXIMUM_REQUEST;
-        endIndex += MAXIMUM_REQUEST;
+    public OpenAPI getApi() {
+        return openApi;
     }
 }
