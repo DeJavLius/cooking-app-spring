@@ -1,36 +1,36 @@
 package teamproject.capstone.recipe.util.api;
 
 import lombok.extern.slf4j.Slf4j;
-import teamproject.capstone.recipe.domain.api.CookRecipe;
+import teamproject.capstone.recipe.domain.api.OpenRecipe;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class APIProvider {
-    private final APIManager apiManager = new APIManager();
-    private final APIParser apiParser = new APIParser();
-    private final APIError apiError = new APIError();
+public class OpenAPIProvider {
+    private final OpenAPIManager openApiManager = new OpenAPIManager();
+    private final OpenAPIParser apiParser = new OpenAPIParser();
+    private final OpenAPIError openApiError = new OpenAPIError();
     private static final int MAXIMUM_REQUEST = 1000;
 
     private int startIndex = 1;
     private int endIndex = 0;
 
-    public List<CookRecipe> requestAllOpenAPI() {
-        List<CookRecipe> cookRecipes = new ArrayList<>();
+    public List<OpenRecipe> requestAllOpenAPI() {
+        List<OpenRecipe> openRecipes = new ArrayList<>();
 
-        return takeAllCookRecipes(cookRecipes);
+        return takeAllCookRecipes(openRecipes);
     }
 
-    private List<CookRecipe> takeAllCookRecipes(List<CookRecipe> cookRecipes) {
+    private List<OpenRecipe> takeAllCookRecipes(List<OpenRecipe> openRecipes) {
         defaultIndex();
         while (true) {
-            apiManager.urlIndexRangeScan(startIndex, endIndex);
-            CookRecipe requestCR = cookRecipeRequest();
+            openApiManager.urlIndexRangeScan(startIndex, endIndex);
+            OpenRecipe requestCR = cookRecipeRequest();
 
             if (requestCR != null) {
-                cookRecipes.add(requestCR);
+                openRecipes.add(requestCR);
             } else {
                 break;
             }
@@ -38,24 +38,24 @@ public class APIProvider {
             indexValueIncrease();
         }
 
-        return cookRecipes;
+        return openRecipes;
     }
 
     private void defaultIndex() {
         this.endIndex = MAXIMUM_REQUEST;
     }
 
-    private CookRecipe cookRecipeRequest() {
+    private OpenRecipe cookRecipeRequest() {
         try {
-            CookRecipe needValueCheck = requestOpenAPIFromURL();
+            OpenRecipe needValueCheck = requestOpenAPIFromURL();
             log.info("test of requestOpenAPI : {}", needValueCheck);
-            return apiError.cookRecipeRightValueCheck(needValueCheck);
+            return openApiError.cookRecipeRightValueCheck(needValueCheck);
         } catch (Exception e) {
             throw new NullPointerException();
         }
     }
 
-    private CookRecipe requestOpenAPIFromURL() {
+    private OpenRecipe requestOpenAPIFromURL() {
         try {
             log.info("test of parseURLToCookRecipe : {}", apiParser.parseURLToCookRecipe());
             return apiParser.parseURLToCookRecipe();

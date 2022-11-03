@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum APICode {
+public enum OpenAPICode {
     INFO_000("INFO-000"),
     INFO_200("INFO-200"),
     ERROR_334("ERROR-334");

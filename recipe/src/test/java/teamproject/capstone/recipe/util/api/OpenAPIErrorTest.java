@@ -2,7 +2,7 @@ package teamproject.capstone.recipe.util.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.domain.api.CookRecipe;
+import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.domain.api.Result;
 import teamproject.capstone.recipe.domain.api.Row;
 
@@ -14,18 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-class APIErrorTest {
-    public final APIError apiError = new APIError();
+class OpenAPIErrorTest {
+    public final OpenAPIError openApiError = new OpenAPIError();
 
     @Test
     void testErrorCode_334() {
         // given
         Result re = new Result(null, "ERROR-334");
-        CookRecipe cr = new CookRecipe(re, null, null);
+        OpenRecipe cr = new OpenRecipe(re, null, null);
 
         // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
-            apiError.cookRecipeRightValueCheck(cr);
+            openApiError.cookRecipeRightValueCheck(cr);
         });
     }
 
@@ -33,22 +33,22 @@ class APIErrorTest {
     void testErrorCode_200() {
         // given
         Result re = new Result(null, "INFO-200");
-        CookRecipe cr = new CookRecipe(re, null, null);
+        OpenRecipe cr = new OpenRecipe(re, null, null);
 
         // when, then
         assertThrowsExactly(NoSuchElementException.class, () -> {
-            apiError.cookRecipeRightValueCheck(cr);
+            openApiError.cookRecipeRightValueCheck(cr);
         });
     }
 
     @Test
     void testErrorNull() {
         // given
-        CookRecipe cr = new CookRecipe(null, null, null);
+        OpenRecipe cr = new OpenRecipe(null, null, null);
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
-            apiError.cookRecipeRightValueCheck(cr);
+            openApiError.cookRecipeRightValueCheck(cr);
         });
     }
 
@@ -56,10 +56,10 @@ class APIErrorTest {
     void testErrorNormal() {
         // given
         Result re = new Result(null, "INFO-000");
-        CookRecipe cr = new CookRecipe(re, null, null);
+        OpenRecipe cr = new OpenRecipe(re, null, null);
 
         // when
-        CookRecipe v = apiError.cookRecipeRightValueCheck(cr);
+        OpenRecipe v = openApiError.cookRecipeRightValueCheck(cr);
 
         // then
         assertThat(v.getResult().getMsg()).isEqualTo(re.getMsg());
@@ -71,10 +71,10 @@ class APIErrorTest {
         Row r = new Row(null, null, null, null, null, null);
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        CookRecipe cr = new CookRecipe(null, rs, null);
+        OpenRecipe cr = new OpenRecipe(null, rs, null);
 
         // when
-        CookRecipe v = apiError.cookRecipeValueCheck(cr);
+        OpenRecipe v = openApiError.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isNull();
@@ -91,10 +91,10 @@ class APIErrorTest {
         Row r = new Row("pro", "wei", "na", "seq", "way2", "rcp");
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        CookRecipe cr = new CookRecipe(null, rs, null);
+        OpenRecipe cr = new OpenRecipe(null, rs, null);
 
         // when
-        CookRecipe v = apiError.cookRecipeValueCheck(cr);
+        OpenRecipe v = openApiError.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
@@ -111,11 +111,11 @@ class APIErrorTest {
         Row r = new Row(null, null, null, null, null, null);
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        CookRecipe cr = new CookRecipe(null, rs, null);
+        OpenRecipe cr = new OpenRecipe(null, rs, null);
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
-            apiError.cookRecipeInnerValueCheck(cr);
+            openApiError.cookRecipeInnerValueCheck(cr);
         }
         );
     }
@@ -126,10 +126,10 @@ class APIErrorTest {
         Row r = new Row("pro", "wei", "na", "seq", "way2", "rcp");
         List<Row> rs = new ArrayList<>();
         rs.add(r);
-        CookRecipe cr = new CookRecipe(null, rs, null);
+        OpenRecipe cr = new OpenRecipe(null, rs, null);
 
         // when
-        CookRecipe v = apiError.cookRecipeInnerValueCheck(cr);
+        OpenRecipe v = openApiError.cookRecipeInnerValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());

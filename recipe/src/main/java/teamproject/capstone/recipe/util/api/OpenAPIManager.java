@@ -6,7 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Slf4j
-class APIManager {
+class OpenAPIManager {
     private OpenAPI openApi;
     private static final String RECIPE_OPEN_API = "https://openapi.foodsafetykorea.go.kr";
     private static final String API_KEY = "ac3c23441c1c4a1e9696";

@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class CookRecipe {
+public class OpenRecipe {
     @JsonProperty("RESULT")
     private Result result;
     @JsonProperty("row")

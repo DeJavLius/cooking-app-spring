@@ -10,15 +10,6 @@ import lombok.*;
 @Getter
 @Setter
 public class Row {
-    public Row(String infoPro, String infoWgt, String infoNa, String rcpSeq, String rcpWay2, String rcpPartsDtls) {
-        this.infoPro = infoPro;
-        this.infoWgt = infoWgt;
-        this.infoNa = infoNa;
-        this.rcpSeq = rcpSeq;
-        this.rcpWay2 = rcpWay2;
-        this.rcpPartsDtls = rcpPartsDtls;
-    }
-
     @JsonProperty("MANUAL14")
     private String manual14;
     @JsonProperty("MANUAL13")
@@ -127,4 +118,13 @@ public class Row {
     private String rcpWay2;
     @JsonProperty("RCP_PARTS_DTLS")
     private String rcpPartsDtls;
+
+    public Row(String infoPro, String infoWgt, String infoNa, String rcpSeq, String rcpWay2, String rcpPartsDtls) {
+        this.infoPro = infoPro;
+        this.infoWgt = infoWgt;
+        this.infoNa = infoNa;
+        this.rcpSeq = rcpSeq;
+        this.rcpWay2 = rcpWay2;
+        this.rcpPartsDtls = rcpPartsDtls;
+    }
 }
