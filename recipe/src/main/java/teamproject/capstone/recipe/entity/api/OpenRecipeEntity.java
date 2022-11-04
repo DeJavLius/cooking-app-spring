@@ -1,10 +1,12 @@
 package teamproject.capstone.recipe.entity.api;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
-@Table(name = "open_recipe")
 @Entity
+@Table(name = "open_recipe")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,8 @@ import javax.persistence.*;
 @Setter
 public class OpenRecipeEntity {
     @Id
+    @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+    @GenericGenerator(name = "native", strategy = "native")
     private Long id;
     @Column
     private Long rcpSeq;
