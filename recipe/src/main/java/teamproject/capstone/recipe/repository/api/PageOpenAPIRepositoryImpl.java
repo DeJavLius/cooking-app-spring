@@ -7,10 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
+import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.persistence.TupleElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,21 +28,21 @@ public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public Page<Object[]> openAPIPageHandling(Pageable pageable) {
-        JPQLQuery<Tuple> openAPIDataHandle = jpqlQueryInit();
+    public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
+        JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
 
-        openAPIDataHandle.offset(pageable.getOffset());
-        openAPIDataHandle.limit(pageable.getPageSize());
-
-        List<Tuple> result = openAPIDataHandle.fetch();
-
+        List<OpenRecipeEntity> result = sqlPageSetting(openAPIDataHandle, pageable);
         long count = openAPIDataHandle.fetchCount();
-        return new PageImpl<>(result.stream().map(Tuple::toArray).collect(Collectors.toList()), pageable, count);
+        return new PageImpl<>(result, pageable, count);
     }
 
-    public JPQLQuery<Tuple> jpqlQueryInit() {
-//        JPQLQuery<OpenRecipeEntity> jpqlQuery = from(openRecipeEntity);
-//        return jpqlQuery.select(openRecipeEntity);
-        return null;
+    private JPQLQuery<OpenRecipeEntity> jpqlQueryInit() {
+        JPQLQuery<OpenRecipeEntity> jpqlQuery = from(openRecipeEntity);
+        return jpqlQuery.select(openRecipeEntity);
+    }
+
+    private List<OpenRecipeEntity> sqlPageSetting(JPQLQuery<OpenRecipeEntity> openAPIDataHandle, Pageable pageable) {
+        openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
+        return openAPIDataHandle.fetch();
     }
 }
