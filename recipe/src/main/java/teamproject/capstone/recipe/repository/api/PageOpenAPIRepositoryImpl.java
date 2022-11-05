@@ -11,17 +11,14 @@ import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport implements PageOpenAPIRepository {
     @PersistenceContext
     private EntityManager em;
 
-    private QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+    private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
     public PageOpenAPIRepositoryImpl() {
         super(OpenRecipeEntity.class);
