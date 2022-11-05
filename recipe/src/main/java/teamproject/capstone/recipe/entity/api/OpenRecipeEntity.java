@@ -24,7 +24,7 @@ public class OpenRecipeEntity {
     private String rcpPat2;
     @Column
     private String rcpWay2;
-    @Column
+    @Column(length = 1000)
     private String rcpPartsDtls;
     @Column
     private String hashTag;
@@ -44,25 +44,25 @@ public class OpenRecipeEntity {
     private String attFileNoMk;
     @Column
     private String attFileNoMain;
-    @Column
+    @Column(length = 1000)
     private String manual01;
-    @Column
+    @Column(length = 1000)
     private String manual02;
-    @Column
+    @Column(length = 1000)
     private String manual03;
-    @Column
+    @Column(length = 1000)
     private String manual04;
-    @Column
+    @Column(length = 1000)
     private String manual05;
-    @Column
+    @Column(length = 1000)
     private String manual06;
-    @Column
+    @Column(length = 1000)
     private String manual07;
-    @Column
+    @Column(length = 1000)
     private String manual08;
-    @Column
+    @Column(length = 1000)
     private String manual09;
-    @Column
+    @Column(length = 1000)
     private String manual10;
     @Column
     private String manual11;

@@ -26,13 +26,16 @@ public class OpenAPISerializer {
 
     private static Double doubleFormatting(String value) {
         boolean isContains = value.contains(".");
-        if (!isContains) {
-            value += ".0";
+        boolean isEmpty = (value.length() == 0);
+        if (isEmpty) {
+            return null;
         }
-        return stringToDouble(value);
-    }
 
-    private static Double stringToDouble(String value) {
-        return Double.parseDouble(value);
+        if (!isContains) {
+            return (double) Integer.parseInt(value);
+        }
+        else {
+            return Double.parseDouble(value);
+        }
     }
 }
