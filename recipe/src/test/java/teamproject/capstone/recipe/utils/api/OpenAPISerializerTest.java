@@ -1,14 +1,29 @@
-package teamproject.capstone.recipe.util.api;
+package teamproject.capstone.recipe.utils.api;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.domain.api.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
+import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
+import teamproject.capstone.recipe.utils.OpenAPISerializer;
+import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
+@SpringBootTest
 class OpenAPISerializerTest {
+    @Autowired
+    OpenAPIHandler openAPIHandler;
+    @Autowired
+    OpenAPIRepository openAPIRepository;
 
     @Test
     void rowToOpenRecipe() {

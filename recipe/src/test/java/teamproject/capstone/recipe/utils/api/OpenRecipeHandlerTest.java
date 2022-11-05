@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.util.api;
+package teamproject.capstone.recipe.utils.api;
 
 import org.junit.jupiter.api.Test;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
@@ -21,5 +21,7 @@ class OpenRecipeHandlerTest {
 
         // then
         assertThat(openAPIRecipes.size()).isEqualTo(2);
+        assertThat(openAPIRecipes.get(0).getRow().size() + openAPIRecipes.get(1).getRow().size()).isEqualTo(1061);
+        assertThat(openAPIRecipes.get(0).getRow().size() + openAPIRecipes.get(1).getRow().size()).isEqualTo(Integer.parseInt(openAPIRecipes.get(0).getTotalCount()));
     }
 }

@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.util.api;
+package teamproject.capstone.recipe.utils.api;
 
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;

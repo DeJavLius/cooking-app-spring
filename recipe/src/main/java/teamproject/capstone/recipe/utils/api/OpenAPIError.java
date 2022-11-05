@@ -1,8 +1,8 @@
-package teamproject.capstone.recipe.util.api;
+package teamproject.capstone.recipe.utils.api;
 
 import lombok.extern.slf4j.Slf4j;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
-import teamproject.capstone.recipe.util.api.values.OpenAPICode;
+import teamproject.capstone.recipe.utils.values.OpenAPICode;
 
 @Slf4j
 public class OpenAPIError {

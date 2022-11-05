@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.util.api;
+package teamproject.capstone.recipe.utils.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,42 +20,33 @@ public class OpenAPIHandler {
 
     private static final int MAXIMUM_REQUEST = 1000;
 
-    private int startIndex = 1;
-    private int endIndex = 0;
     private int totalIndex = 0;
 
     public List<OpenAPIRecipe> requestAllOpenAPI() {
         List<OpenAPIRecipe> openAPIRecipes = new ArrayList<>();
-
-        return takeAllCookRecipes(openAPIRecipes);
+        List<OpenAPIRecipe> resultOfFetchValues = startScanOpenAPI(openAPIRecipes);
+        return resultOfFetchValues;
     }
 
-    private List<OpenAPIRecipe> takeAllCookRecipes(List<OpenAPIRecipe> openAPIRecipes) {
-        defaultIndex();
-        while (true) {
-            openApiProvider.urlIndexRangeScan(startIndex, endIndex);
+    private List<OpenAPIRecipe> startScanOpenAPI(List<OpenAPIRecipe> openAPIRecipes) {
+        int endSearch = MAXIMUM_REQUEST;
+        setTotalIndex();
+        for (int search = 1; search < totalIndex; search += MAXIMUM_REQUEST) {
+            openApiProvider.urlIndexRangeScan(search, endSearch);
             OpenAPIRecipe requestCR = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
 
-            setTotalIndex(Integer.parseInt(requestCR.getTotalCount()));
+            openAPIRecipes.add(requestCR);
 
-            if (startIndex > totalIndex) {
-                break;
-            } else {
-                openAPIRecipes.add(requestCR);
-            }
-
-            indexValueIncrease();
+            endSearch += MAXIMUM_REQUEST;
         }
-
         return openAPIRecipes;
     }
 
-    private void defaultIndex() {
-        this.endIndex = MAXIMUM_REQUEST;
-    }
-
-    private void setTotalIndex(int totalIndex) {
-        this.totalIndex = totalIndex;
+    private void setTotalIndex() {
+        int searchTotalNumber = 0;
+        openApiProvider.urlIndexRangeScan(searchTotalNumber, searchTotalNumber);
+        OpenAPIRecipe totalSearch = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
+        this.totalIndex = Integer.parseInt(totalSearch.getTotalCount());
     }
 
     private OpenAPIRecipe cookRecipeRequest(URL apiUrl) {
@@ -75,10 +66,5 @@ public class OpenAPIHandler {
             log.error("wrong json value : can't parse Json to String need to check");
             throw new IllegalArgumentException();
         }
-    }
-
-    private void indexValueIncrease() {
-        startIndex += MAXIMUM_REQUEST;
-        endIndex += MAXIMUM_REQUEST;
     }
 }

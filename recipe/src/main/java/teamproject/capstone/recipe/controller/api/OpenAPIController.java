@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.domain.api.Row;
 import teamproject.capstone.recipe.service.api.OpenAPIService;
-import teamproject.capstone.recipe.util.api.OpenAPIHandler;
-import teamproject.capstone.recipe.util.api.OpenAPISerializer;
+import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
+import teamproject.capstone.recipe.utils.OpenAPISerializer;
 
 import java.util.ArrayList;
 import java.util.List;

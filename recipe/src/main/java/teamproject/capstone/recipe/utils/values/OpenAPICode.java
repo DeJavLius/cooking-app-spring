@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.util.api.values;
+package teamproject.capstone.recipe.utils.values;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
