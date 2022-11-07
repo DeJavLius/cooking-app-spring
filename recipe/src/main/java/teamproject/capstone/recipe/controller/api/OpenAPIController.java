@@ -21,6 +21,8 @@ public class OpenAPIController {
     private final OpenAPIService openAPIService;
     private final OpenAPIHandler openApiHandler;
 
+    private final int DEFAULT_SIZE = 10;
+
     @GetMapping("/v1")
     public List<OpenAPIRecipe> responseOpenAPI(@RequestParam String page, @RequestParam String size) {
         return null;
@@ -37,39 +39,4 @@ public class OpenAPIController {
 
         openAPIService.createAll(totalRecipes);
     }
-    // provider
-    /*
-    public List<CookRecipe> requestAllOpenAPI() {
-            try {
-                CookRecipe needValueCheck = requestOpenAPIFromURL(apiManager.getApi().getAPIUrl());
-                CookRecipe checkedData = apiError.cookRecipeRightValueCheck(needValueCheck);
-                log.info("value request test : {}", checkedData);
-                cookRecipes.add(checkedData);
-            } catch (IllegalArgumentException e) {
-                e.getStackTrace();
-                break;
-            }
-    }
-
-    private CookRecipe requestOpenAPIFromURL(URL apiUrl) {
-        try {
-            log.info("url check : {}", apiUrl);
-            return apiParser.parseURLToCookRecipe(apiUrl);
-        } catch (IOException e) {
-            e.getStackTrace();
-            log.error("wrong json value : can't parse Json to String need to check");
-            throw new IllegalArgumentException();
-        }
-    }
-     */
-
-    // parser
-    /*
-
-    public CookRecipe parseURLToCookRecipe(URL apiUrl) throws IOException {
-        log.info("test of apiURL : {}", apiUrl);
-        log.info("pares data test : {}", objectMapper.readValue(apiUrl, CookRecipeTaker.class));
-        return objectMapper.readValue(apiUrl, CookRecipeTaker.class).getCookRecipe();
-    }
-     */
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.Result;
 import teamproject.capstone.recipe.domain.api.Row;
+import teamproject.capstone.recipe.utils.errors.OpenAPIErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 class OpenRecipeErrorTest {
-    public final OpenAPIError openApiError = new OpenAPIError();
+    public final OpenAPIErrorHandler openApiErrorHandler = new OpenAPIErrorHandler();
 
     @Test
     void testErrorCode_334() {
@@ -24,7 +25,7 @@ class OpenRecipeErrorTest {
 
         // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
-            openApiError.cookRecipeRightValueCheck(cr);
+            openApiErrorHandler.cookRecipeRightValueCheck(cr);
         });
     }
 
@@ -36,7 +37,7 @@ class OpenRecipeErrorTest {
 
         // when, then
         assertThrowsExactly(IllegalArgumentException.class, () -> {
-            openApiError.cookRecipeRightValueCheck(cr);
+            openApiErrorHandler.cookRecipeRightValueCheck(cr);
         });
     }
 
@@ -47,7 +48,7 @@ class OpenRecipeErrorTest {
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
-            openApiError.cookRecipeRightValueCheck(cr);
+            openApiErrorHandler.cookRecipeRightValueCheck(cr);
         });
     }
 
@@ -58,7 +59,7 @@ class OpenRecipeErrorTest {
         OpenAPIRecipe cr = new OpenAPIRecipe(re, null, null);
 
         // when
-        OpenAPIRecipe v = openApiError.cookRecipeRightValueCheck(cr);
+        OpenAPIRecipe v = openApiErrorHandler.cookRecipeRightValueCheck(cr);
 
         // then
         assertThat(v.getResult().getMsg()).isEqualTo(re.getMsg());
@@ -73,7 +74,7 @@ class OpenRecipeErrorTest {
         OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenAPIRecipe v = openApiError.cookRecipeValueCheck(cr);
+        OpenAPIRecipe v = openApiErrorHandler.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isNull();
@@ -93,7 +94,7 @@ class OpenRecipeErrorTest {
         OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenAPIRecipe v = openApiError.cookRecipeValueCheck(cr);
+        OpenAPIRecipe v = openApiErrorHandler.cookRecipeValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());
@@ -114,7 +115,7 @@ class OpenRecipeErrorTest {
 
         // when, then
         assertThrowsExactly(NullPointerException.class, () -> {
-            openApiError.cookRecipeInnerValueCheck(cr);
+            openApiErrorHandler.cookRecipeInnerValueCheck(cr);
         }
         );
     }
@@ -128,7 +129,7 @@ class OpenRecipeErrorTest {
         OpenAPIRecipe cr = new OpenAPIRecipe(null, rs, null);
 
         // when
-        OpenAPIRecipe v = openApiError.cookRecipeInnerValueCheck(cr);
+        OpenAPIRecipe v = openApiErrorHandler.cookRecipeInnerValueCheck(cr);
 
         // then
         assertThat(v.getRow().get(0).getInfoPro()).isEqualTo(r.getInfoPro());

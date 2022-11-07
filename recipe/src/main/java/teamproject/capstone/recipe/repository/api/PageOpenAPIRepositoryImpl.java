@@ -1,6 +1,7 @@
 package teamproject.capstone.recipe.repository.api;
 
 import com.querydsl.jpa.JPQLQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -9,14 +10,11 @@ import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport implements PageOpenAPIRepository {
-    @PersistenceContext
-    private EntityManager em;
 
     private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
@@ -39,6 +37,7 @@ public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
     private List<OpenRecipeEntity> sqlPageSetting(JPQLQuery<OpenRecipeEntity> openAPIDataHandle, Pageable pageable) {
+        log.info("page offset value : {} / page size value : {}", pageable.getOffset(), pageable.getPageSize());
         openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
         return openAPIDataHandle.fetch();
     }

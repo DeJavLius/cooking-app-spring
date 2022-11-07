@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Getter
 @Setter
@@ -20,9 +19,7 @@ public class APIPageResult<DTO, EN> {
     private int totalPage;
     private int currentPage;
     private int startPage = 1;
-    private int endPage;
-    private boolean firstPage, lastPage;
-    private List<Integer> pageList;
+    private boolean lastPage;
 
     /*
     * API page rule
@@ -40,11 +37,7 @@ public class APIPageResult<DTO, EN> {
 
     private void makePageList(Pageable pageable) {
         setCurrentPage(pageable);
-        firstPage = (currentPage == startPage);
         lastPage = (currentPage == totalPage);
-        endPage = totalPage;
-
-        pageList = IntStream.rangeClosed(startPage, endPage).boxed().collect(Collectors.toList());
     }
 
     private void setCurrentPage(Pageable pageable) {

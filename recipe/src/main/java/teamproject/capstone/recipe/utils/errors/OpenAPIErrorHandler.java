@@ -1,11 +1,11 @@
-package teamproject.capstone.recipe.utils.api;
+package teamproject.capstone.recipe.utils.errors;
 
 import lombok.extern.slf4j.Slf4j;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
 import teamproject.capstone.recipe.utils.values.OpenAPICode;
 
 @Slf4j
-public class OpenAPIError {
+public class OpenAPIErrorHandler {
     public OpenAPIRecipe cookRecipeRightValueCheck(OpenAPIRecipe openAPIRecipe) {
         if (openAPIRecipe.getResult().getMsg().equals(OpenAPICode.ERROR_334.getCode())) {
             log.error("wrong index position : start index is bigger then end index");

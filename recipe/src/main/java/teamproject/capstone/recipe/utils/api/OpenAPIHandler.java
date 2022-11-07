@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.errors.OpenAPIErrorHandler;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +17,7 @@ import java.util.List;
 public class OpenAPIHandler {
     private final OpenAPIProvider openApiProvider = OpenAPIProvider.getInstance();
     private final OpenAPIParser apiParser = OpenAPIParser.getInstance();
-    private final OpenAPIError openApiError = new OpenAPIError();
+    private final OpenAPIErrorHandler openApiErrorHandler = new OpenAPIErrorHandler();
 
     private static final int MAXIMUM_REQUEST = 1000;
 
@@ -52,7 +53,7 @@ public class OpenAPIHandler {
     private OpenAPIRecipe cookRecipeRequest(URL apiUrl) {
         try {
             OpenAPIRecipe needValueCheck = requestOpenAPIFromURL(apiUrl);
-            return openApiError.cookRecipeRightValueCheck(needValueCheck);
+            return openApiErrorHandler.cookRecipeRightValueCheck(needValueCheck);
         } catch (Exception e) {
             throw new NullPointerException();
         }
