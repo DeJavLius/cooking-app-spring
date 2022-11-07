@@ -49,19 +49,32 @@ class PageOpenAPIRepositoryImplTest {
 
     @Test
     void openAPIPageHandling() {
-        // given
-        PageRequest of = PageRequest.of(0, 10);
-        List<OpenRecipeEntity> allFound = openAPIRepository.findAll();
+        for (int i = 1; i <= 100; i++) {
+            // given
+            PageRequest of = PageRequest.of(0, i);
 
-        // when
-        Page<OpenRecipeEntity> openRecipeEntities = pageOpenAPIRepository.openAPIPageHandling(of);
-        Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
+            // when
+            Page<OpenRecipeEntity> openRecipeEntities = pageOpenAPIRepository.openAPIPageHandling(of);
+            Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
+            APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
-        // then
-        log.info("test of page : {}", orPageResult.getDtoList());
-        log.info("test of page : {}", orPageResult.getDtoList().size());
-        log.info("test of page : {}", orPageResult.getPageList());
+            int i1 = 0;
+            try {
+                i1 = (1058 / i) + (1058 % i > 0 ? 1 : 0);
+            } catch (Exception e) {
+                log.info("wrong value, can't division value : {}", i1);
+
+                throw new IllegalStateException();
+            }
+
+            // then
+            log.info("currentPage : {}", orPageResult.getCurrentPage());
+            assertThat(orPageResult.getCurrentPage()).isEqualTo(1);
+            log.info("totalPage : {}, test : {}", orPageResult.getTotalPage(), i1);
+            assertThat(orPageResult.getTotalPage()).isEqualTo(i1);
+            log.info("each page size : {}, test : {}", orPageResult.getDtoList().size(), i);
+            assertThat(orPageResult.getDtoList().size()).isEqualTo(i);
+        }
     }
 
     @AfterEach
