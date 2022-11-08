@@ -1,38 +1,44 @@
-package teamproject.capstone.recipe.config;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-@EnableWebSecurity
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .headers().frameOptions().disable()
-                .and()
-                .authorizeRequests()
-                .antMatchers("/assets/**").permitAll()
-                .antMatchers("/").permitAll()
-                .antMatchers("/login", "/oauth/**").permitAll()
-                .antMatchers("/cookers/info").authenticated()
-                .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/oauth")
-                .and()
-                .logout()
-                .logoutSuccessUrl("/oauth")
-                .clearAuthentication(true);
-
-        return http.build();
-    }
-}
+//package teamproject.capstone.recipe.config;
+//
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.web.SecurityFilterChain;
+//import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+//import teamproject.capstone.recipe.utils.login.handler.OAuthSuccessHandler;
+//
+//@Configuration
+//@EnableWebSecurity
+//public class SecurityConfig {
+//    @Bean
+//    public AuthenticationSuccessHandler editAuthenticationSuccessHandler() {
+//        return new OAuthSuccessHandler();
+//    }
+//
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf().disable()
+//                .headers().frameOptions().disable()
+//                .and()
+//                .authorizeRequests()
+//                .antMatchers("/assets/**").permitAll()
+//                .antMatchers("/").permitAll()
+//                .antMatchers("/login", "/oauth/**").permitAll()
+//                .antMatchers("/cookers/info").authenticated()
+//                .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin()
+//                .loginPage("/oauth")
+//                .and()
+//                .logout()
+//                .logoutSuccessUrl("/oauth")
+//                .clearAuthentication(true)
+//                .and()
+//                .oauth2Login();
+//
+//        return http.build();
+//    }
+//}
