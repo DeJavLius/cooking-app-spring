@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
+import teamproject.capstone.recipe.utils.values.TotalValue;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport impleme
     @Override
     public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
+        totalCountSetting((int) openAPIDataHandle.fetchCount());
 
         List<OpenRecipeEntity> result = sqlPageSetting(openAPIDataHandle, pageable);
         long count = openAPIDataHandle.fetchCount();
@@ -40,5 +42,11 @@ public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport impleme
         log.info("page offset value : {} / page size value : {}", pageable.getOffset(), pageable.getPageSize());
         openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
         return openAPIDataHandle.fetch();
+    }
+
+    private void totalCountSetting(int count) {
+        if (TotalValue.getTotalCount() != count) {
+            TotalValue.setTotalCount(count);
+        }
     }
 }

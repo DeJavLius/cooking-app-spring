@@ -18,7 +18,6 @@ public class APIPageResult<DTO, EN> {
 
     private int totalPage;
     private int currentPage;
-    private int startPage = 1;
     private boolean lastPage;
 
     /*
