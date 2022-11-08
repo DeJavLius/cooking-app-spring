@@ -8,10 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 public class Meta {
+    @JsonProperty("is_end")
+    private boolean is_end;
     @JsonProperty("total_count")
     private Integer total_count;
     @JsonProperty("pageable_count")
     private Integer pageable_count;
-    @JsonProperty("is_end")
-    private boolean is_end;
 }

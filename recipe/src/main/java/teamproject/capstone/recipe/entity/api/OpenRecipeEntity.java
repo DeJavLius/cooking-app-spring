@@ -18,15 +18,15 @@ public class OpenRecipeEntity {
     private Long id;
     @Column
     private Long rcpSeq;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL")
     private String rcpNm;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL")
     private String rcpPat2;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL")
     private String rcpWay2;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL")
     private String rcpPartsDtls;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL")
     private String hashTag;
     @Column
     private Double infoFat;
@@ -44,84 +44,84 @@ public class OpenRecipeEntity {
     private String attFileNoMk;
     @Column
     private String attFileNoMain;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual01;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual02;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual03;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual04;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual05;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual06;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual07;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual08;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual09;
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual10;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual11;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual12;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual13;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual14;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual15;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual16;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual17;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual18;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual19;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manual20;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg01;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg02;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg03;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg04;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg05;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg06;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg07;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg08;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg09;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg10;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg11;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg12;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg13;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg14;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg15;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg16;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg17;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg18;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg19;
-    @Column
+    @Column(columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL")
     private String manualImg20;
 }
