@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.domain.api;
+package teamproject.capstone.recipe.utils.api.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.domain.api.Row;
+import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
 import teamproject.capstone.recipe.utils.APIPageResult;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class OpenAPIServiceImplTest {

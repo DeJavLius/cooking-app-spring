@@ -3,7 +3,7 @@ package teamproject.capstone.recipe.utils.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.utils.errors.OpenAPIErrorHandler;
 
 import java.io.IOException;

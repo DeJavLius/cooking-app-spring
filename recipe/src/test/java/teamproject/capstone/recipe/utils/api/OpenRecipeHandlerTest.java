@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils.api;
 
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 
 import java.util.ArrayList;
 import java.util.List;

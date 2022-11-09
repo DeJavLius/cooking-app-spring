@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils;
 
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.domain.api.Row;
+import teamproject.capstone.recipe.utils.api.json.Row;
 
 public class OpenAPISerializer {
     public static OpenRecipe rowToOpenRecipe(Row row) {

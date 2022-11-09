@@ -20,7 +20,6 @@ public class OAuthAttributes {
     private int company;
 
     private static final int GOOGLE_COM = 0;
-    private static final int KAKAO_COM = 1;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String uid, int company) {

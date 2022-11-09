@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.domain.api.Row;
+import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.utils.APIPageResult;
 import teamproject.capstone.recipe.utils.OpenAPISerializer;
@@ -18,7 +18,6 @@ import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

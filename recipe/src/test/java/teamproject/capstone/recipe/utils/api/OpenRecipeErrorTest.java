@@ -2,9 +2,9 @@ package teamproject.capstone.recipe.utils.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.domain.api.OpenAPIRecipe;
-import teamproject.capstone.recipe.domain.api.Result;
-import teamproject.capstone.recipe.domain.api.Row;
+import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.Result;
+import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.utils.errors.OpenAPIErrorHandler;
 
 import java.util.ArrayList;
