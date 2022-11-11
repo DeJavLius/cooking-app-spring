@@ -31,8 +31,22 @@ public class OAuthAttributes {
         this.company = company;
     }
 
+    public static OAuthAttributes of(String userNameAttributeName, Map<String, Object> attributes) {
+        return ofGoogle(userNameAttributeName, attributes);
+    }
+
     public static OAuthAttributes of(String userNameAttributeName, Map<String, Object> attributes, String uid) {
         return ofGoogle(userNameAttributeName, attributes, uid);
+    }
+
+    private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+        return OAuthAttributes.builder()
+                .name((String) attributes.get("name"))
+                .email((String) attributes.get("email"))
+                .company(GOOGLE_COM)
+                .attributes(attributes)
+                .nameAttributeKey(userNameAttributeName)
+                .build();
     }
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes, String uid) {
