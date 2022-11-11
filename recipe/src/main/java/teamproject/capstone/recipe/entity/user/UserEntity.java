@@ -11,6 +11,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +24,7 @@ public class UserEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String uid;
 
     @Column
@@ -30,22 +32,6 @@ public class UserEntity {
 
     @Column
     private Role role;
-
-    @Builder
-    public UserEntity(String name, String email, String uid, Company company, Role role) {
-        this.name = name;
-        this.email = email;
-        this.uid = uid;
-        this.company = company;
-        this.role = role;
-    }
-
-    public UserEntity(Long id, String name, String email, String uid) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.uid = uid;
-    }
 
     public UserEntity update(String name) {
         this.name = name;

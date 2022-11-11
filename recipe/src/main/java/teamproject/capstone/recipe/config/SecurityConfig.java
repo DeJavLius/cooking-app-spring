@@ -1,19 +1,31 @@
 package teamproject.capstone.recipe.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import teamproject.capstone.recipe.service.login.CustomOAuthService;
+import teamproject.capstone.recipe.utils.login.handler.OAuthFailHandler;
 import teamproject.capstone.recipe.utils.login.handler.OAuthSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomOAuthService customOAuthService;
+
     @Bean
     public AuthenticationSuccessHandler editAuthenticationSuccessHandler() {
         return new OAuthSuccessHandler();
+    }
+
+    @Bean
+    public AuthenticationFailureHandler editAuthenticationFailureHandler() {
+        return new OAuthFailHandler();
     }
 
     @Bean
@@ -25,19 +37,23 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/").permitAll()
-                .antMatchers("/login", "/oauth/**").permitAll()
+                .antMatchers("/account", "/oauth/**").permitAll()
                 .antMatchers("/cookers/info").authenticated()
-                .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
+                .antMatchers("/api/v1/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/oauth")
+                .loginPage("/account")
                 .and()
                 .logout()
-                .logoutSuccessUrl("/oauth")
+                .logoutSuccessUrl("/account")
                 .clearAuthentication(true)
                 .and()
-                .oauth2Login();
+                .oauth2Login()
+                .successHandler(editAuthenticationSuccessHandler())
+                .failureHandler(editAuthenticationFailureHandler())
+                .userInfoEndpoint()
+                .userService(customOAuthService);
 
         return http.build();
     }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import teamproject.capstone.recipe.utils.api.*;
 import teamproject.capstone.recipe.utils.api.json.Meta;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
@@ -11,9 +12,6 @@ import teamproject.capstone.recipe.utils.api.json.RecipeData;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.service.api.OpenAPIPageService;
 import teamproject.capstone.recipe.service.api.OpenAPIService;
-import teamproject.capstone.recipe.utils.APIPageResult;
-import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
-import teamproject.capstone.recipe.utils.OpenAPISerializer;
 import teamproject.capstone.recipe.utils.values.TotalValue;
 
 import java.util.ArrayList;
@@ -28,25 +26,18 @@ public class OpenAPIController {
     private final OpenAPIService openAPIService;
     private final OpenAPIPageService openAPIPageService;
     private final OpenAPIHandler openApiHandler;
+    private final APIPageHandler apiPageHandler;
 
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
 
     @GetMapping("/v1")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
-        int PAGE_NOW = 1;
-        page -= PAGE_NOW;
+        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pageRequest);
 
-        if (page <= 0) {
-            page = 0;
-        }
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(PageRequest.of(page, size));
-
-        Meta metaInfo = Meta.builder()
-                .is_end(page == TotalValue.getTotalCount())
-                .pageable_count(openRecipeAPIPageResult.getTotalPage())
-                .total_count(TotalValue.getTotalCount())
-                .build();
+        boolean isEnd = page == TotalValue.getTotalCount();
+        Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
 
         return RecipeData.builder()
                 .meta(metaInfo)
@@ -60,7 +51,7 @@ public class OpenAPIController {
         List<OpenRecipe> totalRecipes = new ArrayList<>();
 
         for (OpenAPIRecipe cr : openAPIRecipes) {
-            totalRecipes.addAll(cr.getRow().stream().map(OpenAPISerializer::rowToOpenRecipe).collect(Collectors.toList()));
+            totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
         }
 
         openAPIService.createAll(totalRecipes);
