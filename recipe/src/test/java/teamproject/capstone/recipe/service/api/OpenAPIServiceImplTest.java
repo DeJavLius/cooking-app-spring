@@ -11,8 +11,8 @@ import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
-import teamproject.capstone.recipe.utils.APIPageResult;
-import teamproject.capstone.recipe.utils.OpenAPISerializer;
+import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.api.OpenAPIDelegator;
 import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
@@ -41,7 +41,7 @@ class OpenAPIServiceImplTest {
         List<OpenRecipeEntity> forInsert = new ArrayList<>();
         for (OpenAPIRecipe oap: fetchValues) {
             for (Row r : oap.getRow()) {
-                OpenRecipe op = OpenAPISerializer.rowToOpenRecipe(r);
+                OpenRecipe op = OpenAPIDelegator.rowToOpenRecipe(r);
                 OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
                 forInsert.add(ope);
             }

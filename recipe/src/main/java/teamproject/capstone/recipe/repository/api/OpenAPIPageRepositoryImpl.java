@@ -15,11 +15,11 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class PageOpenAPIRepositoryImpl extends QuerydslRepositorySupport implements PageOpenAPIRepository {
+public class OpenAPIPageRepositoryImpl extends QuerydslRepositorySupport implements OpenAPIPageRepository {
 
     private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
-    public PageOpenAPIRepositoryImpl() {
+    public OpenAPIPageRepositoryImpl() {
         super(OpenRecipeEntity.class);
     }
 

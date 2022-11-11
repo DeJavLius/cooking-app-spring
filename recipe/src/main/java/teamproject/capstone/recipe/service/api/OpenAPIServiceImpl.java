@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
-import teamproject.capstone.recipe.repository.api.PageOpenAPIRepository;
-import teamproject.capstone.recipe.utils.APIPageResult;
+import teamproject.capstone.recipe.repository.api.OpenAPIPageRepository;
+import teamproject.capstone.recipe.utils.api.APIPageResult;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
 import java.util.List;
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService {
     private final OpenAPIRepository openAPIRepository;
-    private final PageOpenAPIRepository pageOpenAPIRepository;
+    private final OpenAPIPageRepository openAPIPageRepository;
 
     @Override
     public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-        Page<OpenRecipeEntity> openRecipeEntities = pageOpenAPIRepository.openAPIPageHandling(pageRequest);
+        Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(pageRequest);
         return new APIPageResult<>(openRecipeEntities, function);
     }
 

@@ -10,8 +10,8 @@ import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
-import teamproject.capstone.recipe.utils.APIPageResult;
-import teamproject.capstone.recipe.utils.OpenAPISerializer;
+import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.api.OpenAPIDelegator;
 import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
@@ -23,13 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class PageOpenAPIRepositoryImplTest {
+class OpenAPIPageRepositoryImplTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
     OpenAPIRepository openAPIRepository;
     @Autowired
-    PageOpenAPIRepository pageOpenAPIRepository;
+    OpenAPIPageRepository openAPIPageRepository;
 
     @BeforeEach
     void pageInsertionBefore() {
@@ -37,7 +37,7 @@ class PageOpenAPIRepositoryImplTest {
         List<OpenRecipeEntity> forInsert = new ArrayList<>();
         for (OpenAPIRecipe oap: fetchValues) {
             for (Row r : oap.getRow()) {
-                OpenRecipe op = OpenAPISerializer.rowToOpenRecipe(r);
+                OpenRecipe op = OpenAPIDelegator.rowToOpenRecipe(r);
                 OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
                 forInsert.add(ope);
             }
@@ -53,7 +53,7 @@ class PageOpenAPIRepositoryImplTest {
             PageRequest of = PageRequest.of(0, i);
 
             // when
-            Page<OpenRecipeEntity> openRecipeEntities = pageOpenAPIRepository.openAPIPageHandling(of);
+            Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(of);
             Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
             APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
 

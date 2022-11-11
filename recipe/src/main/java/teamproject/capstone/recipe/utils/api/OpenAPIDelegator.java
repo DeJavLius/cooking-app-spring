@@ -1,9 +1,9 @@
-package teamproject.capstone.recipe.utils;
+package teamproject.capstone.recipe.utils.api;
 
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 
-public class OpenAPISerializer {
+public class OpenAPIDelegator {
     public static OpenRecipe rowToOpenRecipe(Row row) {
         return OpenRecipe.builder()
                 .attFileNoMain(row.getAttFileNoMain()).attFileNoMk(row.getAttFileNoMk())

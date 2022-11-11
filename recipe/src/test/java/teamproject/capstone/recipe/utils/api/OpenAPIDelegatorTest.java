@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
-import teamproject.capstone.recipe.utils.OpenAPISerializer;
 import teamproject.capstone.recipe.utils.api.json.Row;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class OpenAPISerializerTest {
+class OpenAPIDelegatorTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
@@ -55,7 +54,7 @@ class OpenAPISerializerTest {
                 .build();
 
         // when
-        OpenRecipe openRecipe = OpenAPISerializer.rowToOpenRecipe(r);
+        OpenRecipe openRecipe = OpenAPIDelegator.rowToOpenRecipe(r);
 
         // then
         assertThat(ope.toString()).isEqualTo(openRecipe.toString());

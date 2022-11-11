@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.utils;
+package teamproject.capstone.recipe.utils.api;
 
 import lombok.*;
 import org.springframework.data.domain.Page;
