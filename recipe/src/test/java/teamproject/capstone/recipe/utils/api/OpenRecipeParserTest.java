@@ -15,9 +15,9 @@ class OpenRecipeParserTest {
     @Test
     void parseURLToCookRecipe() {
         // given
-        String total_count = "1061";
+        String total_count = "1058";
         Row row = new Row("7.8", "159.6", "198.3", "3298", "볶기", "[ 2인분 ] 토마토(2개), 양파(¼개), 감자(¼개), 노랑 파프리카(¼개), 브로콜리(¼개), 새우(4마리) 고추기름(1Ts), 후춧가루(0.3Ts), 다진 마늘(0.3Ts), 플레인 요거트(½컵), 고추장(0.3Ts)");
-        openAPIProvider.urlIndexRangeScan(1061, 1061);
+        openAPIProvider.urlIndexRangeScan(1058, 1058);
 
         try {
             // when
