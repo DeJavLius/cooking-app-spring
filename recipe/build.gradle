@@ -37,6 +37,7 @@ dependencies {
 	implementation 'org.springframework.session:spring-session-jdbc'
 	implementation 'com.querydsl:querydsl-jpa:5.0.0'
 	implementation 'com.querydsl:querydsl-apt:5.0.0'
+	implementation 'com.github.dpaukov:combinatoricslib3:3.3.0'
 	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '8.1.0'
 
 	compileOnly 'org.projectlombok:lombok'
@@ -51,6 +52,7 @@ dependencies {
 	testImplementation 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.github.dpaukov:combinatoricslib3:3.3.0'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
