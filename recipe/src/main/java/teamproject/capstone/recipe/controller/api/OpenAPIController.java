@@ -31,7 +31,7 @@ public class OpenAPIController {
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
 
-    @GetMapping("/v1")
+    @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pageRequest);
