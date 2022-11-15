@@ -5,6 +5,9 @@ import org.springframework.data.domain.Pageable;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.utils.api.APISearch;
 
+import java.util.List;
+
 public interface OpenAPISearchRepository {
-    Page<OpenRecipeEntity> openAPISearchPageHandling(APISearch search, Pageable pageable);
+    Page<OpenRecipeEntity> openAPISearchOrPageHandling(List<APISearch> searchKeywords, Pageable pageable);
+    Page<OpenRecipeEntity> openAPISearchAndPageHandling(List<APISearch> searchKeywords, Pageable pageable);
 }

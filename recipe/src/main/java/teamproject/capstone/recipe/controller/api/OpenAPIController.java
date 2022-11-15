@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import teamproject.capstone.recipe.service.api.OpenAPISearchService;
 import teamproject.capstone.recipe.utils.api.*;
 import teamproject.capstone.recipe.utils.api.json.Meta;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
@@ -25,17 +26,52 @@ import java.util.stream.Collectors;
 public class OpenAPIController {
     private final OpenAPIService openAPIService;
     private final OpenAPIPageService openAPIPageService;
+    private final OpenAPISearchService openAPISearchService;
     private final OpenAPIHandler openApiHandler;
     private final APIPageHandler apiPageHandler;
 
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
+    private final String DEFAULT_VALUE = "";
+    private final String DEFAULT_SEQ = "0";
 
     @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pageRequest);
 
+        boolean isEnd = page == TotalValue.getTotalCount();
+        Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
+
+        return RecipeData.builder()
+                .meta(metaInfo)
+                .openRecipes(openRecipeAPIPageResult.getDtoList())
+                .build();
+    }
+
+    @GetMapping(value = "/v1/search/and", produces = "application/json; charset=UTF-8")
+    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
+        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
+        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchAndAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
+
+        apiWrapper = null;
+        boolean isEnd = page == TotalValue.getTotalCount();
+        Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
+
+        return RecipeData.builder()
+                .meta(metaInfo)
+                .openRecipes(openRecipeAPIPageResult.getDtoList())
+                .build();
+    }
+
+    @GetMapping(value = "/v1/search/or", produces = "application/json; charset=UTF-8")
+    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
+        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
+        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchOrAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
+
+        apiWrapper = null;
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
 

@@ -1,6 +1,7 @@
 package teamproject.capstone.recipe.repository.api;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
 import teamproject.capstone.recipe.utils.api.APISearch;
+import teamproject.capstone.recipe.utils.values.SearchType;
 import teamproject.capstone.recipe.utils.values.TotalValue;
 
 import java.util.List;
@@ -29,21 +31,21 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
     @Override
     public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
-        totalCountSetting((int) openAPIDataHandle.fetchCount());
-
-        List<OpenRecipeEntity> result = sqlPageSetting(openAPIDataHandle, pageable);
-        long count = openAPIDataHandle.fetchCount();
-        return new PageImpl<>(result, pageable, count);
+        return pagingHandler(openAPIDataHandle, pageable);
     }
 
     @Override
-    public Page<OpenRecipeEntity> openAPISearchPageHandling(List<APISearch> searchKeywords, Pageable pageable) {
+    public Page<OpenRecipeEntity> openAPISearchOrPageHandling(List<APISearch> searchKeywords, Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
-        totalCountSetting((int) openAPIDataHandle.fetchCount());
+        openAPIDataHandle.where(searchOrQueryBuilder(searchKeywords));
+        return pagingHandler(openAPIDataHandle, pageable);
+    }
 
-        List<OpenRecipeEntity> result = sqlPageSetting(openAPIDataHandle, pageable);
-        long count = openAPIDataHandle.fetchCount();
-        return new PageImpl<>(result, pageable, count);
+    @Override
+    public Page<OpenRecipeEntity> openAPISearchAndPageHandling(List<APISearch> searchKeywords, Pageable pageable) {
+        JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
+        openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords));
+        return pagingHandler(openAPIDataHandle, pageable);
     }
 
     private JPQLQuery<OpenRecipeEntity> jpqlQueryInit() {
@@ -57,14 +59,29 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
         }
     }
 
+    private Page<OpenRecipeEntity> pagingHandler(JPQLQuery<OpenRecipeEntity> query, Pageable pageable) {
+        totalCountSetting((int) query.fetchCount());
+        List<OpenRecipeEntity> result = sqlPageSetting(query, pageable);
+        long count = query.fetchCount();
+        return new PageImpl<>(result, pageable, count);
+    }
+
     private List<OpenRecipeEntity> sqlPageSetting(JPQLQuery<OpenRecipeEntity> openAPIDataHandle, Pageable pageable) {
         log.info("page offset value : {} / page size value : {}", pageable.getOffset(), pageable.getPageSize());
         openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
         return openAPIDataHandle.fetch();
     }
 
-    private BooleanBuilder searchQueryBuilder(List<APISearch> keywords) {
-        BooleanBuilder booleanBuilder = defaultBooleanBuilder();
+    private BooleanBuilder searchOrQueryBuilder(List<APISearch> keywords) {
+        BooleanBuilder queryResult = defaultBooleanBuilder();
+        queryResult.and(conditionOrBuilders(queryResult, keywords));
+        return queryResult;
+    }
+
+    private BooleanBuilder searchAndQueryBuilder(List<APISearch> keywords) {
+        BooleanBuilder queryResult = defaultBooleanBuilder();
+        queryResult.and(conditionAndBuilders(queryResult, keywords));
+        return queryResult;
     }
 
     private BooleanBuilder defaultBooleanBuilder() {
@@ -72,13 +89,41 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
         return new BooleanBuilder().and(booleanExpression);
     }
 
-    private BooleanBuilder conditionBuilders(BooleanBuilder condition, List<APISearch> keywords) {
+    private BooleanBuilder conditionOrBuilders(BooleanBuilder condition, List<APISearch> keywords) {
         for (APISearch search : keywords) {
-            condition = conditionBuilder(condition, search);
+            condition.or(conditionBuilder(search));
         }
+
+        return condition;
     }
 
-    private BooleanBuilder conditionBuilder(BooleanBuilder condition, APISearch search) {
-        return condition.or();
+    private BooleanBuilder conditionAndBuilders(BooleanBuilder condition, List<APISearch> keywords) {
+        for (APISearch search : keywords) {
+            condition.and(conditionBuilder(search));
+        }
+
+        return condition;
+    }
+
+    private BooleanExpression conditionBuilder(APISearch search) {
+        return typeContains(search);
+    }
+
+    private BooleanExpression typeContains(APISearch search) {
+        log.info("value test of search keyword : {}, type : {}", search.getKeyword(), search.getType());
+        if (search.getType().equals(SearchType.RECIPE_DETAILS.getValue()) & !search.getKeyword().isEmpty()) {
+            return openRecipeEntity.rcpPartsDtls.contains(search.getKeyword());
+        }
+        if (search.getType().equals(SearchType.RECIPE_PARTS.getValue()) & !search.getKeyword().isEmpty()) {
+            return openRecipeEntity.rcpPat2.contains(search.getKeyword());
+        }
+        if (search.getType().equals(SearchType.RECIPE_SEQUENCE.getValue()) & !search.getKeyword().equals("0")) {
+            return openRecipeEntity.rcpSeq.eq(Long.parseLong(search.getKeyword()));
+        }
+        if (search.getType().equals(SearchType.RECIPE_WAY.getValue()) & !search.getKeyword().isEmpty()) {
+            return openRecipeEntity.rcpWay2.eq(search.getKeyword());
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 }

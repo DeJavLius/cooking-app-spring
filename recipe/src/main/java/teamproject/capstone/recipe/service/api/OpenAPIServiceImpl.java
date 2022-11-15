@@ -6,9 +6,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
-import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
-import teamproject.capstone.recipe.repository.api.OpenAPIPageRepository;
+import teamproject.capstone.recipe.repository.api.*;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.api.APISearch;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
 import java.util.List;
@@ -17,9 +17,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService {
+public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, OpenAPISearchService {
     private final OpenAPIRepository openAPIRepository;
     private final OpenAPIPageRepository openAPIPageRepository;
+    private final OpenAPISearchRepository openAPISearchRepository;
 
     @Override
     public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
@@ -54,4 +55,17 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService {
     }
 
 
+    @Override
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(List<APISearch> apiSearchList, PageRequest pageRequest) {
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchOrPageHandling(apiSearchList, pageRequest);
+        return new APIPageResult<>(openRecipeEntities, function);
+    }
+
+    @Override
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(List<APISearch> apiSearchList, PageRequest pageRequest) {
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchAndPageHandling(apiSearchList, pageRequest);
+        return new APIPageResult<>(openRecipeEntities, function);
+    }
 }
