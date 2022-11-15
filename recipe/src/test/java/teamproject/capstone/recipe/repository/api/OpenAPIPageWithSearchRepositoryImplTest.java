@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class OpenAPIPageRepositoryImplTest {
+class OpenAPIPageWithSearchRepositoryImplTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
