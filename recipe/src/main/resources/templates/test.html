@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+<h1>
+    test page
+</h1>
+
+<a th:href="@{account}"> 로그인하기 </a>
+
+<div>
+    <a th:href="@{/api/v2/save}">만일 데이터가 없는 경우에만</a>
+    <a th:href="@{/api/v2/delete/all}">데이터 날리기</a>
+</div>
+
+<div>
+    <a th:href="@{/api/v1}">api 보기</a>
+
+    <a th:href="@{/api/v1/search/find-with}"> or 검색</a>
+    <a th:href="@{/api/v1/search/find-only}"> and 검색</a>
+
+    <div>
+        <pre>
+            페이지 쿼리 값과 기본값
+            page : 0, size : 10
+            검색 쿼리 값과 기본값
+            detail : null, part : null, seq : 0, way : null
+            재료 상세      , 음식 구분   , 레시피 seq, 조리방식
+        </pre>
+    </div>
+</div>
+</body>
+</html>
