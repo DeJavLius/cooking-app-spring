@@ -15,4 +15,9 @@ public class LoginController {
     public String loginPage() {
         return "login/recipeLogin";
     }
+
+    @GetMapping("/login/success")
+    public String loginSuccessPage() {
+        return "redirect:/";
+    }
 }
