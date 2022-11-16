@@ -45,7 +45,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     protected String determineTargetUrl(final Authentication authentication) {
         Map<String, String> roleTargetUrlMap = new HashMap<>();
-        roleTargetUrlMap.put("ROLE_USER", "/oauth/login/success");
+        roleTargetUrlMap.put("ROLE_USER", "/account/login/success");
 
         final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (final GrantedAuthority grantedAuthority : authorities) {
