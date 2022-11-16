@@ -6,13 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.service.api.OpenAPISearchService;
 import teamproject.capstone.recipe.utils.api.*;
-import teamproject.capstone.recipe.utils.api.json.Meta;
-import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.*;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.RecipeData;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
-import teamproject.capstone.recipe.service.api.OpenAPIPageService;
-import teamproject.capstone.recipe.service.api.OpenAPIService;
+import teamproject.capstone.recipe.service.api.*;
 import teamproject.capstone.recipe.utils.values.TotalValue;
 
 import java.util.ArrayList;
@@ -49,13 +47,12 @@ public class OpenAPIController {
                 .build();
     }
 
-    @GetMapping(value = "/v1/search/and", produces = "application/json; charset=UTF-8")
+    @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
     public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
         APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchAndAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
-        apiWrapper = null;
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
 
@@ -65,13 +62,12 @@ public class OpenAPIController {
                 .build();
     }
 
-    @GetMapping(value = "/v1/search/or", produces = "application/json; charset=UTF-8")
+    @GetMapping(value = "/v1/search/find-with", produces = "application/json; charset=UTF-8")
     public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
         APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchOrAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
-        apiWrapper = null;
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
 
@@ -81,8 +77,8 @@ public class OpenAPIController {
                 .build();
     }
 
-    @GetMapping("/v1/save")
-    public void saveOpenAPI() {
+    @GetMapping("/v2/save")
+    public String saveOpenAPI() {
         List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI();
         List<OpenRecipe> totalRecipes = new ArrayList<>();
 
@@ -91,5 +87,14 @@ public class OpenAPIController {
         }
 
         openAPIService.createAll(totalRecipes);
+
+        return "데이터 저장 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
+    }
+
+    @GetMapping("/v2/delete/all")
+    public String deleteOpenAPI() {
+        openAPIService.deleteAll();
+
+        return "데이터 삭제 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
     }
 }
