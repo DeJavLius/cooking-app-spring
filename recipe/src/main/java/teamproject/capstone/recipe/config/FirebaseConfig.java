@@ -8,15 +8,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Configuration
 public class FirebaseConfig {
 
     @Bean
-    public FirebaseApp firebaseAppSetting() throws IOException {
+    public FirebaseApp firebaseApp() throws IOException {
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .setCredentials(GoogleCredentials.fromStream(firebaseSettingFromJsonFile()))
                 .setStorageBucket("ecorecipes-5f00b.appspot.com")
                 .build();
 
@@ -25,6 +27,10 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseAuth getFirebaseAuth() throws IOException {
-        return FirebaseAuth.getInstance(firebaseAppSetting());
+        return FirebaseAuth.getInstance(firebaseApp());
+    }
+
+    private FileInputStream firebaseSettingFromJsonFile() throws FileNotFoundException {
+        return new FileInputStream("src/main/resources/whyitisnotrunning.json");
     }
 }
