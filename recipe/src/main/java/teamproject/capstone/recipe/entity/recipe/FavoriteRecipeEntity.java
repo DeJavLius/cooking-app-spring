@@ -16,8 +16,8 @@ public class FavoriteRecipeEntity {
     private Long id;
 
     @Column
-    private Long user_seq;
+    private Long recipe_seq;
 
     @Column
-    private Long recipe_seq;
+    private String user_email;
 }
