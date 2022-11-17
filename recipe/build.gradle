@@ -38,7 +38,7 @@ dependencies {
 	implementation 'com.querydsl:querydsl-jpa:5.0.0'
 	implementation 'com.querydsl:querydsl-apt:5.0.0'
 	implementation 'com.github.dpaukov:combinatoricslib3:3.3.0'
-	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '8.1.0'
+	implementation 'com.google.firebase:firebase-admin:9.1.1'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
