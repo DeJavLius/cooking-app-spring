@@ -23,13 +23,6 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
     private final OpenAPISearchRepository openAPISearchRepository;
 
     @Override
-    public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
-        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-        Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(pageRequest);
-        return new APIPageResult<>(openRecipeEntities, function);
-    }
-
-    @Override
     public OpenRecipe create(OpenRecipe openRecipe) {
         OpenRecipeEntity convertedDTO = OpenRecipeConverter.dtoToEntity(openRecipe);
         OpenRecipeEntity savedValueBack = openAPIRepository.save(convertedDTO);
@@ -52,6 +45,13 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
     @Override
     public void deleteAll() {
         openAPIRepository.deleteAll();
+    }
+
+    @Override
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(pageRequest);
+        return new APIPageResult<>(openRecipeEntities, function);
     }
 
 
