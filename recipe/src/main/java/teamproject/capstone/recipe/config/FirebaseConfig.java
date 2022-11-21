@@ -31,10 +31,14 @@ public class FirebaseConfig {
 //            ListUsersPage page = testsFunc();
 //            while (page != null) {
 //                for (ExportedUserRecord user : page.getValues()) {
-//                    System.out.println("User: " + user.getEmail());
+//                    log.info("User: {}", user.getEmail());
 //                }
 //                page = page.getNextPage();
 //            }
+//
+//            UserRecord user = testOfFunc();
+//            log.info("User found: {}", user.getEmail());
+//            log.info("User found: {}", user.getUid());
 //        } catch (Exception e) {
 //            log.error("error of email found", e);
 //        }
@@ -61,11 +65,15 @@ public class FirebaseConfig {
         return this.applicationContext.getResource("classpath:whyitisnotrunning.json").getInputStream();
     }
 
-    private UserRecord testFunc() throws FirebaseAuthException {
-        return FirebaseAuth.getInstance().getUserByEmail("lmo9903@gmail.com");
-    }
-
-    private ListUsersPage testsFunc() throws FirebaseAuthException {
-        return FirebaseAuth.getInstance().listUsers(null);
-    }
+//    private UserRecord testFunc() throws FirebaseAuthException {
+//        return FirebaseAuth.getInstance().getUserByEmail("123456@naver.com");
+//    }
+//
+//    private UserRecord testOfFunc() throws FirebaseAuthException {
+//        return FirebaseAuth.getInstance().getUserByEmail("gh1369tjd@naver.com");
+//    }
+//
+//    private ListUsersPage testsFunc() throws FirebaseAuthException {
+//        return FirebaseAuth.getInstance().listUsers(null);
+//    }
 }
