@@ -5,6 +5,7 @@ import java.util.List;
 
 public class APISearchWrapper {
     private final List<APISearch> apiSearchList;
+    private final APISearch name;
     private final APISearch detail;
     private final APISearch part;
     private final APISearch seq;
@@ -12,10 +13,19 @@ public class APISearchWrapper {
 
     public static class Builder {
         private final List<APISearch> apiSearchList = new ArrayList<>();
+        private APISearch name = APISearch.builder().build();
         private APISearch detail = APISearch.builder().build();
         private APISearch part = APISearch.builder().build();
         private APISearch seq = APISearch.builder().build();
         private APISearch way = APISearch.builder().build();
+
+        public Builder name(String keyword) {
+            if (!keyword.isEmpty()) {
+                this.name = APISearch.builder().type("name").keyword(keyword).build();
+                apiSearchList.add(this.name);
+            }
+            return this;
+        }
 
         public Builder detail(String keyword) {
             if (!keyword.isEmpty()) {
@@ -56,6 +66,7 @@ public class APISearchWrapper {
 
     private APISearchWrapper(Builder builder) {
         apiSearchList = builder.apiSearchList;
+        name = builder.name;
         detail = builder.detail;
         part = builder.part;
         seq = builder.seq;

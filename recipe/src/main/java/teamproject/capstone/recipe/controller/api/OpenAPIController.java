@@ -48,9 +48,9 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
+    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
-        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
+        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchAndAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();
@@ -63,9 +63,9 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-with", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
+    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
         PageRequest pageRequest = apiPageHandler.choosePage(page, size);
-        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().detail(detail).part(part).seq(seq).way(way).build();
+        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchOrAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();

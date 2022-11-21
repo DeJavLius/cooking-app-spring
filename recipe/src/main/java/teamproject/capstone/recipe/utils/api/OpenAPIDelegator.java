@@ -6,29 +6,37 @@ import teamproject.capstone.recipe.utils.api.json.Row;
 public class OpenAPIDelegator {
     public static OpenRecipe rowToOpenRecipe(Row row) {
         return OpenRecipe.builder()
-                .attFileNoMain(row.getAttFileNoMain()).attFileNoMk(row.getAttFileNoMk())
-                .hashTag(row.getHashTag())
+                .attFileNoMain(insteadEmptyString(row.getAttFileNoMain())).attFileNoMk(insteadEmptyString(row.getAttFileNoMk()))
+                .hashTag(insteadEmptyString(row.getHashTag()))
                 .infoCar(doubleFormatting(row.getInfoCar())).infoEng(doubleFormatting(row.getInfoEng()))
                 .infoFat(doubleFormatting(row.getInfoFat())).infoNa(doubleFormatting(row.getInfoNa()))
                 .infoPro(doubleFormatting(row.getInfoPro())).infoWgt(doubleFormatting(row.getInfoWgt()))
-                .manual01(row.getManual01()).manual02(row.getManual02()).manual03(row.getManual03()).manual04(row.getManual04()).manual05(row.getManual05())
-                .manual06(row.getManual06()).manual07(row.getManual07()).manual08(row.getManual08()).manual09(row.getManual09()).manual10(row.getManual10())
-                .manual11(row.getManual11()).manual12(row.getManual12()).manual13(row.getManual13()).manual14(row.getManual14()).manual15(row.getManual15())
-                .manual16(row.getManual16()).manual17(row.getManual17()).manual18(row.getManual18()).manual19(row.getManual19()).manual20(row.getManual20())
-                .manualImg01(row.getManualImg01()).manualImg02(row.getManualImg02()).manualImg03(row.getManualImg03()).manualImg04(row.getManualImg04())
-                .manualImg05(row.getManualImg05()).manualImg06(row.getManualImg06()).manualImg07(row.getManualImg07()).manualImg08(row.getManualImg08())
-                .manualImg09(row.getManualImg09()).manualImg10(row.getManualImg10()).manualImg11(row.getManualImg11()).manualImg12(row.getManualImg12())
-                .manualImg13(row.getManualImg13()).manualImg14(row.getManualImg14()).manualImg15(row.getManualImg15()).manualImg16(row.getManualImg16())
-                .manualImg17(row.getManualImg17()).manualImg18(row.getManualImg18()).manualImg19(row.getManualImg19()).manualImg20(row.getManualImg20())
-                .rcpNm(row.getRcpNm()).rcpSeq(Long.parseLong(row.getRcpSeq())).rcpWay2(row.getRcpWay2()).rcpPat2(row.getRcpPat2()).rcpPartsDtls(row.getRcpPartsDtls())
+                .manual01(insteadEmptyString(row.getManual01())).manual02(insteadEmptyString(row.getManual02())).manual03(insteadEmptyString(row.getManual03())).manual04(insteadEmptyString(row.getManual04())).manual05(insteadEmptyString(row.getManual05()))
+                .manual06(insteadEmptyString(row.getManual06())).manual07(insteadEmptyString(row.getManual07())).manual08(insteadEmptyString(row.getManual08())).manual09(insteadEmptyString(row.getManual09())).manual10(insteadEmptyString(row.getManual10()))
+                .manual11(insteadEmptyString(row.getManual11())).manual12(insteadEmptyString(row.getManual12())).manual13(insteadEmptyString(row.getManual13())).manual14(insteadEmptyString(row.getManual14())).manual15(insteadEmptyString(row.getManual15()))
+                .manual16(insteadEmptyString(row.getManual16())).manual17(insteadEmptyString(row.getManual17())).manual18(insteadEmptyString(row.getManual18())).manual19(insteadEmptyString(row.getManual19())).manual20(insteadEmptyString(row.getManual20()))
+                .manualImg01(insteadEmptyString(row.getManualImg01())).manualImg02(insteadEmptyString(row.getManualImg02())).manualImg03(insteadEmptyString(row.getManualImg03())).manualImg04(insteadEmptyString(row.getManualImg04()))
+                .manualImg05(insteadEmptyString(row.getManualImg05())).manualImg06(insteadEmptyString(row.getManualImg06())).manualImg07(insteadEmptyString(row.getManualImg07())).manualImg08(insteadEmptyString(row.getManualImg08()))
+                .manualImg09(insteadEmptyString(row.getManualImg09())).manualImg10(insteadEmptyString(row.getManualImg10())).manualImg11(insteadEmptyString(row.getManualImg11())).manualImg12(insteadEmptyString(row.getManualImg12()))
+                .manualImg13(insteadEmptyString(row.getManualImg13())).manualImg14(insteadEmptyString(row.getManualImg14())).manualImg15(insteadEmptyString(row.getManualImg15())).manualImg16(insteadEmptyString(row.getManualImg16()))
+                .manualImg17(insteadEmptyString(row.getManualImg17())).manualImg18(insteadEmptyString(row.getManualImg18())).manualImg19(insteadEmptyString(row.getManualImg19())).manualImg20(insteadEmptyString(row.getManualImg20()))
+                .rcpNm(insteadEmptyString(row.getRcpNm())).rcpSeq(Long.parseLong(row.getRcpSeq())).rcpWay2(insteadEmptyString(row.getRcpWay2())).rcpPat2(insteadEmptyString(row.getRcpPat2())).rcpPartsDtls(insteadEmptyString(row.getRcpPartsDtls()))
                 .build();
+    }
+
+    private static String insteadEmptyString(String value) {
+        if (value.isEmpty()) {
+            return "";
+        } else {
+            return value;
+        }
     }
 
     private static Double doubleFormatting(String value) {
         boolean isContains = value.contains(".");
         boolean isEmpty = (value.length() == 0);
         if (isEmpty) {
-            return null;
+            return 0.0;
         }
 
         if (!isContains) {

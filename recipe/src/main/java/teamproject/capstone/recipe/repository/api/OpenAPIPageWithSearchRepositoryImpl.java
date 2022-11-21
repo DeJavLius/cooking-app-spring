@@ -111,6 +111,9 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
 
     private BooleanExpression typeContains(APISearch search) {
         log.info("value test of search keyword : {}, type : {}", search.getKeyword(), search.getType());
+        if (search.getType().equals(SearchType.RECIPE_NAME.getValue()) & !search.getKeyword().isEmpty()) {
+            return openRecipeEntity.rcpNm.contains(search.getKeyword());
+        }
         if (search.getType().equals(SearchType.RECIPE_DETAILS.getValue()) & !search.getKeyword().isEmpty()) {
             return openRecipeEntity.rcpPartsDtls.contains(search.getKeyword());
         }
