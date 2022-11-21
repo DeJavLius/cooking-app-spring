@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.domain.user;
 
 import lombok.*;
-import teamproject.capstone.recipe.utils.property.Role;
+import teamproject.capstone.recipe.utils.values.Role;
 
 @ToString
 @Getter

@@ -1,12 +1,9 @@
 package teamproject.capstone.recipe.entity.user;
 
 import lombok.*;
-import org.hibernate.Hibernate;
-import teamproject.capstone.recipe.utils.property.Company;
-import teamproject.capstone.recipe.utils.property.Role;
+import teamproject.capstone.recipe.utils.values.Role;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity(name = "recipe_user")
 @Getter
@@ -28,9 +25,6 @@ public class UserEntity {
 
     @Column
     private String uid;
-
-    @Column
-    private Company company;
 
     @Column
     private Role role;

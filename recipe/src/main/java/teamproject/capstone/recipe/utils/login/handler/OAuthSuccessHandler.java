@@ -44,8 +44,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     protected String determineTargetUrl(final Authentication authentication) {
-        Map<String, String> roleTargetUrlMap = new HashMap<>();
-        roleTargetUrlMap.put("ROLE_USER", "/account/login/success");
+        Map<String, String> roleTargetUrlMap = roleTargetUrlMapping();
 
         final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (final GrantedAuthority grantedAuthority : authorities) {
@@ -56,6 +55,12 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         throw new IllegalStateException();
+    }
+
+    private Map<String, String> roleTargetUrlMapping() {
+        Map<String, String> roleTarget = new HashMap<>();
+        roleTarget.put("ROLE_USER", "/account/login/success");
+        return roleTarget;
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request) {
