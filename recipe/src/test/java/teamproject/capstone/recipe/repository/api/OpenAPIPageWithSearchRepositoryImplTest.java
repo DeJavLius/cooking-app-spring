@@ -86,52 +86,55 @@ class OpenAPIPageWithSearchRepositoryImplTest {
     void openAPISearchOrHandling() {
         // given
         List<List<APISearch>> lists = fiveCase();
-        int total = 1061;
+        int total = 1058;
 
         for (List<APISearch> valueTest : lists) {
-            int i = 0;
 
-            while (i < total) {
-                PageRequest of = PageRequest.of(i, 100);
+            log.info("value test check : {}", valueTest);
 
-                // when
-                Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchOrPageHandling(valueTest, of);
-                Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
-                APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
+            PageRequest of = PageRequest.of(0, 100);
 
-                total = openRecipeEntities.getTotalPages();
+            // when
+            Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchOrPageHandling(valueTest, of);
+            Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
+            APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
-                if (i > total) {
-                    break;
-                }
+            total = openRecipeEntities.getTotalPages();
 
-                // then
+            // then
 //                log.info("search value check of call : {}", orPageResult);
 
-                for (APISearch s : valueTest) {
-
-                    if (orPageResult.getDtoList().isEmpty()) {
-                        continue;
-                    } else {
-                        OpenRecipe testVal = orPageResult.getDtoList().get(0);
-                        if (testVal != null) {
-                            if (s.getType().equals(SearchType.RECIPE_DETAILS.getValue())) {
-                                assertThat(s.getKeyword()).isIn(orPageResult.getDtoList().get(0).getRcpPartsDtls());
-                            }
-                            if (s.getType().equals(SearchType.RECIPE_PARTS.getValue())) {
-                                assertThat(s.getKeyword()).isEqualTo(orPageResult.getDtoList().get(0).getRcpPat2());
-                            }
-                            if (s.getType().equals(SearchType.RECIPE_SEQUENCE.getValue())) {
-                                assertThat(Long.parseLong(s.getKeyword())).isEqualTo(orPageResult.getDtoList().get(0).getRcpSeq());
-                            }
-                            if (s.getType().equals(SearchType.RECIPE_WAY.getValue())) {
-                                assertThat(s.getKeyword()).isEqualTo(orPageResult.getDtoList().get(0).getRcpWay2());
-                            }
+            int count = 0;
+            for (APISearch s : valueTest) {
+                log.info("value of check : {}, {}", count, s.getType());
+                if (orPageResult.getDtoList().isEmpty()) {
+                    continue;
+                } else {
+                    OpenRecipe testVal = orPageResult.getDtoList().get(0);
+                    if (testVal != null) {
+                        if (s.getType().equals(SearchType.RECIPE_NAME.getValue())) {
+                            if (orPageResult.getDtoList().get(0).getRcpNm().contains(s.getKeyword())) count++;
+                        }
+                        if (s.getType().equals(SearchType.RECIPE_DETAILS.getValue())) {
+                            if (orPageResult.getDtoList().get(0).getRcpPartsDtls().contains(s.getKeyword())) count++;
+                        }
+                        if (s.getType().equals(SearchType.RECIPE_PARTS.getValue())) {
+                            if (orPageResult.getDtoList().get(0).getRcpPat2().contains(s.getKeyword())) count++;
+                        }
+                        if (s.getType().equals(SearchType.RECIPE_SEQUENCE.getValue())) {
+                            if (orPageResult.getDtoList().get(0).getRcpSeq().toString().equals(s.getKeyword())) count++;
+                        }
+                        if (s.getType().equals(SearchType.RECIPE_WAY.getValue())) {
+                            if (orPageResult.getDtoList().get(0).getRcpWay2().contains(s.getKeyword())) count++;
                         }
                     }
                 }
+            }
 
-                i++;
+            if (orPageResult.getDtoList().isEmpty()) {
+                assertThat(count).isEqualTo(0);
+            } else {
+                assertThat(count).isGreaterThan(0);
             }
         }
     }
@@ -151,7 +154,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
                 // when
                 Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchAndPageHandling(valueTest, of);
                 Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
-                APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
+                APIPageResult<OpenRecipe, OpenRecipeEntity> andPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
                 total = openRecipeEntities.getTotalPages();
 
@@ -164,22 +167,25 @@ class OpenAPIPageWithSearchRepositoryImplTest {
 
                 for (APISearch s : valueTest) {
 
-                    if (orPageResult.getDtoList().isEmpty()) {
+                    if (andPageResult.getDtoList().isEmpty()) {
                         continue;
                     } else {
-                        OpenRecipe testVal = orPageResult.getDtoList().get(0);
+                        OpenRecipe testVal = andPageResult.getDtoList().get(0);
                         if (testVal != null) {
+                            if (s.getType().equals(SearchType.RECIPE_NAME.getValue())) {
+                                assertThat(s.getKeyword()).isIn(andPageResult.getDtoList().get(0).getRcpNm());
+                            }
                             if (s.getType().equals(SearchType.RECIPE_DETAILS.getValue())) {
-                                assertThat(s.getKeyword()).isIn(orPageResult.getDtoList().get(0).getRcpPartsDtls());
+                                assertThat(s.getKeyword()).isIn(andPageResult.getDtoList().get(0).getRcpPartsDtls());
                             }
                             if (s.getType().equals(SearchType.RECIPE_PARTS.getValue())) {
-                                assertThat(s.getKeyword()).isEqualTo(orPageResult.getDtoList().get(0).getRcpPat2());
+                                assertThat(s.getKeyword()).isEqualTo(andPageResult.getDtoList().get(0).getRcpPat2());
                             }
                             if (s.getType().equals(SearchType.RECIPE_SEQUENCE.getValue())) {
-                                assertThat(Long.parseLong(s.getKeyword())).isEqualTo(orPageResult.getDtoList().get(0).getRcpSeq());
+                                assertThat(Long.parseLong(s.getKeyword())).isEqualTo(andPageResult.getDtoList().get(0).getRcpSeq());
                             }
                             if (s.getType().equals(SearchType.RECIPE_WAY.getValue())) {
-                                assertThat(s.getKeyword()).isEqualTo(orPageResult.getDtoList().get(0).getRcpWay2());
+                                assertThat(s.getKeyword()).isEqualTo(andPageResult.getDtoList().get(0).getRcpWay2());
                             }
                         }
                     }
@@ -194,6 +200,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
         List<List<APISearch>> result = new ArrayList<>();
         List<APISearch> testSearch = new ArrayList<>();
 
+        testSearch.add(APISearch.builder().keyword("새우").type(SearchType.RECIPE_NAME.getValue()).build());
         testSearch.add(APISearch.builder().keyword("배추").type(SearchType.RECIPE_DETAILS.getValue()).build());
         testSearch.add(APISearch.builder().keyword("반찬").type(SearchType.RECIPE_PARTS.getValue()).build());
         testSearch.add(APISearch.builder().keyword("찌기").type(SearchType.RECIPE_WAY.getValue()).build());
@@ -201,7 +208,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
 
         result.add(testSearch);
 
-        for (int i = 2; i < 5; i++) {
+        for (int i = 2; i < 6; i++) {
             List<List<APISearch>> collect = Generator.combination(testSearch)
                     .simple(i)
                     .stream()
