@@ -9,7 +9,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import teamproject.capstone.recipe.service.login.CustomOAuthService;
-import teamproject.capstone.recipe.utils.login.handler.OAuthFailHandler;
 import teamproject.capstone.recipe.utils.login.handler.OAuthSuccessHandler;
 
 @Configuration
@@ -21,11 +20,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler editAuthenticationSuccessHandler() {
         return new OAuthSuccessHandler();
-    }
-
-    @Bean
-    public AuthenticationFailureHandler editAuthenticationFailureHandler() {
-        return new OAuthFailHandler();
     }
 
     @Bean
@@ -52,7 +46,6 @@ public class SecurityConfig {
                 .and()
                 .oauth2Login()
                 .successHandler(editAuthenticationSuccessHandler())
-                .failureHandler(editAuthenticationFailureHandler())
                 .userInfoEndpoint()
                 .userService(customOAuthService);
 
