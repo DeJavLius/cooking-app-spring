@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .antMatchers("/account/**", "/login/**").permitAll()
                 .antMatchers("/cookers/info").authenticated()
                 .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
-                .antMatchers("/api/recipe/v1/**").authenticated()
+                .antMatchers("/api/recipes/v1/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
