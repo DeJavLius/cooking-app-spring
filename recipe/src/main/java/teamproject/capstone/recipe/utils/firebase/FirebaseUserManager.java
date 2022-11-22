@@ -3,5 +3,8 @@ package teamproject.capstone.recipe.utils.firebase;
 import com.google.firebase.auth.FirebaseAuthException;
 
 public interface FirebaseUserManager {
-    boolean isAppUser(String email) throws FirebaseAuthException;
+    boolean isAppUserByEmail(String email);
+    boolean isAppUserByUid(String uid);
+
+    String findEmailByUid(String uid);
 }
