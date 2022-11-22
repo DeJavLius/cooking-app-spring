@@ -1,5 +1,6 @@
 package teamproject.capstone.recipe.domain.recipe;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Builder
@@ -10,6 +11,8 @@ import lombok.*;
 @ToString
 public class FavoriteRecipe {
     private Long id;
-    private Long recipe_id;
-    private String user_email;
+    @JsonProperty("recipe_seq")
+    private Long recipeSeq;
+    @JsonProperty("user_email")
+    private String userEmail;
 }

@@ -1,6 +1,9 @@
 package teamproject.capstone.recipe.entity.recipe;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 
 import javax.persistence.*;
 
@@ -13,11 +16,12 @@ import javax.persistence.*;
 @ToString
 public class FavoriteRecipeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column
-    private Long recipe_id;
+    private Long recipeSeq;
 
     @Column
-    private String user_email;
+    private String userEmail;
 }
