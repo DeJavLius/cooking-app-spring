@@ -29,7 +29,7 @@ public class LoginController {
     @GetMapping("/login")
     public String firebaseLoginTest() {
         try {
-            boolean appUser = firebaseUserManager.isAppUser("123456@naver.com");
+            boolean appUser = firebaseUserManager.isAppUserByEmail("123456@naver.com");
             log.info("app User check : {}", appUser);
             return "true";
         } catch (Exception e) {
