@@ -1,6 +1,7 @@
 package teamproject.capstone.recipe.service.api;
 
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 
 import java.util.List;
 
