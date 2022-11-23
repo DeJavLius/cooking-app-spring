@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.utils.api;
+package teamproject.capstone.recipe.utils.api.openApi;
 
 import java.net.URL;
 

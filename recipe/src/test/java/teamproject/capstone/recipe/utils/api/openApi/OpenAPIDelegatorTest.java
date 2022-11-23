@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.utils.api;
+package teamproject.capstone.recipe.utils.api.openApi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
 import teamproject.capstone.recipe.utils.api.json.Row;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

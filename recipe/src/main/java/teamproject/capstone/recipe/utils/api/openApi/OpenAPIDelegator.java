@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.utils.api;
+package teamproject.capstone.recipe.utils.api.openApi;
 
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
