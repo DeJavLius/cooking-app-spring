@@ -12,8 +12,10 @@ public interface FavoriteRecipeService {
     void deleteByEmail(String email);
     void deleteAll();
 
+    FavoriteRecipe findRecipe(long recipeSeq, String email);
     List<FavoriteRecipe> findAll();
     List<FavoriteRecipe> findByEmail(String email);
+    List<FavoriteRecipe> findBySeq(long recipeSeq);
 
     default FavoriteRecipe entityToDto(FavoriteRecipeEntity favoriteRecipeEntity) {
         return FavoriteRecipe.builder()

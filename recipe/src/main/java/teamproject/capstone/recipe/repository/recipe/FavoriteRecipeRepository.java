@@ -12,5 +12,7 @@ import java.util.Optional;
 @Repository
 public interface FavoriteRecipeRepository extends JpaRepository<FavoriteRecipeEntity, Long> {
     Optional<List<FavoriteRecipeEntity>> findByUserEmail(String email);
+    Optional<List<FavoriteRecipeEntity>> findByRecipeSeq(long recipeSeq);
+    Optional<FavoriteRecipeEntity> findByRecipeSeqAndUserEmail(long recipeSeq, String userEmail);
     void deleteByUserEmail(String email);
 }

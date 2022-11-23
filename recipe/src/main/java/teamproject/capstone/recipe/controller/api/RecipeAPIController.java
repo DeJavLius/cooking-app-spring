@@ -1,52 +1,130 @@
 package teamproject.capstone.recipe.controller.api;
 
-import com.google.firebase.auth.FirebaseAuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
+import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
+import teamproject.capstone.recipe.utils.api.json.FavoriteData;
 import teamproject.capstone.recipe.utils.firebase.FirebaseUserManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@RequestMapping("api/recipes/")
-@RequiredArgsConstructor
+@RequestMapping("/api/v1/favorites")
 @RestController
+@RequiredArgsConstructor
 public class RecipeAPIController {
     private final FavoriteRecipeService favoriteRecipeService;
     private final FirebaseUserManager firebaseUserManager;
+    private final OpenAPIFavoriteService openAPIFavoriteService;
 
-    @GetMapping("v1/favorites/give/all")
-    public List<FavoriteRecipe> requestAllFavoriteRecipe() {
-        return favoriteRecipeService.findAll();
+    @GetMapping("/give")
+    public FavoriteData requestAllFavoriteRecipe() {
+        List<FavoriteRecipe> findValues = favoriteRecipeService.findAll();
+
+        return FavoriteData.builder()
+                .count(findValues.size())
+                .favoriteRecipes(findValues)
+                .build();
     }
 
-    @GetMapping("v1/favorites/give/choose")
-    public List<FavoriteRecipe> requestUsersAllFavoriteRecipe(@RequestParam String uid) {
-//        if (firebaseUserManager.isAppUserByUid(uid)) {
+    @GetMapping("/give/user")
+    public FavoriteData requestUsersFavoriteRecipe(@RequestParam String uid) {
+        List<FavoriteRecipe> findValues = new ArrayList<>();
+
+        if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            List<FavoriteRecipe> byEmail = favoriteRecipeService.findByEmail(email);
-            return byEmail;
-//        }
+            findValues = favoriteRecipeService.findByEmail(email);
+        }
+
+        return FavoriteData.builder()
+                .count(findValues.size())
+                .favoriteRecipes(findValues)
+                .build();
     }
 
-    @PostMapping("v1/favorites/take/all")
-    public FavoriteRecipe responseAllFavoriteRecipe(@RequestParam String uid, @RequestBody List<FavoriteRecipe> favoriteData) {
-        return new FavoriteRecipe();
+    @GetMapping("/give/recipe")
+    public FavoriteData requestByRecipeSeqFavoriteRecipe(@RequestParam int recipeSeq) {
+        List<FavoriteRecipe> findValues = favoriteRecipeService.findBySeq(recipeSeq);
+
+        return FavoriteData.builder()
+                .count(findValues.size())
+                .favoriteRecipes(findValues)
+                .build();
     }
 
-    @PostMapping("v1/favorites/take/choose")
-    public FavoriteRecipe responseOneFavoriteRecipe(@RequestParam String uid, @RequestBody FavoriteRecipe favoriteData) {
-        return new FavoriteRecipe();
+    @PostMapping("/take")
+    public FavoriteData responseAllFavoriteRecipe(@RequestParam String uid, @RequestBody List<Long> recipeSeqList) {
+        List<FavoriteRecipe> savedValues = new ArrayList<>();
+        if (firebaseUserManager.isAppUserByUid(uid)) {
+            String email = firebaseUserManager.findEmailByUid(uid);
+            List<FavoriteRecipe> result = openAPIFavoriteService.provideFavorites(email, recipeSeqList);
+
+            savedValues = favoriteRecipeService.createAll(result);
+        }
+
+        return FavoriteData.builder()
+                .count(savedValues.size())
+                .favoriteRecipes(savedValues)
+                .build();
     }
 
-    @PostMapping("v1/favorites/delete/all")
-    public FavoriteRecipe deleteAllFavoriteRecipe(@RequestParam String uid) {
-        return new FavoriteRecipe();
+    @PostMapping("/take/choose")
+    public FavoriteData responseOneFavoriteRecipe(@RequestParam String uid, @RequestParam Long recipeSeq) {
+        List<FavoriteRecipe> savedValues = new ArrayList<>();
+        if (firebaseUserManager.isAppUserByUid(uid)) {
+            String email = firebaseUserManager.findEmailByUid(uid);
+            FavoriteRecipe result = openAPIFavoriteService.provideFavorite(email, recipeSeq);
+            FavoriteRecipe checker = favoriteRecipeService.findRecipe(result.getRecipeSeq(), result.getUserEmail());
+
+            if (result.getRecipeSeq() != null & checker.getRecipeSeq() == null & checker.getUserEmail() == null) {
+                FavoriteRecipe favoriteRecipe = favoriteRecipeService.create(result);
+
+                savedValues.add(favoriteRecipe);
+            }
+        }
+
+        return FavoriteData.builder()
+                .count(savedValues.size())
+                .favoriteRecipes(savedValues)
+                .build();
     }
 
-    @PostMapping("v1/favorites/delete/choose")
-    public FavoriteRecipe deleteFavoriteRecipe(@RequestParam String uid, @RequestBody FavoriteRecipe favoriteData) {
-        return new FavoriteRecipe();
+    @PostMapping("/delete")
+    public FavoriteData deleteAllFavoriteRecipe(@RequestParam String uid) {
+        List<FavoriteRecipe> deleteCheck = new ArrayList<>();
+
+        if (firebaseUserManager.isAppUserByUid(uid)) {
+            String email = firebaseUserManager.findEmailByUid(uid);
+            favoriteRecipeService.deleteByEmail(email);
+
+            deleteCheck = favoriteRecipeService.findByEmail(email);
+        }
+        return FavoriteData.builder()
+                .count(deleteCheck.size())
+                .favoriteRecipes(deleteCheck)
+                .build();
+    }
+
+    @PostMapping("/delete/choose")
+    public FavoriteData deleteFavoriteRecipe(@RequestParam String uid, @RequestBody Long recipeSeq) {
+        List<FavoriteRecipe> deleteCheck = new ArrayList<>();
+
+        if (firebaseUserManager.isAppUserByUid(uid)) {
+            String email = firebaseUserManager.findEmailByUid(uid);
+            FavoriteRecipe deleteValue = FavoriteRecipe.builder()
+                    .recipeSeq(recipeSeq)
+                    .userEmail(email)
+                    .build();
+            favoriteRecipeService.delete(deleteValue);
+
+            deleteCheck = favoriteRecipeService.findByEmail(email);
+        }
+
+        return FavoriteData.builder()
+                .count(deleteCheck.size())
+                .favoriteRecipes(deleteCheck)
+                .build();
     }
 }

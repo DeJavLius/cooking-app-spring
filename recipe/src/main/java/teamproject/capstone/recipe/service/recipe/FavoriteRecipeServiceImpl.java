@@ -48,6 +48,13 @@ public class FavoriteRecipeServiceImpl implements FavoriteRecipeService {
     }
 
     @Override
+    public FavoriteRecipe findRecipe(long recipeSeq, String email) {
+        Optional<FavoriteRecipeEntity> findEntityBySeqAndEmail = favoriteRecipeRepository.findByRecipeSeqAndUserEmail(recipeSeq, email);
+        FavoriteRecipeEntity favoriteRecipeEntity = findEntityBySeqAndEmail.orElse(FavoriteRecipeEntity.builder().build());
+        return entityToDto(favoriteRecipeEntity);
+    }
+
+    @Override
     public List<FavoriteRecipe> findAll() {
         return favoriteRecipeRepository.findAll().stream().map(this::entityToDto).collect(Collectors.toList());
     }
@@ -59,15 +66,23 @@ public class FavoriteRecipeServiceImpl implements FavoriteRecipeService {
 
         return entitiesToDto(favoriteRecipeEntities);
     }
-    
+
+    @Override
+    public List<FavoriteRecipe> findBySeq(long recipeSeq) {
+        Optional<List<FavoriteRecipeEntity>> findEntities = favoriteRecipeRepository.findByRecipeSeq(recipeSeq);
+        List<FavoriteRecipeEntity> favoriteRecipeEntities = findEntities.orElse(new ArrayList<>());
+
+        return entitiesToDto(favoriteRecipeEntities);
+    }
+
     private List<FavoriteRecipe> entitiesToDto(List<FavoriteRecipeEntity> entities) {
-        List<FavoriteRecipe> findDtos = new ArrayList<>();
+        List<FavoriteRecipe> findDomains = new ArrayList<>();
         for (FavoriteRecipeEntity entity : entities) {
             FavoriteRecipe dto = entityToDto(entity);
 
-            findDtos.add(dto);
+            findDomains.add(dto);
         }
 
-        return findDtos;
+        return findDomains;
     }
 }

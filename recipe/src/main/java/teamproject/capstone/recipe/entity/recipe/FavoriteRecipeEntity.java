@@ -16,7 +16,8 @@ import javax.persistence.*;
 @ToString
 public class FavoriteRecipeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+    @GenericGenerator(name = "native", strategy = "native")
     private Long id;
 
     @Column
