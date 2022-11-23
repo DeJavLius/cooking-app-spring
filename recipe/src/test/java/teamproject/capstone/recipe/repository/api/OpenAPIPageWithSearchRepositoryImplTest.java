@@ -13,8 +13,8 @@ import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
-import teamproject.capstone.recipe.utils.api.OpenAPIDelegator;
-import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 import teamproject.capstone.recipe.utils.values.SearchType;
 

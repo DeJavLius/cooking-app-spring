@@ -1,15 +1,12 @@
 package teamproject.capstone.recipe.service.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.paukov.combinatorics3.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import teamproject.capstone.recipe.utils.api.APISearch;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
@@ -18,14 +15,13 @@ import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
-import teamproject.capstone.recipe.utils.api.OpenAPIDelegator;
-import teamproject.capstone.recipe.utils.api.OpenAPIHandler;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 import teamproject.capstone.recipe.utils.values.SearchType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
