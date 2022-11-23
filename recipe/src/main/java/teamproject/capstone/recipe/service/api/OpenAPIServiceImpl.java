@@ -5,19 +5,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.api.*;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
 import teamproject.capstone.recipe.utils.api.APISearch;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, OpenAPISearchService {
+public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, OpenAPISearchService, OpenAPIFavoriteService {
     private final OpenAPIRepository openAPIRepository;
     private final OpenAPIPageRepository openAPIPageRepository;
     private final OpenAPISearchRepository openAPISearchRepository;
@@ -48,6 +51,14 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
     }
 
     @Override
+    public OpenRecipe findByRecipeSeq(Long recipeSeq) {
+        Optional<OpenRecipeEntity> findOpenRecipe = openAPIRepository.findByRcpSeq(recipeSeq);
+
+        return findOpenRecipe.map(OpenRecipeConverter::entityToDto).orElse(OpenRecipe.builder().build());
+
+    }
+
+    @Override
     public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
         Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(pageRequest);
@@ -67,5 +78,26 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
         Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchAndPageHandling(apiSearchList, pageRequest);
         return new APIPageResult<>(openRecipeEntities, function);
+    }
+
+    @Override
+    public List<FavoriteRecipe> provideFavorites(String email, List<Long> recipeSeqList) {
+        List<FavoriteRecipe> findResult = new ArrayList<>();
+        FavoriteRecipe favorite = FavoriteRecipe.builder().userEmail(email).build();
+        for (Long seq : recipeSeqList) {
+            Optional<OpenRecipeEntity> findOpenRecipe = openAPIRepository.findByRcpSeq(seq);
+
+            findOpenRecipe.ifPresent(openRecipeEntity -> favorite.setRecipeSeq(openRecipeEntity.getRcpSeq()));
+            findResult.add(favorite);
+        }
+        return findResult;
+    }
+
+    @Override
+    public FavoriteRecipe provideFavorite(String email, Long recipeSeq) {
+        FavoriteRecipe favorite = FavoriteRecipe.builder().userEmail(email).build();
+        Optional<OpenRecipeEntity> findOpenRecipe = openAPIRepository.findByRcpSeq(recipeSeq);
+        findOpenRecipe.ifPresent(openRecipeEntity -> favorite.setRecipeSeq(openRecipeEntity.getRcpSeq()));
+        return favorite;
     }
 }

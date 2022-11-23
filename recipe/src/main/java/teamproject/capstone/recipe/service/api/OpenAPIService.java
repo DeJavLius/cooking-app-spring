@@ -11,4 +11,6 @@ public interface OpenAPIService {
 
     void delete(OpenRecipe openRecipe);
     void deleteAll();
+
+    OpenRecipe findByRecipeSeq(Long recipeSeq);
 }
