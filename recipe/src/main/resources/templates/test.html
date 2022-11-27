@@ -32,5 +32,45 @@
         </pre>
     </div>
 </div>
+
+<div>
+    <p>/api/v1/favorites/give : 모든 좋아요 레시피</p>
+    <br>
+    <p>/api/v1/favorites/give/user : 유저가 좋아요한 모든 레시피</p>
+    <p>쿼리 : uid</p>
+    <p>/api/v1/favorites/give/recipe : 레시피별 좋아요한 유저</p>
+    <p>쿼리 : recipeSeq</p>
+    <p>/api/v1/favorites/give/best : 가장 많은 좋아요를 받은 레시피부터</p>
+    <p>쿼리 : recipeSeq</p>
+    <br>
+    <br>
+    post 요청은 postman이나 프로그램으로 확인해 보시면 됩니다.
+    아래의 list 내 seq는 recipe_seq == rcpSeq 로 open database 의 recipe seq 값입니다.
+
+    <p>모든 레시피 json으로 추가하기</p>
+    <p>/api/v1/favorites/take : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid</p>
+    <p>받는 값 : responseBody Json List[Long]</p>
+    <pre>
+        {
+            "sequences" : [ recipe_seq1, recipe_seq2, ... ]
+        }
+
+        {
+            "sequences" : [ 28, 636, 640, 640, 280, 281, 387, 389, 505 ]
+        }
+    </pre>
+    전달 받는 값 예시
+    <p>레시피 추가하기</p>
+    <p>/api/v1/favorites/take/choose : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid, recipeSeq</p>
+
+    <p>해당 유저의 삭제하기</p>
+    <p>/api/v1/favorites/delete : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid</p>
+    <p>해당 유저의 레시지 지정 삭제하기</p>
+    <p>/api/v1/favorites/delete/choose : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid, recipeSeq</p>
+</div>
 </body>
 </html>
