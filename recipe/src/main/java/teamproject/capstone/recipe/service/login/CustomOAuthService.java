@@ -41,24 +41,9 @@ public class CustomOAuthService implements OAuth2UserService<OAuth2UserRequest, 
 
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-//        String uid = "";
-
-//        try {
-//            uid = firebaseRegister(oAuth2User.getAttributes().get("email").toString());
-//        } catch (ExecutionException | InterruptedException ex) {
-//            log.info("error occur cause of no user data found in firebase Users data.", ex);
-//            throw new OAuth2AuthenticationException("UNAUTHORIZED_CLIENT");
-//        }
 
         return OAuthAttributes.of(userNameAttributeName, oAuth2User.getAttributes());
     }
-
-//    private String firebaseRegister(String email) throws ExecutionException, InterruptedException {
-//        UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmailAsync(email).get();
-//        log.info("user data find successful");
-//
-//        return userRecord.getUid();
-//    }
 
     private UserEntity saveOrUpdate(OAuthAttributes attributes) {
         UserEntity user = userRepository.findByEmail(attributes.getEmail())
