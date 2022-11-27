@@ -21,7 +21,6 @@ import java.util.List;
 @Slf4j
 @Repository
 public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenAPIPageRepository, OpenAPISearchRepository {
-
     private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
     public OpenAPIPageWithSearchRepositoryImpl() {

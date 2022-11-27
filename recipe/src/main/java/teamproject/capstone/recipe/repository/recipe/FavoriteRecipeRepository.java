@@ -15,4 +15,5 @@ public interface FavoriteRecipeRepository extends JpaRepository<FavoriteRecipeEn
     Optional<List<FavoriteRecipeEntity>> findByRecipeSeq(long recipeSeq);
     Optional<FavoriteRecipeEntity> findByRecipeSeqAndUserEmail(long recipeSeq, String userEmail);
     void deleteByUserEmail(String email);
+    void deleteByUserEmailAndRecipeSeq(String email, Long seq);
 }

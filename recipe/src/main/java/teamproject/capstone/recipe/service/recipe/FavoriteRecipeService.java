@@ -8,7 +8,7 @@ import java.util.List;
 public interface FavoriteRecipeService {
     FavoriteRecipe create(FavoriteRecipe favoriteRecipe);
     List<FavoriteRecipe> createAll(List<FavoriteRecipe> favoriteRecipes);
-    void delete(FavoriteRecipe favoriteRecipe);
+    void delete(String email, Long recipeSeq);
     void deleteByEmail(String email);
     void deleteAll();
 

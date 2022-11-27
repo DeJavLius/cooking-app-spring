@@ -83,12 +83,9 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
     @Override
     public List<FavoriteRecipe> provideFavorites(String email, List<Long> recipeSeqList) {
         List<FavoriteRecipe> findResult = new ArrayList<>();
-        FavoriteRecipe favorite = FavoriteRecipe.builder().userEmail(email).build();
         for (Long seq : recipeSeqList) {
-            Optional<OpenRecipeEntity> findOpenRecipe = openAPIRepository.findByRcpSeq(seq);
-
-            findOpenRecipe.ifPresent(openRecipeEntity -> favorite.setRecipeSeq(openRecipeEntity.getRcpSeq()));
-            findResult.add(favorite);
+            FavoriteRecipe provide = provideFavorite(email, seq);
+            findResult.add(provide);
         }
         return findResult;
     }

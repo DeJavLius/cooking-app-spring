@@ -1,11 +1,18 @@
 package teamproject.capstone.recipe.controller.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
 import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
 import teamproject.capstone.recipe.utils.api.json.FavoriteData;
+import teamproject.capstone.recipe.utils.api.json.Sequences;
 import teamproject.capstone.recipe.utils.firebase.FirebaseUserManager;
 
 import java.util.ArrayList;
@@ -14,10 +21,13 @@ import java.util.List;
 @RequestMapping("/api/v1/favorites")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class RecipeAPIController {
     private final FavoriteRecipeService favoriteRecipeService;
     private final FirebaseUserManager firebaseUserManager;
     private final OpenAPIFavoriteService openAPIFavoriteService;
+
+//    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/give")
     public FavoriteData requestAllFavoriteRecipe() {
@@ -55,11 +65,11 @@ public class RecipeAPIController {
     }
 
     @PostMapping("/take")
-    public FavoriteData responseAllFavoriteRecipe(@RequestParam String uid, @RequestBody List<Long> recipeSeqList) {
+    public FavoriteData responseAllFavoriteRecipe(@RequestParam String uid, @RequestBody Sequences sequences) {
         List<FavoriteRecipe> savedValues = new ArrayList<>();
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            List<FavoriteRecipe> result = openAPIFavoriteService.provideFavorites(email, recipeSeqList);
+            List<FavoriteRecipe> result = openAPIFavoriteService.provideFavorites(email, sequences.getSequences());
 
             savedValues = favoriteRecipeService.createAll(result);
         }
@@ -108,16 +118,12 @@ public class RecipeAPIController {
     }
 
     @PostMapping("/delete/choose")
-    public FavoriteData deleteFavoriteRecipe(@RequestParam String uid, @RequestBody Long recipeSeq) {
+    public FavoriteData deleteFavoriteRecipe(@RequestParam String uid, @RequestParam Long recipeSeq) {
         List<FavoriteRecipe> deleteCheck = new ArrayList<>();
 
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            FavoriteRecipe deleteValue = FavoriteRecipe.builder()
-                    .recipeSeq(recipeSeq)
-                    .userEmail(email)
-                    .build();
-            favoriteRecipeService.delete(deleteValue);
+            favoriteRecipeService.delete(email, recipeSeq);
 
             deleteCheck = favoriteRecipeService.findByEmail(email);
         }
