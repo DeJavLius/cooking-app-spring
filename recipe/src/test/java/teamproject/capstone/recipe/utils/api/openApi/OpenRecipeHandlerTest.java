@@ -14,11 +14,8 @@ class OpenRecipeHandlerTest {
 
     @Test
     void requestAllOpenAPI() {
-        // given
-        List<OpenAPIRecipe> openAPIRecipes = new ArrayList<>();
-
-        // when
-        openAPIRecipes = openApiHandler.requestAllOpenAPI();
+        // given, when
+        List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI();
 
         // then
         assertThat(openAPIRecipes.size()).isEqualTo(2);

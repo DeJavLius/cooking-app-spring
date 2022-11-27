@@ -144,4 +144,40 @@ class FavoriteRecipeServiceImplTest {
         userRepository.deleteAll();
         favoriteRecipeRepository.deleteAll();
     }
+
+    @Test
+    void testCreateAll() {
+    }
+
+    @Test
+    void testCreate() {
+    }
+
+    @Test
+    void testDelete() {
+    }
+
+    @Test
+    void testDeleteByEmail() {
+    }
+
+    @Test
+    void findRecipe() {
+    }
+
+    @Test
+    void testFindAll() {
+    }
+
+    @Test
+    void findByEmail() {
+    }
+
+    @Test
+    void findBySeq() {
+    }
+
+    @Test
+    void mostFavoriteRankRecipe() {
+    }
 }
