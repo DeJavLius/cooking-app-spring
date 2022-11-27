@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import teamproject.capstone.recipe.service.login.CustomOAuthService;
 import teamproject.capstone.recipe.utils.login.handler.OAuthSuccessHandler;
@@ -31,16 +30,17 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/").permitAll()
-                .antMatchers("/account/**", "/login/**").permitAll()
-                .antMatchers("/cookers/info").authenticated()
+                .antMatchers("/recipes").permitAll()
+                .antMatchers("/account", "/test/**").permitAll()
+                .antMatchers("/cookers/**").authenticated()
                 .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/account")
+                .successForwardUrl("/")
                 .and()
                 .logout()
-                .logoutSuccessUrl("/account")
+                .logoutSuccessUrl("/")
                 .clearAuthentication(true)
                 .and()
                 .oauth2Login()

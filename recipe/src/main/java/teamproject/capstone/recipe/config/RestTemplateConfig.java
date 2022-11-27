@@ -22,7 +22,9 @@ public class RestTemplateConfig {
     public ClientHttpRequestInterceptor clientHttpRequestInterceptor() {
         return (request, body, execution) -> {
             RetryTemplate retryTemplate = new RetryTemplate();
-            retryTemplate.setRetryPolicy(new SimpleRetryPolicy(3));
+            SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
+            simpleRetryPolicy.setMaxAttempts(3);
+            retryTemplate.setRetryPolicy(simpleRetryPolicy);
             try {
                 return retryTemplate.execute(context -> execution.execute(request, body));
             } catch (Throwable throwable) {

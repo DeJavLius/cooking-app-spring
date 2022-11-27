@@ -47,7 +47,7 @@ public class FirebaseConfig {
     private void firebaseApp() {
         try {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(this.firebaseSettingFromJsonFile()))
+                    .setCredentials(GoogleCredentials.fromStream(this.firebaseSettingFromJsonFileInput()))
                     .setStorageBucket("ecorecipes-5f00b.appspot.com")
                     .build();
 
@@ -62,7 +62,7 @@ public class FirebaseConfig {
     }
 
     private InputStream firebaseSettingFromJsonFileInput() throws IOException {
-        return this.applicationContext.getResource("classpath:whyitisnotrunning.json").getInputStream();
+        return this.applicationContext.getResource("classpath:ecorecipes-5f00b-firebase-adminsdk-c962f-26f07a6fa6.json").getInputStream();
     }
 
 //    private UserRecord testFunc() throws FirebaseAuthException {
