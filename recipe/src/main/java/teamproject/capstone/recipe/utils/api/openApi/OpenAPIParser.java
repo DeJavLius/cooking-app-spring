@@ -8,7 +8,6 @@ import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import java.io.IOException;
 import java.net.URL;
 
-@Slf4j
 class OpenAPIParser {
     private static final OpenAPIParser INSTANCE = new OpenAPIParser();
 

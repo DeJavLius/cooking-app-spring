@@ -44,7 +44,7 @@ public class OpenAPIHandler {
     }
 
     private void setTotalIndex() {
-        int searchTotalNumber = 0;
+        int searchTotalNumber = 1;
         openApiProvider.urlIndexRangeScan(searchTotalNumber, searchTotalNumber);
         OpenAPIRecipe totalSearch = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
         this.totalIndex = Integer.parseInt(totalSearch.getTotalCount());

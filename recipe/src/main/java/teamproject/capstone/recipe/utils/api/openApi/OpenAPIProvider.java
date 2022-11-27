@@ -27,6 +27,7 @@ class OpenAPIProvider {
     public void urlIndexRangeScan(int startIndex, int endIndex) {
         try {
             openApi = new OpenAPI(requestOpenAPIJSON(startIndex, endIndex));
+            log.info("test of open Api : {}", openApi.getAPIUrl().toString());
         } catch (MalformedURLException mal) {
             mal.printStackTrace();
             log.error("wrong url or wrong api key");
