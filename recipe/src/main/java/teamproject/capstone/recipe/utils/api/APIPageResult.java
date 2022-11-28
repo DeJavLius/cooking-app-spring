@@ -1,25 +1,15 @@
 package teamproject.capstone.recipe.utils.api;
 
 import lombok.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import teamproject.capstone.recipe.utils.page.PageResult;
 
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
-public class APIPageResult<DTO, EN> {
-    private List<DTO> dtoList;
-
-    private int totalPage;
-    private int currentPage;
-    private boolean lastPage;
-
+public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
     /*
     * API page rule
     * start page : 1
@@ -29,17 +19,18 @@ public class APIPageResult<DTO, EN> {
     * */
 
     public APIPageResult(Page<EN> result, Function<EN, DTO> fn) {
-        this.dtoList = result.stream().map(fn).collect(Collectors.toList());
-        totalPage = result.getTotalPages();
-        makePageList(result.getPageable());
+        super(result, fn);
     }
 
-    private void makePageList(Pageable pageable) {
-        setCurrentPage(pageable);
-        lastPage = (currentPage == totalPage);
+    @Override
+    void makePageList(Pageable pageable) {
+        setPage(pageable);
+        boolean isLast = super.getNowPage() == super.getTotalPage();
+        super.setLastPage(isLast);
     }
 
-    private void setCurrentPage(Pageable pageable) {
-        this.currentPage = pageable.getPageNumber() + 1;
+    @Override
+    void setPage(Pageable pageable) {
+        super.setNowPage(pageable.getPageNumber() + 1);
     }
 }
