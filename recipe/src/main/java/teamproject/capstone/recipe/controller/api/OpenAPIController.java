@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.service.api.OpenAPISearchService;
+import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
 import teamproject.capstone.recipe.utils.api.*;
 import teamproject.capstone.recipe.utils.api.json.*;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
@@ -13,6 +14,9 @@ import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.service.api.*;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
+import teamproject.capstone.recipe.utils.page.PageHandlerImpl;
+import teamproject.capstone.recipe.utils.page.PageResult;
+import teamproject.capstone.recipe.utils.page.SearchWrapper;
 import teamproject.capstone.recipe.utils.values.TotalValue;
 
 import java.util.ArrayList;
@@ -27,8 +31,10 @@ public class OpenAPIController {
     private final OpenAPIService openAPIService;
     private final OpenAPIPageService openAPIPageService;
     private final OpenAPISearchService openAPISearchService;
+    private final OpenAPIFavoriteService openAPIFavoriteService;
+    private final FavoriteRecipeRankService favoriteRecipeRankService;
     private final OpenAPIHandler openApiHandler;
-    private final APIPageHandler apiPageHandler;
+    private final PageHandlerImpl pageHandlerImpl;
 
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
@@ -37,8 +43,8 @@ public class OpenAPIController {
 
     @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
-        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pageRequest);
+        PageRequest pageRequest = pageHandlerImpl.choosePage(page, size);
+        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
@@ -51,9 +57,9 @@ public class OpenAPIController {
 
     @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
     public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
-        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
-        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchAndAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
+        PageRequest pageRequest = pageHandlerImpl.choosePage(page, size);
+        SearchWrapper apiWrapper = new SearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
+        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchAndAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
@@ -66,9 +72,9 @@ public class OpenAPIController {
 
     @GetMapping(value = "/v1/search/find-with", produces = "application/json; charset=UTF-8")
     public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
-        PageRequest pageRequest = apiPageHandler.choosePage(page, size);
-        APISearchWrapper apiWrapper = new APISearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchOrAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
+        PageRequest pageRequest = pageHandlerImpl.choosePage(page, size);
+        SearchWrapper apiWrapper = new SearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build();
+        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPISearchService.searchOrAPIDataSources(apiWrapper.getApiSearchList(), pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
@@ -76,6 +82,19 @@ public class OpenAPIController {
         return RecipeData.builder()
                 .meta(metaInfo)
                 .openRecipes(openRecipeAPIPageResult.getDtoList())
+                .build();
+    }
+
+    @GetMapping(value = "/v1/recipes/rank", produces = "application/json; charset=UTF-8")
+    public RecipeData responseFavoriteOpenAPI() {
+        List<Long> favoriteRankRecipe = favoriteRecipeRankService.mostFavoriteRankRecipe();
+        List<OpenRecipe> favoriteRecipes = openAPIFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
+
+        Meta metaInfo = MetaDelegator.metaGenerator(true, favoriteRecipes.size(), 0);
+
+        return RecipeData.builder()
+                .meta(metaInfo)
+                .openRecipes(favoriteRecipes)
                 .build();
     }
 

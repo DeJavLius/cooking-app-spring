@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.utils.api.APISearch;
+import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
-import teamproject.capstone.recipe.utils.api.APIPageResult;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
@@ -27,15 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class OpenAPIPageWithSearchRepositoryImplTest {
+class OpenPageDetailRequestWithSearchRepositoryImplTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
-    OpenAPIRepository openAPIRepository;
+    OpenRecipeRepository openRecipeRepository;
     @Autowired
-    OpenAPIPageRepository openAPIPageRepository;
-    @Autowired
-    OpenAPISearchRepository openAPISearchRepository;
+    OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
 
     @BeforeEach
     void pageInsertionBefore() {
@@ -47,7 +45,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
                 OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
                 forInsert.add(ope);
             }
-            openAPIRepository.saveAll(forInsert);
+            openRecipeRepository.saveAll(forInsert);
             forInsert.clear();
         }
     }
@@ -59,7 +57,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
             PageRequest of = PageRequest.of(0, i);
 
             // when
-            Page<OpenRecipeEntity> openRecipeEntities = openAPIPageRepository.openAPIPageHandling(of);
+            Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPIPageHandling(of);
             Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
             APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
@@ -73,8 +71,8 @@ class OpenAPIPageWithSearchRepositoryImplTest {
             }
 
             // then
-            log.info("currentPage : {}", orPageResult.getCurrentPage());
-            assertThat(orPageResult.getCurrentPage()).isEqualTo(1);
+            log.info("currentPage : {}", orPageResult.getNowPage());
+            assertThat(orPageResult.getNowPage()).isEqualTo(1);
             log.info("totalPage : {}, test : {}", orPageResult.getTotalPage(), i1);
             assertThat(orPageResult.getTotalPage()).isEqualTo(i1);
             log.info("each page size : {}, test : {}", orPageResult.getDtoList().size(), i);
@@ -85,17 +83,17 @@ class OpenAPIPageWithSearchRepositoryImplTest {
     @Test
     void openAPISearchOrHandling() {
         // given
-        List<List<APISearch>> lists = fiveCase();
+        List<List<Search>> lists = fiveCase();
         int total = 1058;
 
-        for (List<APISearch> valueTest : lists) {
+        for (List<Search> valueTest : lists) {
 
             log.info("value test check : {}", valueTest);
 
             PageRequest of = PageRequest.of(0, 100);
 
             // when
-            Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchOrPageHandling(valueTest, of);
+            Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchOrPageHandling(valueTest, of);
             Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
             APIPageResult<OpenRecipe, OpenRecipeEntity> orPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
@@ -105,7 +103,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
 //                log.info("search value check of call : {}", orPageResult);
 
             int count = 0;
-            for (APISearch s : valueTest) {
+            for (Search s : valueTest) {
                 log.info("value of check : {}, {}", count, s.getType());
                 if (orPageResult.getDtoList().isEmpty()) {
                     continue;
@@ -142,17 +140,17 @@ class OpenAPIPageWithSearchRepositoryImplTest {
     @Test
     void openAPISearchAndHandling() {
         // given
-        List<List<APISearch>> lists = fiveCase();
+        List<List<Search>> lists = fiveCase();
         int total = 1061;
 
-        for (List<APISearch> valueTest : lists) {
+        for (List<Search> valueTest : lists) {
             int i = 0;
 
             while (i < total) {
                 PageRequest of = PageRequest.of(i, 100);
 
                 // when
-                Page<OpenRecipeEntity> openRecipeEntities = openAPISearchRepository.openAPISearchAndPageHandling(valueTest, of);
+                Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(valueTest, of);
                 Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
                 APIPageResult<OpenRecipe, OpenRecipeEntity> andPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
@@ -165,7 +163,7 @@ class OpenAPIPageWithSearchRepositoryImplTest {
                 // then
 //                log.info("search value check of call : {}", orPageResult);
 
-                for (APISearch s : valueTest) {
+                for (Search s : valueTest) {
 
                     if (andPageResult.getDtoList().isEmpty()) {
                         continue;
@@ -196,20 +194,20 @@ class OpenAPIPageWithSearchRepositoryImplTest {
         }
     }
 
-    private List<List<APISearch>> fiveCase() {
-        List<List<APISearch>> result = new ArrayList<>();
-        List<APISearch> testSearch = new ArrayList<>();
+    private List<List<Search>> fiveCase() {
+        List<List<Search>> result = new ArrayList<>();
+        List<Search> testSearch = new ArrayList<>();
 
-        testSearch.add(APISearch.builder().keyword("새우").type(SearchType.RECIPE_NAME.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("배추").type(SearchType.RECIPE_DETAILS.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("반찬").type(SearchType.RECIPE_PARTS.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("찌기").type(SearchType.RECIPE_WAY.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("28").type(SearchType.RECIPE_SEQUENCE.getValue()).build());
+        testSearch.add(Search.builder().keyword("새우").type(SearchType.RECIPE_NAME.getValue()).build());
+        testSearch.add(Search.builder().keyword("배추").type(SearchType.RECIPE_DETAILS.getValue()).build());
+        testSearch.add(Search.builder().keyword("반찬").type(SearchType.RECIPE_PARTS.getValue()).build());
+        testSearch.add(Search.builder().keyword("찌기").type(SearchType.RECIPE_WAY.getValue()).build());
+        testSearch.add(Search.builder().keyword("28").type(SearchType.RECIPE_SEQUENCE.getValue()).build());
 
         result.add(testSearch);
 
         for (int i = 2; i < 6; i++) {
-            List<List<APISearch>> collect = Generator.combination(testSearch)
+            List<List<Search>> collect = Generator.combination(testSearch)
                     .simple(i)
                     .stream()
                     .collect(Collectors.toList());
@@ -222,6 +220,6 @@ class OpenAPIPageWithSearchRepositoryImplTest {
 
     @AfterEach
     void deleteAllInsertValue() {
-        openAPIRepository.deleteAll();
+        openRecipeRepository.deleteAll();
     }
 }

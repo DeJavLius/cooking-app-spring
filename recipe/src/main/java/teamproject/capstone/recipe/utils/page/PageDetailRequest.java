@@ -1,24 +1,24 @@
-package teamproject.capstone.recipe.utils.api;
+package teamproject.capstone.recipe.utils.page;
 
 import lombok.Getter;
 
 @Getter
-public final class APIPage {
+public final class PageDetailRequest {
     private final int page;
     private final int size;
 
-    private APIPage(int page, int size) {
+    private PageDetailRequest(int page, int size) {
         this.page = page;
         this.size = size;
     }
 
-    public static APIPage otherPage(int page, int size) {
+    public static PageDetailRequest otherPage(int page, int size) {
         int PAGE_NOW = 1;
         page -= PAGE_NOW;
 
         if (page <= 0) {
             page = 0;
         }
-        return new APIPage(page, size);
+        return new PageDetailRequest(page, size);
     }
 }

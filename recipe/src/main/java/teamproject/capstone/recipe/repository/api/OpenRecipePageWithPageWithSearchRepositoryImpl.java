@@ -1,29 +1,25 @@
 package teamproject.capstone.recipe.repository.api;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
-import teamproject.capstone.recipe.utils.api.APISearch;
-import teamproject.capstone.recipe.utils.values.SearchType;
-import teamproject.capstone.recipe.utils.values.TotalValue;
+import teamproject.capstone.recipe.utils.page.Search;
+import teamproject.capstone.recipe.utils.values.*;
 
 import java.util.List;
 
 @Slf4j
 @Repository
-public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenAPIPageRepository, OpenAPISearchRepository {
+public class OpenRecipePageWithPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository {
     private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
 
-    public OpenAPIPageWithSearchRepositoryImpl() {
+    public OpenRecipePageWithPageWithSearchRepositoryImpl() {
         super(OpenRecipeEntity.class);
     }
 
@@ -34,14 +30,14 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
     }
 
     @Override
-    public Page<OpenRecipeEntity> openAPISearchOrPageHandling(List<APISearch> searchKeywords, Pageable pageable) {
+    public Page<OpenRecipeEntity> openAPISearchOrPageHandling(List<Search> searchKeywords, Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
         openAPIDataHandle.where(searchOrQueryBuilder(searchKeywords));
         return pagingHandler(openAPIDataHandle, pageable);
     }
 
     @Override
-    public Page<OpenRecipeEntity> openAPISearchAndPageHandling(List<APISearch> searchKeywords, Pageable pageable) {
+    public Page<OpenRecipeEntity> openAPISearchAndPageHandling(List<Search> searchKeywords, Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> openAPIDataHandle = jpqlQueryInit();
         openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords));
         return pagingHandler(openAPIDataHandle, pageable);
@@ -71,13 +67,13 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
         return openAPIDataHandle.fetch();
     }
 
-    private BooleanBuilder searchOrQueryBuilder(List<APISearch> keywords) {
+    private BooleanBuilder searchOrQueryBuilder(List<Search> keywords) {
         BooleanBuilder queryResult = defaultBooleanBuilder();
         queryResult.and(conditionOrBuilders(queryResult, keywords));
         return queryResult;
     }
 
-    private BooleanBuilder searchAndQueryBuilder(List<APISearch> keywords) {
+    private BooleanBuilder searchAndQueryBuilder(List<Search> keywords) {
         BooleanBuilder queryResult = defaultBooleanBuilder();
         queryResult.and(conditionAndBuilders(queryResult, keywords));
         return queryResult;
@@ -88,27 +84,27 @@ public class OpenAPIPageWithSearchRepositoryImpl extends QuerydslRepositorySuppo
         return new BooleanBuilder().and(booleanExpression);
     }
 
-    private BooleanBuilder conditionOrBuilders(BooleanBuilder condition, List<APISearch> keywords) {
-        for (APISearch search : keywords) {
+    private BooleanBuilder conditionOrBuilders(BooleanBuilder condition, List<Search> keywords) {
+        for (Search search : keywords) {
             condition.or(conditionBuilder(search));
         }
 
         return condition;
     }
 
-    private BooleanBuilder conditionAndBuilders(BooleanBuilder condition, List<APISearch> keywords) {
-        for (APISearch search : keywords) {
+    private BooleanBuilder conditionAndBuilders(BooleanBuilder condition, List<Search> keywords) {
+        for (Search search : keywords) {
             condition.and(conditionBuilder(search));
         }
 
         return condition;
     }
 
-    private BooleanExpression conditionBuilder(APISearch search) {
+    private BooleanExpression conditionBuilder(Search search) {
         return typeContains(search);
     }
 
-    private BooleanExpression typeContains(APISearch search) {
+    private BooleanExpression typeContains(Search search) {
         log.info("value test of search keyword : {}, type : {}", search.getKeyword(), search.getType());
         if (search.getType().equals(SearchType.RECIPE_NAME.getValue()) & !search.getKeyword().isEmpty()) {
             return openRecipeEntity.rcpNm.contains(search.getKeyword());

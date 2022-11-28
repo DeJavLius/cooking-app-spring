@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
+import teamproject.capstone.recipe.repository.api.OpenRecipeRepository;
 import teamproject.capstone.recipe.utils.api.json.Row;
-import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
-import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,7 +16,7 @@ class OpenAPIDelegatorTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
-    OpenAPIRepository openAPIRepository;
+    OpenRecipeRepository openRecipeRepository;
 
     @Test
     void rowToOpenRecipe() {

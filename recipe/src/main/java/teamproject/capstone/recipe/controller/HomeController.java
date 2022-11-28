@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.SessionUser;
 import teamproject.capstone.recipe.domain.user.User;
+import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.api.OpenAPIService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
@@ -23,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class HomeController {
-    private final OpenAPIService openAPIService;
+    private final OpenAPIFavoriteService openAPIFavoriteService;
     private final FavoriteRecipeRankService favoriteRecipeRankService;
 
     @GetMapping("test")
@@ -33,9 +34,8 @@ public class HomeController {
 
     @GetMapping
     public String homePage(Model model, @LoginSession SessionUser user) {
-
         List<Long> favoriteRankRecipe = favoriteRecipeRankService.mostFavoriteRankRecipe();
-        List<OpenRecipe> openRecipes = rankFavoriteRecipe(favoriteRankRecipe);
+        List<OpenRecipe> openRecipes = openAPIFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
         List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
         if (user != null) {
             log.info("login test : {}", user.getEmail());
@@ -50,26 +50,15 @@ public class HomeController {
         return "index";
     }
 
-    private List<OpenRecipe> rankFavoriteRecipe(List<Long> sequences) {
-        List<OpenRecipe> resultOfRank = new ArrayList<>();
-
-        for (Long seq : sequences) {
-            resultOfRank.add(openAPIService.findByRecipeSeq(seq));
-        }
-
-        return resultOfRank;
-    }
-
     List<List<OpenRecipe>> rotatingPageRank(List<OpenRecipe> openRecipes) {
         List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
 
         int start = 0;
         int midIndex = 4;
-        int middle = 5;
         int recipesSize = openRecipes.size();
-        if (recipesSize > middle) {
+        if (recipesSize > midIndex) {
             rankRecipe.add(openRecipes.subList(start, midIndex));
-            start = middle;
+            start = midIndex;
         }
 
         rankRecipe.add(openRecipes.subList(start, recipesSize));

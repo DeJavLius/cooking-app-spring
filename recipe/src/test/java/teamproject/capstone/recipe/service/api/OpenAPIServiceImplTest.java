@@ -8,13 +8,13 @@ import org.paukov.combinatorics3.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.utils.api.APISearch;
+import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.utils.api.json.Row;
 import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
-import teamproject.capstone.recipe.repository.api.OpenAPIRepository;
-import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.repository.api.OpenRecipeRepository;
+import teamproject.capstone.recipe.utils.page.PageResult;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIDelegator;
 import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
@@ -32,7 +32,7 @@ class OpenAPIServiceImplTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
-    OpenAPIRepository openAPIRepository;
+    OpenRecipeRepository openRecipeRepository;
 
     @Autowired
     OpenAPIService openAPIService;
@@ -51,7 +51,7 @@ class OpenAPIServiceImplTest {
                 OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
                 forInsert.add(ope);
             }
-            openAPIRepository.saveAll(forInsert);
+            openRecipeRepository.saveAll(forInsert);
             forInsert.clear();
         }
     }
@@ -63,7 +63,7 @@ class OpenAPIServiceImplTest {
         PageRequest pr = PageRequest.of(0, 10);
 
         // when
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pr);
+        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageService.allAPIDataSources(pr);
 
         // then
         assertThat(openRecipeAPIPageResult.getDtoList().size()).isEqualTo(10);
@@ -73,13 +73,13 @@ class OpenAPIServiceImplTest {
     @Test
     void openAPISearchAndOneSearch() {
         // given
-        List<APISearch> v = new ArrayList<>();
-        v.add(APISearch.builder().keyword("찌기").type("way").build());
+        List<Search> v = new ArrayList<>();
+        v.add(Search.builder().keyword("찌기").type("way").build());
 
         PageRequest of = PageRequest.of(0, 10);
 
         // when
-        APIPageResult<OpenRecipe, OpenRecipeEntity> api = openAPISearchService.searchAndAPIDataSources(v, of);
+        PageResult<OpenRecipe, OpenRecipeEntity> api = openAPISearchService.searchAndAPIDataSources(v, of);
 
         // then
         log.info("api test check : {}", api);
@@ -88,17 +88,17 @@ class OpenAPIServiceImplTest {
     @Test
     void openAPISearchOrHandling() {
         // given
-        List<List<APISearch>> lists = fiveCase();
+        List<List<Search>> lists = fiveCase();
 
-        for (List<APISearch> valueTest : lists) {
+        for (List<Search> valueTest : lists) {
             PageRequest of = PageRequest.of(0, 100);
 
             // when
-            APIPageResult<OpenRecipe, OpenRecipeEntity> orAPIPageResult = openAPISearchService.searchOrAPIDataSources(valueTest, of);
+            PageResult<OpenRecipe, OpenRecipeEntity> orAPIPageResult = openAPISearchService.searchOrAPIDataSources(valueTest, of);
 
             // then
             int count = 0;
-            for (APISearch s : valueTest) {
+            for (Search s : valueTest) {
                 if (orAPIPageResult.getDtoList().isEmpty()) {
                     continue;
                 } else {
@@ -134,16 +134,16 @@ class OpenAPIServiceImplTest {
     @Test
     void openAPISearchAndHandling() {
         // given
-        List<List<APISearch>> lists = fiveCase();
+        List<List<Search>> lists = fiveCase();
 
-        for (List<APISearch> valueTest : lists) {
+        for (List<Search> valueTest : lists) {
             PageRequest of = PageRequest.of(0, 100);
 
             // when
-            APIPageResult<OpenRecipe, OpenRecipeEntity> andAPIPageResult = openAPISearchService.searchAndAPIDataSources(valueTest, of);
+            PageResult<OpenRecipe, OpenRecipeEntity> andAPIPageResult = openAPISearchService.searchAndAPIDataSources(valueTest, of);
 
             // then
-            for (APISearch s : valueTest) {
+            for (Search s : valueTest) {
 
                 if (andAPIPageResult.getDtoList().isEmpty()) {
                     continue;
@@ -171,20 +171,20 @@ class OpenAPIServiceImplTest {
         }
     }
 
-    private List<List<APISearch>> fiveCase() {
-        List<List<APISearch>> result = new ArrayList<>();
-        List<APISearch> testSearch = new ArrayList<>();
+    private List<List<Search>> fiveCase() {
+        List<List<Search>> result = new ArrayList<>();
+        List<Search> testSearch = new ArrayList<>();
 
-        testSearch.add(APISearch.builder().keyword("새우").type(SearchType.RECIPE_NAME.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("배추").type(SearchType.RECIPE_DETAILS.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("반찬").type(SearchType.RECIPE_PARTS.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("찌기").type(SearchType.RECIPE_WAY.getValue()).build());
-        testSearch.add(APISearch.builder().keyword("28").type(SearchType.RECIPE_SEQUENCE.getValue()).build());
+        testSearch.add(Search.builder().keyword("새우").type(SearchType.RECIPE_NAME.getValue()).build());
+        testSearch.add(Search.builder().keyword("배추").type(SearchType.RECIPE_DETAILS.getValue()).build());
+        testSearch.add(Search.builder().keyword("반찬").type(SearchType.RECIPE_PARTS.getValue()).build());
+        testSearch.add(Search.builder().keyword("찌기").type(SearchType.RECIPE_WAY.getValue()).build());
+        testSearch.add(Search.builder().keyword("28").type(SearchType.RECIPE_SEQUENCE.getValue()).build());
 
         result.add(testSearch);
 
         for (int i = 2; i < 6; i++) {
-            List<List<APISearch>> collect = Generator.combination(testSearch)
+            List<List<Search>> collect = Generator.combination(testSearch)
                     .simple(i)
                     .stream()
                     .collect(Collectors.toList());
@@ -205,7 +205,7 @@ class OpenAPIServiceImplTest {
 
     @AfterEach
     void deleteAllInsertValue() {
-        openAPIRepository.deleteAll();
+        openRecipeRepository.deleteAll();
     }
 
     @Test

@@ -7,6 +7,6 @@ import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 import java.util.Optional;
 
 @Repository
-public interface OpenAPIRepository extends JpaRepository<OpenRecipeEntity, Long> {
+public interface OpenRecipeRepository extends JpaRepository<OpenRecipeEntity, Long> {
     Optional<OpenRecipeEntity> findByRcpSeq(Long recipeSeq);
 }
