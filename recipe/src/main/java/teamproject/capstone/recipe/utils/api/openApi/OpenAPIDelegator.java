@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils.api.openApi;
 
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.utils.api.json.Row;
+import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
+import teamproject.capstone.recipe.utils.api.json.parts.Row;
 
 public class OpenAPIDelegator {
     public static OpenRecipe rowToOpenRecipe(Row row) {

@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.entity.api;
+package teamproject.capstone.recipe.entity.recipe;
 
 import lombok.*;
 

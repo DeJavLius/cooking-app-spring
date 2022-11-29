@@ -6,16 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.SessionUser;
-import teamproject.capstone.recipe.domain.user.User;
 import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
-import teamproject.capstone.recipe.service.api.OpenAPIService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
-import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 

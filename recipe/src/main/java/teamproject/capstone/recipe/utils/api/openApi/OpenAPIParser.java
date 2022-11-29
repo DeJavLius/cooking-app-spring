@@ -1,9 +1,8 @@
 package teamproject.capstone.recipe.utils.api.openApi;
 
-import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import teamproject.capstone.recipe.utils.api.json.OpenAPIMeta;
-import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 
 import java.io.IOException;
 import java.net.URL;

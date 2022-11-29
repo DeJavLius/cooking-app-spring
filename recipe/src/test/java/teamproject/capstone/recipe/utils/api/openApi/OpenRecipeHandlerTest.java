@@ -1,10 +1,8 @@
 package teamproject.capstone.recipe.utils.api.openApi;
 
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
-import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
+import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

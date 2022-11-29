@@ -2,10 +2,8 @@ package teamproject.capstone.recipe.utils.api.openApi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
-import teamproject.capstone.recipe.utils.api.json.Row;
-import teamproject.capstone.recipe.utils.api.openApi.OpenAPIParser;
-import teamproject.capstone.recipe.utils.api.openApi.OpenAPIProvider;
+import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.parts.Row;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

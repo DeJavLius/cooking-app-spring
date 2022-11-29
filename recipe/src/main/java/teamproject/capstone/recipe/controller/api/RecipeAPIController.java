@@ -1,14 +1,8 @@
 package teamproject.capstone.recipe.controller.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
 import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;

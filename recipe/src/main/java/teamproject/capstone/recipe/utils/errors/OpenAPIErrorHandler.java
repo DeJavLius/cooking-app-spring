@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils.errors;
 
 import lombok.extern.slf4j.Slf4j;
-import teamproject.capstone.recipe.utils.api.json.OpenAPIRecipe;
+import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 import teamproject.capstone.recipe.utils.values.OpenAPICode;
 
 @Slf4j

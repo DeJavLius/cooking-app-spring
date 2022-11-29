@@ -1,6 +1,6 @@
 package teamproject.capstone.recipe.service.api;
 
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
+import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
 
 import java.util.List;

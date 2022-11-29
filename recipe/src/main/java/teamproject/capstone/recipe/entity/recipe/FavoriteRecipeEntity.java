@@ -2,8 +2,6 @@ package teamproject.capstone.recipe.entity.recipe;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
 
 import javax.persistence.*;
 

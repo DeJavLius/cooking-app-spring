@@ -1,8 +1,8 @@
-package teamproject.capstone.recipe.repository.api;
+package teamproject.capstone.recipe.repository.recipe;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
+import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 
 import java.util.Optional;
 

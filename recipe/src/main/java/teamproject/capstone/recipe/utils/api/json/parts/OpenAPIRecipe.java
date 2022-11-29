@@ -1,7 +1,9 @@
-package teamproject.capstone.recipe.utils.api.json;
+package teamproject.capstone.recipe.utils.api.json.parts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import teamproject.capstone.recipe.utils.api.json.parts.Result;
+import teamproject.capstone.recipe.utils.api.json.parts.Row;
 
 import java.util.List;
 

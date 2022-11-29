@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
+import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.user.QUserEntity;
 import teamproject.capstone.recipe.entity.user.UserEntity;
 

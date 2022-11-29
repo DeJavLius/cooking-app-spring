@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils.converter;
 
-import teamproject.capstone.recipe.domain.api.OpenRecipe;
-import teamproject.capstone.recipe.entity.api.OpenRecipeEntity;
+import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
+import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 
 public class OpenRecipeConverter {
     public static OpenRecipe entityToDto(OpenRecipeEntity openAPIRecipeEntity) {
