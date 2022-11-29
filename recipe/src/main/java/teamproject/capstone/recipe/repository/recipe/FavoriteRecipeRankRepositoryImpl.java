@@ -19,10 +19,18 @@ public class FavoriteRecipeRankRepositoryImpl extends QuerydslRepositorySupport 
 
     @Override
     public List<Tuple> findWithRankFavoriteRecipe() {
+        JPQLQuery<Tuple> selectFavoriteRecipe = selectFavoriteRecipe(from(favoriteRecipeEntity));
+        return orderFavoriteRecipe(selectFavoriteRecipe).fetch();
+    }
+
+    public JPQLQuery<Tuple> selectFavoriteRecipe(JPQLQuery<FavoriteRecipeEntity> query) {
+        return query.select(favoriteRecipeEntity.recipeSeq, favoriteRecipeEntity.recipeSeq.count())
+                .from(favoriteRecipeEntity);
+    }
+
+    public JPQLQuery<Tuple> orderFavoriteRecipe(JPQLQuery<Tuple> selectQuery) {
         int oneLine = 8;
 
-        JPQLQuery<Tuple> difficultSearch = from(favoriteRecipeEntity).select(favoriteRecipeEntity.recipeSeq, favoriteRecipeEntity.recipeSeq.count())
-                .from(favoriteRecipeEntity).groupBy(favoriteRecipeEntity.recipeSeq).orderBy(favoriteRecipeEntity.recipeSeq.count().desc()).limit(oneLine);
-        return difficultSearch.fetch();
+        return selectQuery.groupBy(favoriteRecipeEntity.recipeSeq).orderBy(favoriteRecipeEntity.recipeSeq.count().desc()).limit(oneLine);
     }
 }

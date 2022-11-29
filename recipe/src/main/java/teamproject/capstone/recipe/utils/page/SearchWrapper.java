@@ -74,8 +74,4 @@ public class SearchWrapper {
         seq = builder.seq;
         way = builder.way;
     }
-
-    public List<Search> getApiSearchList() {
-        return this.searchList;
-    }
 }
