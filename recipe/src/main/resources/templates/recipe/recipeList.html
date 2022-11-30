@@ -17,8 +17,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../../static/assets/img/apple-icon.png" th:href="@{/assets/img/apple-icon.png}">
+    <link rel="icon" type="image/png" href="../../static/assets/img/favicon.png" th:href="@{/assets/img/favicon.png}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title>
         Material Kit PRO by Creative Tim
@@ -28,55 +28,24 @@
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <!-- CSS Files -->
-    <link href="../assets/css/material-kit.css?v=2.2.1" rel="stylesheet" />
+    <link href="../../static/assets/css/material-kit.css?v=2.2.1" rel="stylesheet" th:href="@{/assets/css/material-kit.css?v='2.2.1'}"/>
     <!-- CSS Just for demo purpose, don't include it in your project -->
-    <link href="../assets/demo/demo.css" rel="stylesheet" />
-    <link href="../assets/demo/vertical-nav.css" rel="stylesheet" />
+    <link href="../../static/assets/demo/demo.css" rel="stylesheet" th:href="@{/assets/demo/demo.css}"/>
+    <link href="../../static/assets/demo/vertical-nav.css" rel="stylesheet" th:href="@{/assets/demo/vertical-nav.css}"/>
 </head>
 
 <body class="blog-posts sidebar-collapse">
-    <div class="page-header header-filter header-small" data-parallax="true" style="background-image: url('../assets/img/bg10.jpg');">
+
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="page-header header-filter header-small" data-parallax="true" style="background-image: url('../../static/assets/img/bg10.jpg');">
         <div class="container">
             <div class="row">
                 <div class="col-md-8 ml-auto mr-auto text-center">
-                    <h2 class="title">A Place for Entrepreneurs to Share and Discover New Stories</h2>
+                    <h2 class="title">레시피를 찾고 즐거운 식사를 하시길 바랍니다.</h2>
                 </div>
             </div>
         </div>
-    </div>
-    <form>
-        <input type="hidden" name="size" value="30">
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>
-                    name
-                </th>
-                <th>
-                    img
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="recipe : ${recipeList.dtoList}">
-                <td>
-                    [[ ${recipe.rcpNm} ]]
-                </td>
-                <td>
-                    [[ ${recipe.attFileNoMain} ]]
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="pagination-area">
-        <ul class="pagination justify-content-center text-center">
-            <li class="page-item" th:if="${recipeList.firstPage}"><a href="recipeList.html" th:href="@{/recipes(page=1, size=${pageCall.size})}" class="page-link">&#xAB;&#xAB;</a></li>
-            <li class="page-item" th:if="${recipeList.prevPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.startPage - 1}, size=${pageCall.size})}" class="page-link">&#xAB;</a></li>
-            <li th:class="'page-item' + ${recipeList.nowPage == page? ' active':''}" th:each="page : ${recipeList.pageList}"><a href="recipeList.html" th:href="@{/recipes(page=${page}, size=${pageCall.size})}" class="page-link">[[${page}]]</a></li>
-            <li class="page-item" th:if="${recipeList.nextPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.endPage + 1}, size=${pageCall.size})}" class="page-link">&#xBB;</a></li>
-            <li class="page-item" th:if="${recipeList.lastPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.totalPage}, size=${pageCall.size})}" class="page-link">&#xBB;&#xBB;</a></li>
-        </ul>
     </div>
     <div class="main main-raised">
         <div class="container">
@@ -103,196 +72,28 @@
                         <div class="tab-content tab-space">
                             <div class="tab-pane active" id="pill1"></div>
                             <div class="tab-pane" id="pill2"></div>
-                            <div class="tab-pane" id="pill3"></div>
-                            <div class="tab-pane" id="pill4"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card card-raised card-background" style="background-image: url('../assets/img/examples/office2.jpg')">
-                            <div class="card-body">
-                                <h6 class="card-category text-info">Worlds</h6>
-                                <a href="#pablo">
-                                    <h3 class="card-title">The Best Productivity Apps on Market</h3>
-                                </a>
-                                <p class="card-description">
-                                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-                                </p>
-                                <a href="#pablo" class="btn btn-danger btn-round">
-                                    <i class="material-icons">format_align_left</i> Read Article
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card card-raised card-background" style="background-image: url('../assets/img/examples/blog8.jpg')">
-                            <div class="card-body">
-                                <h6 class="card-category text-info">Business</h6>
-                                <h3 class="card-title">Working on Wallstreet is Not So Easy</h3>
-                                <p class="card-description">
-                                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-                                </p>
-                                <a href="#pablo" class="btn btn-primary btn-round">
-                                    <i class="material-icons">format_align_left</i> Read Article
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card card-raised card-background" style="background-image: url('../assets/img/examples/card-project6.jpg')">
-                            <div class="card-body">
-                                <h6 class="card-category text-info">Marketing</h6>
-                                <h3 class="card-title">0 to 100.000 Customers in 6 months</h3>
-                                <p class="card-description">
-                                    Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-                                </p>
-                                <a href="#pablo" class="btn btn-warning btn-round">
-                                    <i class="material-icons">subject</i> Read Case Study
-                                </a>
-                                <a href="#pablo" class="btn btn-white btn-just-icon btn-link" title="" rel="tooltip" data-original-title="Save to Pocket">
-                                    <i class="fa fa-get-pocket"></i>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="section">
-                <h3 class="title text-center">You may also be interested in</h3>
+                <input type="hidden" name="size" value="30">
+                <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
                 <br>
-                <div class="row">
-                    <div class="col-md-4">
+                <div class="row display-4" th:each="rowList : ${recipeList.divideList}">
+                    <div class="col-md-3 col-lg-3" th:each="recipe : ${rowList}">
                         <div class="card card-plain card-blog">
-                            <div class="card-header card-header-image">
-                                <a href="#pablo">
-                                    <img class="img img-raised" src="../assets/img/bg5.jpg">
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-category text-info">Enterprise</h6>
-                                <h4 class="card-title">
-                                    <a href="#pablo">Autodesk looks to future of 3D printing with Project Escher</a>
-                                </h4>
-                                <p class="card-description">
-                                    Like so many organizations these days, Autodesk is a company in transition. It was until recently a traditional boxed software company selling licenses.<a href="#pablo"> Read More </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card card-plain card-blog">
-                            <div class="card-header card-header-image">
-                                <a href="#pablo">
-                                    <img class="img img-raised" src="../assets/img/examples/blog5.jpg">
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-category text-success">
-                                    Startups
-                                </h6>
-                                <h4 class="card-title">
-                                    <a href="#pablo">Lyft launching cross-platform service this week</a>
-                                </h4>
-                                <p class="card-description">
-                                    Like so many organizations these days, Autodesk is a company in transition. It was until recently a traditional boxed software company selling licenses.<a href="#pablo"> Read More </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card card-plain card-blog">
-                            <div class="card-header card-header-image">
-                                <a href="#pablo">
-                                    <img class="img img-raised" src="../assets/img/examples/blog6.jpg">
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-category text-danger">
-                                    <i class="material-icons">trending_up</i> Enterprise
-                                </h6>
-                                <h4 class="card-title">
-                                    <a href="#pablo">6 insights into the French Fashion landscape</a>
-                                </h4>
-                                <p class="card-description">
-                                    Like so many organizations these days, Autodesk is a company in transition. It was until recently a traditional boxed software company selling licenses.<a href="#pablo"> Read More </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="team-5 section-image" style="background-image: url('../assets/img/bg10.jpg')">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card card-profile card-plain">
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="card-header card-header-image">
-                                        <a href="#pablo">
-                                            <img class="img" src="../assets/img/faces/card-profile1-square.jpg">
-                                        </a>
-                                        <div class="ripple-container"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-7">
+                            <div class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${recipe.attFileNoMain} + ')'">
+                                <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
                                     <div class="card-body">
-                                        <h4 class="card-title">Alec Thompson</h4>
-                                        <h6 class="card-category text-muted">Author of the Month</h6>
-                                        <p class="card-description">
-                                            Don't be scared of the truth because we need to restart the human foundation in truth...
-                                        </p>
                                     </div>
-                                    <div class="card-footer">
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-twitter"></i>
-                                        </a>
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-facebook-square"></i>
-                                        </a>
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-google"></i>
-                                        </a>
-                                    </div>
-                                </div>
+                                </a>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card card-profile card-plain">
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="card-header card-header-image">
-                                        <a href="#pablo">
-                                            <img class="img" src="../assets/img/faces/card-profile4-square.jpg">
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-md-7">
-                                    <div class="card-body">
-                                        <h4 class="card-title">Kendall Andrew</h4>
-                                        <h6 class="card-category text-muted">Author of the Week</h6>
-                                        <p class="card-description">
-                                            Don't be scared of the truth because we need to restart the human foundation in truth...
-                                        </p>
-                                    </div>
-                                    <div class="card-footer">
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-linkedin"></i>
-                                        </a>
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-facebook-square"></i>
-                                        </a>
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-dribbble"></i>
-                                        </a>
-                                        <a href="#pablo" class="btn btn-just-icon btn-link btn-white">
-                                            <i class="fa fa-google"></i>
-                                        </a>
-                                    </div>
-                                </div>
+                            <div class="card-body">
+                                <h6 class="card-category text-info">[[ ${ recipe.rcpPat2 } ]]</h6>
+                                <h4 class="card-title">
+                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">[[ ${ recipe.rcpNm } ]]</a>
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -300,41 +101,19 @@
             </div>
         </div>
         <div class="subscribe-line">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h3 class="title">Get Tips &amp; Tricks every Week!</h3>
-                        <p class="description">
-                            Join our newsletter and get news in your inbox every week! We hate spam too, so no worries about this.
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card card-plain card-form-horizontal">
-                            <div class="card-body">
-                                <form method="" action="">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                              <span class="input-group-text">
-                                <i class="material-icons">mail</i>
-                              </span>
-                                                </div>
-                                                <input type="text" class="form-control" placeholder="Your Email...">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button type="button" class="btn btn-primary btn-round btn-block">Subscribe</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="pagination-area">
+                <ul class="pagination justify-content-center text-center">
+                    <li class="page-item" th:if="${recipeList.firstPage}"><a href="recipeList.html" th:href="@{/recipes(page=1, size=${pageCall.size})}" class="page-link">&#xAB;&#xAB;</a></li>
+                    <li class="page-item" th:if="${recipeList.prevPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.startPage - 1}, size=${pageCall.size})}" class="page-link">&#xAB;</a></li>
+                    <li th:class="'page-item' + ${recipeList.nowPage == page? ' active':''}" th:each="page : ${recipeList.pageList}"><a href="recipeList.html" th:href="@{/recipes(page=${page}, size=${pageCall.size})}" class="page-link">[[${page}]]</a></li>
+                    <li class="page-item" th:if="${recipeList.nextPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.endPage + 1}, size=${pageCall.size})}" class="page-link">&#xBB;</a></li>
+                    <li class="page-item" th:if="${recipeList.lastPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.totalPage}, size=${pageCall.size})}" class="page-link">&#xBB;&#xBB;</a></li>
+                </ul>
             </div>
         </div>
     </div>
-<div th:replace="~{footer :: footer}"></div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
 </body>
 </html>

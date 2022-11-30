@@ -37,8 +37,9 @@
 <body class="sections-page sidebar-collapse">
 
     <div th:replace="~{header :: header}"></div>
-        <!--     *********     HEADER 3      *********      -->
-        <!-- Carousel Card -->
+
+    <!--     *********     HEADER 3      *********      -->
+    <!-- Carousel Card -->
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
             <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
@@ -111,7 +112,7 @@
                             <div class="col-md-3 col-lg-3" th:each="recipe : ${rank_recipes[0]}" th:object="${recipe}">
                                 <div class="rotating-card-container manual-flip">
                                     <div class="card card-rotate">
-                                        <div class="front front-background" style="background-image: url('../static/assets/img/examples/card-blog6.jpg');" th:style="'background-image: url(' + *{ attFileNoMain } + ');'">
+                                        <div class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ attFileNoMain } + ');'">
                                             <div class="card-body">
                                                 <h5 class="card-category card-category-social text-success">
                                                     [[ *{ rcpNm } ]]
@@ -136,9 +137,9 @@
                                                     조리분류 : [[ *{ rcpPat2 } ]]
                                                 </p>
                                                 <br>
-                                                <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
+                                                <a type="button" th:href="@{'/recipes/detail/' + *{id}}">
                                                     <i class="material-icons">subject</i> 자세히보기
-                                                </button>
+                                                </a>
                                                 <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
                                                     <i class="material-icons">refresh</i> 돌아가기
                                                 </button>
@@ -210,11 +211,11 @@
 
     <div th:replace="~{footer :: footer}"></div>
 
-<script th:type="module" th:inline="javascript">
-    $(document).ready(function() {
-        materialKitDemo.presentationAnimations();
-    });
-</script>
+    <script th:type="module" th:inline="javascript">
+        $(document).ready(function() {
+            materialKitDemo.presentationAnimations();
+        });
+    </script>
 </body>
 
 </html>
