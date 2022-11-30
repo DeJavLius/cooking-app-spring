@@ -21,6 +21,7 @@
 
     <a th:href="@{/api/v1/search/find-with}"> or 검색</a>
     <a th:href="@{/api/v1/search/find-only}"> and 검색</a>
+    <a th:href="@{/api/v1/recipes/rank}"> and 검색</a>
 
     <div>
         <pre>
@@ -34,14 +35,17 @@
 </div>
 
 <div>
-    <p>/api/v1/favorites/give : 모든 좋아요 레시피</p>
+    <a th:href="@{/api/v1/favorites/give}">/api/v1/favorites/give : 모든 좋아요 레시피</a>
     <br>
-    <p>/api/v1/favorites/give/user : 유저가 좋아요한 모든 레시피</p>
+    <a th:href="@{/api/v1/favorites/give/user}">/api/v1/favorites/give/user : 유저가 좋아요한 모든 레시피</a>
     <p>쿼리 : uid</p>
-    <p>/api/v1/favorites/give/recipe : 레시피별 좋아요한 유저</p>
+    <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/recipe}">/api/v1/favorites/give/recipe : 레시피별 좋아요한 유저</a>
     <p>쿼리 : recipeSeq</p>
-    <p>/api/v1/favorites/give/best : 가장 많은 좋아요를 받은 레시피부터</p>
+    <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/best}">/api/v1/favorites/give/best : 가장 많은 좋아요를 받은 레시피부터</a>
     <p>쿼리 : recipeSeq</p>
+    <p>없을 경우 에러 발생</p>
     <br>
     <br>
     post 요청은 postman이나 프로그램으로 확인해 보시면 됩니다.
@@ -52,6 +56,7 @@
     <p>쿼리 : uid</p>
     <p>받는 값 : responseBody Json List[Long]</p>
     <pre>
+        postman에서 post, body에 json 으로 설정 후 아래 예시로 입력하고 send 하면 값이 입력됨
         {
             "sequences" : [ recipe_seq1, recipe_seq2, ... ]
         }

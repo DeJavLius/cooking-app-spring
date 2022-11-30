@@ -1,10 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
+<form>
+    <input type="hidden" name="size" value="30">
+</form>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    name
+                </th>
+                <th>
+                    img
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="recipe : ${recipeList.dtoList}">
+                <td>
+                    [[ ${recipe.rcpNm} ]]
+                </td>
+                <td>
+                    [[ ${recipe.attFileNoMain} ]]
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="card-footer">
+        <nav aria-label="Contacts Page Navigation">
+            <ul class="pagination justify-content-center m-0">
+                <!--                    <li class="page-item active"><a class="page-link" href="#">1</a></li>-->
+                <!--                    <li class="page-item"><a class="page-link" href="#">2</a></li>-->
+                <li class="page-item" th:if="${recipeList.firstPage}">
+                    <a class="page-link" th:href="@{/recipes(page=1, size=${pageCall.size})}">
+                        <!--                              , type=${pageRequestDTO.type}, order=${pageRequestDTO.order}, keyword=${pageRequestDTO.keyword}-->
+                        <b><<</b>
+                    </a>
+                </li>
 
+                <li class="page-item" th:if="${recipeList.prevPage}">
+                    <a class="page-link" th:href="@{/recipes(page=${recipeList.startPage - 1}, size=${pageCall.size})}">
+                        <!--                              , order=${pageRequestDTO.order}, type=${pageRequestDTO.type}, keyword=${pageRequestDTO.keyword}-->
+                        <b><</b>
+                    </a>
+                </li>
+
+                <li th:class="'page-item' + ${recipeList.nowPage == page? ' active':''}" th:each="page : ${recipeList.pageList}">
+                    <a class="page-link" th:href="@{/recipes(page=${page}, size=${pageCall.size})}">[[${page}]]</a>
+                    <!--                          , order=${pageRequestDTO.order}, type=${pageRequestDTO.type}, keyword=${pageRequestDTO.keyword}-->
+                </li>
+
+                <li class="page-item" th:if="${recipeList.nextPage}">
+                    <a class="page-link" th:href="@{/recipes(page=${recipeList.endPage + 1}, size=${pageCall.size})}">
+                        <!--                              , order=${pageRequestDTO.order}, type=${pageRequestDTO.type}, keyword=${pageRequestDTO.keyword}-->
+                        <b>></b>
+                    </a>
+                </li>
+
+                <li class="page-item" th:if="${recipeList.lastPage}">
+                    <a class="page-link" th:href="@{/recipes(page=${recipeList.totalPage}, size=${pageCall.size})}">
+                        <!--                              , order=${pageRequestDTO.order}, type=${pageRequestDTO.type}, keyword=${pageRequestDTO.keyword}-->
+                        <b>>></b>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
 </body>
 </html>
