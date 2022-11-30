@@ -1,14 +1,17 @@
 package teamproject.capstone.recipe.repository.recipe;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
-import teamproject.capstone.recipe.entity.api.QOpenRecipeEntity;
+import teamproject.capstone.recipe.entity.recipe.QOpenRecipeEntity;
 import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.values.*;
 
@@ -47,13 +50,10 @@ public class OpenRecipePageWithPageWithSearchRepositoryImpl extends QuerydslRepo
     public Page<OpenRecipeEntity> recipeSearchAndPageHandling(List<Search> searchKeywords, Pageable pageable) {
         JPQLQuery<OpenRecipeEntity> recipeDataHandle = jpqlQueryInit();
         recipeDataHandle.where(searchAndQueryBuilder(searchKeywords));
-
-        Sort sort = pageable.getSort();
-
-        return null;
+        return pagingWithSortHandler(recipeDataHandle, pageable);
     }
 
-    private JPQLQuery<OpenRecipeEntity> jpqlQueryInit() {
+    private JPQLQuery<OpenRecipeEntity>  jpqlQueryInit() {
         JPQLQuery<OpenRecipeEntity> jpqlQuery = from(openRecipeEntity);
         return jpqlQuery.select(openRecipeEntity);
     }
@@ -65,10 +65,28 @@ public class OpenRecipePageWithPageWithSearchRepositoryImpl extends QuerydslRepo
         return new PageImpl<>(result, pageable, count);
     }
 
+    private Page<OpenRecipeEntity> pagingWithSortHandler(JPQLQuery<OpenRecipeEntity> query, Pageable pageable) {
+        totalCountSetting((int) query.fetchCount());
+        pageSortSetting(query, pageable.getSort());
+
+        List<OpenRecipeEntity> result = sqlPageSetting(query, pageable);
+        long count = query.fetchCount();
+        return new PageImpl<>(result, pageable, count);
+    }
+
     private void totalCountSetting(int count) {
         if (TotalValue.getTotalCount() != count) {
             TotalValue.setTotalCount(count);
         }
+    }
+
+    private void pageSortSetting(JPQLQuery<OpenRecipeEntity> query, Sort pageSort) {
+        pageSort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC: Order.DESC;
+            String prop = order.getProperty();
+            PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
+            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+        });
     }
 
     private List<OpenRecipeEntity> sqlPageSetting(JPQLQuery<OpenRecipeEntity> openAPIDataHandle, Pageable pageable) {
