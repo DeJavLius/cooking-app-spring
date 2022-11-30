@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.SessionUser;
-import teamproject.capstone.recipe.service.recipe.OpenAPIFavoriteService;
+import teamproject.capstone.recipe.service.recipe.OpenRecipeFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class HomeController {
-    private final OpenAPIFavoriteService openAPIFavoriteService;
+    private final OpenRecipeFavoriteService openRecipeFavoriteService;
     private final FavoriteRecipeRankService favoriteRecipeRankService;
 
     @GetMapping("test")
@@ -31,7 +31,7 @@ public class HomeController {
     @GetMapping
     public String homePage(Model model, @LoginSession SessionUser user) {
         List<Long> favoriteRankRecipe = favoriteRecipeRankService.mostFavoriteRankRecipe();
-        List<OpenRecipe> openRecipes = openAPIFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
+        List<OpenRecipe> openRecipes = openRecipeFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
         List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
         if (user != null) {
             log.info("login test : {}", user.getEmail());

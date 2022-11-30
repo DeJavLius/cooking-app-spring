@@ -1,29 +1,22 @@
 package teamproject.capstone.recipe.service.recipe;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
-import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
+import teamproject.capstone.recipe.domain.recipe.*;
 import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
-import teamproject.capstone.recipe.repository.recipe.OpenRecipePageWithSearchRepository;
-import teamproject.capstone.recipe.repository.recipe.OpenRecipeRepository;
+import teamproject.capstone.recipe.repository.recipe.*;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
-import teamproject.capstone.recipe.utils.page.PageResult;
-import teamproject.capstone.recipe.utils.page.RecipePageResult;
-import teamproject.capstone.recipe.utils.page.Search;
+import teamproject.capstone.recipe.utils.page.*;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OpenAPIWithSearchServiceImpl implements OpenAPIService, OpenAPIPageWithSearchService, OpenAPIFavoriteService {
+public class OpenRecipeWithSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, OpenRecipeFavoriteService {
     private final OpenRecipeRepository openRecipeRepository;
     private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
 
@@ -50,6 +43,13 @@ public class OpenAPIWithSearchServiceImpl implements OpenAPIService, OpenAPIPage
     @Override
     public void deleteAll() {
         openRecipeRepository.deleteAll();
+    }
+
+    @Override
+    public OpenRecipe findRecipe(Long id) {
+        Optional<OpenRecipeEntity> find = openRecipeRepository.findById(id);
+
+        return find.map(OpenRecipeConverter::entityToDto).orElse(OpenRecipe.builder().build());
     }
 
     @Override

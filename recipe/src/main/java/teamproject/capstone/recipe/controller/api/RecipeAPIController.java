@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
-import teamproject.capstone.recipe.service.recipe.OpenAPIFavoriteService;
-import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
+import teamproject.capstone.recipe.service.recipe.OpenRecipeFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
 import teamproject.capstone.recipe.utils.api.json.FavoriteData;
 import teamproject.capstone.recipe.utils.api.json.Sequences;
@@ -21,7 +20,7 @@ import java.util.List;
 public class RecipeAPIController {
     private final FavoriteRecipeService favoriteRecipeService;
     private final FirebaseUserManager firebaseUserManager;
-    private final OpenAPIFavoriteService openAPIFavoriteService;
+    private final OpenRecipeFavoriteService openRecipeFavoriteService;
 
     @GetMapping("/give")
     public FavoriteData requestAllFavoriteRecipe() {
@@ -63,7 +62,7 @@ public class RecipeAPIController {
         List<FavoriteRecipe> savedValues = new ArrayList<>();
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            List<FavoriteRecipe> result = openAPIFavoriteService.provideFavorites(email, sequences.getSequences());
+            List<FavoriteRecipe> result = openRecipeFavoriteService.provideFavorites(email, sequences.getSequences());
 
             savedValues = favoriteRecipeService.createAll(result);
         }
@@ -79,7 +78,7 @@ public class RecipeAPIController {
         List<FavoriteRecipe> savedValues = new ArrayList<>();
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            FavoriteRecipe result = openAPIFavoriteService.provideFavorite(email, recipeSeq);
+            FavoriteRecipe result = openRecipeFavoriteService.provideFavorite(email, recipeSeq);
             FavoriteRecipe checker = favoriteRecipeService.findRecipe(result.getRecipeSeq(), result.getUserEmail());
 
             if (result.getRecipeSeq() != null & checker.getRecipeSeq() == null & checker.getUserEmail() == null) {

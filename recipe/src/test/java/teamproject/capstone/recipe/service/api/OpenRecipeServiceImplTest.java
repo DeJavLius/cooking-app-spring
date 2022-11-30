@@ -8,8 +8,8 @@ import org.paukov.combinatorics3.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.service.recipe.OpenAPIPageWithSearchService;
-import teamproject.capstone.recipe.service.recipe.OpenAPIService;
+import teamproject.capstone.recipe.service.recipe.OpenRecipePageWithSearchService;
+import teamproject.capstone.recipe.service.recipe.OpenRecipeService;
 import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
@@ -30,16 +30,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Slf4j
-class OpenAPIServiceImplTest {
+class OpenRecipeServiceImplTest {
     @Autowired
     OpenAPIHandler openAPIHandler;
     @Autowired
     OpenRecipeRepository openRecipeRepository;
 
     @Autowired
-    OpenAPIService openAPIService;
+    OpenRecipeService openRecipeService;
     @Autowired
-    OpenAPIPageWithSearchService openAPIPageWithSearchService;
+    OpenRecipePageWithSearchService openRecipePageWithSearchService;
 
     @BeforeEach
     void pageInsertionBefore() {
@@ -63,7 +63,7 @@ class OpenAPIServiceImplTest {
         PageRequest pr = PageRequest.of(0, 10);
 
         // when
-        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openAPIPageWithSearchService.allAPIDataSources(pr);
+        PageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.allAPIDataSources(pr);
 
         // then
         assertThat(openRecipeAPIPageResult.getDtoList().size()).isEqualTo(10);
@@ -79,7 +79,7 @@ class OpenAPIServiceImplTest {
         PageRequest of = PageRequest.of(0, 10);
 
         // when
-        PageResult<OpenRecipe, OpenRecipeEntity> api = openAPIPageWithSearchService.searchAndAPIDataSources(v, of);
+        PageResult<OpenRecipe, OpenRecipeEntity> api = openRecipePageWithSearchService.searchAndAPIDataSources(v, of);
 
         // then
         log.info("api test check : {}", api);
@@ -94,7 +94,7 @@ class OpenAPIServiceImplTest {
             PageRequest of = PageRequest.of(0, 100);
 
             // when
-            PageResult<OpenRecipe, OpenRecipeEntity> orAPIPageResult = openAPIPageWithSearchService.searchOrAPIDataSources(valueTest, of);
+            PageResult<OpenRecipe, OpenRecipeEntity> orAPIPageResult = openRecipePageWithSearchService.searchOrAPIDataSources(valueTest, of);
 
             // then
             int count = 0;
@@ -140,7 +140,7 @@ class OpenAPIServiceImplTest {
             PageRequest of = PageRequest.of(0, 100);
 
             // when
-            PageResult<OpenRecipe, OpenRecipeEntity> andAPIPageResult = openAPIPageWithSearchService.searchAndAPIDataSources(valueTest, of);
+            PageResult<OpenRecipe, OpenRecipeEntity> andAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(valueTest, of);
 
             // then
             for (Search s : valueTest) {
