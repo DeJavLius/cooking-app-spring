@@ -129,7 +129,12 @@ public class OpenRecipePageWithPageWithSearchRepositoryImpl extends QuerydslRepo
     }
 
     private BooleanExpression conditionBuilder(Search search) {
-        return typeContains(search);
+        try {
+            return typeContains(search);
+        } catch (Exception e) {
+            log.error("wrong search value request... : log detail", e);
+            return openRecipeEntity.id.in(0L);
+        }
     }
 
     private BooleanExpression typeContains(Search search) {

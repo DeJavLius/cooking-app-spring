@@ -1,17 +1,20 @@
 package teamproject.capstone.recipe.utils.page;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import teamproject.capstone.recipe.utils.page.PageResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
+@Setter
 public class RecipePageResult<DTO, EN> extends PageResult<DTO, EN> {
+    private List<List<DTO>> divideList = new ArrayList<>();
     /*
      * Recipe page rule
      * start page : 1
@@ -19,6 +22,8 @@ public class RecipePageResult<DTO, EN> extends PageResult<DTO, EN> {
      *   ex) 1061 / 10 == 106 + 1 == 107 page
      * one page : total page size set = n, n is set by param
      * */
+
+    private int interval;
 
     private int sizeOfPage;
     private int numberOfPage;
@@ -29,6 +34,23 @@ public class RecipePageResult<DTO, EN> extends PageResult<DTO, EN> {
 
     public RecipePageResult(Page<EN> result, Function<EN, DTO> fn) {
         super(result, fn);
+        this.interval = 4;
+        divideDTOList();
+    }
+
+    private void divideDTOList() {
+        int max = super.getDtoList().size();
+        for (int i = 0; i < max; i += this.interval) {
+            int iInterval = i + this.interval;
+            if (iInterval > max) {
+                iInterval = max--;
+            }
+            this.divideList.add(super.getDtoList().subList(i, iInterval));
+        }
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 
     @Override
