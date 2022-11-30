@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
-import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
+import teamproject.capstone.recipe.service.recipe.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeService;
 import teamproject.capstone.recipe.utils.api.json.FavoriteData;
@@ -20,11 +20,8 @@ import java.util.List;
 @Slf4j
 public class RecipeAPIController {
     private final FavoriteRecipeService favoriteRecipeService;
-    private final FavoriteRecipeRankService favoriteRecipeRankService;
     private final FirebaseUserManager firebaseUserManager;
     private final OpenAPIFavoriteService openAPIFavoriteService;
-
-//    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/give")
     public FavoriteData requestAllFavoriteRecipe() {

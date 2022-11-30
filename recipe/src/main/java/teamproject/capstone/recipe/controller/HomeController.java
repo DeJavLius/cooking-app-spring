@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.SessionUser;
-import teamproject.capstone.recipe.service.api.OpenAPIFavoriteService;
+import teamproject.capstone.recipe.service.recipe.OpenAPIFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRecipeRankService;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
 

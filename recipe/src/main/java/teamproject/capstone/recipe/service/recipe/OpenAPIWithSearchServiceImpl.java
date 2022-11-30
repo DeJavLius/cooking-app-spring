@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.service.api;
+package teamproject.capstone.recipe.service.recipe;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +10,8 @@ import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.recipe.OpenRecipePageWithSearchRepository;
 import teamproject.capstone.recipe.repository.recipe.OpenRecipeRepository;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.page.PageResult;
+import teamproject.capstone.recipe.utils.page.RecipePageResult;
 import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, OpenAPISearchService, OpenAPIFavoriteService {
+public class OpenAPIWithSearchServiceImpl implements OpenAPIService, OpenAPIPageWithSearchService, OpenAPIFavoriteService {
     private final OpenRecipeRepository openRecipeRepository;
     private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
 
@@ -55,7 +57,6 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
         Optional<OpenRecipeEntity> findOpenRecipe = openRecipeRepository.findByRcpSeq(recipeSeq);
 
         return findOpenRecipe.map(OpenRecipeConverter::entityToDto).orElse(OpenRecipe.builder().build());
-
     }
 
     @Override
@@ -78,6 +79,13 @@ public class OpenAPIServiceImpl implements OpenAPIService, OpenAPIPageService, O
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
         Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(searchList, pageRequest);
         return new APIPageResult<>(openRecipeEntities, function);
+    }
+
+    @Override
+    public RecipePageResult<OpenRecipe, OpenRecipeEntity> searchPageWithSortRecipes(List<Search> searchList, PageRequest pageRequest) {
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.recipeSearchAndPageHandling(searchList, pageRequest);
+        return new RecipePageResult<>(openRecipeEntities, function);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.service.api;
+package teamproject.capstone.recipe.service.recipe;
 
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
