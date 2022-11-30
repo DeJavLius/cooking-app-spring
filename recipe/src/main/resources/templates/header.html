@@ -81,9 +81,11 @@
                                 <p>
                                     구글로 로그인하기
                                 </p>
-                                <a href="index.html" th:href="@{/oauth2/authorization/google}" class="btn btn-just-icon btn-link">
-                                    <i class="fa fa-google-plus"></i>
-                                </a>
+                                <div class="modal-body">
+                                    <a href="index.html" th:href="@{/oauth2/authorization/google}" id="google" class="btn btn-google btn-round">
+                                        <i class="fa fa-google-plus"></i> Google
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
