@@ -1,9 +1,7 @@
 package teamproject.capstone.recipe.utils.page;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.*;
+import org.springframework.data.domain.*;
 
 import java.util.List;
 import java.util.function.Function;
@@ -24,7 +22,7 @@ public abstract class PageResult<DTO, EN> {
         makePageList(result.getPageable());
     }
 
-    abstract void makePageList(Pageable pageable);
+    public abstract void makePageList(Pageable pageable);
 
-    abstract void setPage(Pageable pageable);
+    public abstract void setPage(Pageable pageable);
 }

@@ -32,7 +32,7 @@ public class RecipePageResult<DTO, EN> extends PageResult<DTO, EN> {
     }
 
     @Override
-    void makePageList(Pageable pageable) {
+    public void makePageList(Pageable pageable) {
         setPage(pageable);
         boolean isLast = super.getNowPage() == super.getTotalPage();
         super.setLastPage(isLast);
@@ -52,7 +52,7 @@ public class RecipePageResult<DTO, EN> extends PageResult<DTO, EN> {
     }
 
     @Override
-    void setPage(Pageable pageable) {
+    public void setPage(Pageable pageable) {
         super.setNowPage(pageable.getPageNumber() + 1);
 
         this.numberOfPage = 10;

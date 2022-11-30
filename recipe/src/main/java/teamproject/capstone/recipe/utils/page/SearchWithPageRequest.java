@@ -11,8 +11,7 @@ public class SearchWithPageRequest {
         this.pageDetail = pageDetail;
     }
 
-    public static SearchWithPageRequest searchPageRequest(SearchWrapper searchType, int page, int size) {
-        PageDetailRequest pageDetail = PageDetailRequest.otherPage(page, size);
+    public static SearchWithPageRequest searchPageRequest(SearchWrapper searchType, PageDetailRequest pageDetail) {
         return new SearchWithPageRequest(searchType, pageDetail);
     }
 

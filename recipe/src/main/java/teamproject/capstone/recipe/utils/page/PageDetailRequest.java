@@ -19,6 +19,9 @@ public final class PageDetailRequest {
         if (page <= 0) {
             page = 0;
         }
+        if (size <= 0) {
+            size = 10;
+        }
         return new PageDetailRequest(page, size);
     }
 }
