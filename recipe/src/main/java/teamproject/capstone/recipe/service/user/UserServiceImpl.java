@@ -47,6 +47,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean isUserExist(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
     public User updateUserBeApp(User user) {
         UserEntity updateEntity = dtoToEntity(user);
         UserEntity userEntity = userUpdateRepository.updateBeAppUser(updateEntity);

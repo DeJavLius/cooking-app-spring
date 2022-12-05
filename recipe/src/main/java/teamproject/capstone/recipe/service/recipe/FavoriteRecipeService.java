@@ -17,6 +17,8 @@ public interface FavoriteRecipeService {
     List<FavoriteRecipe> findByEmail(String email);
     List<FavoriteRecipe> findBySeq(long recipeSeq);
 
+    boolean isFavoriteNotExist(FavoriteRecipe favoriteRecipe);
+
     default FavoriteRecipe entityToDto(FavoriteRecipeEntity favoriteRecipeEntity) {
         return FavoriteRecipe.builder()
                 .id(favoriteRecipeEntity.getId())

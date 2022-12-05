@@ -5,16 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
+import teamproject.capstone.recipe.domain.recipe.manual.RecipeManual;
+import teamproject.capstone.recipe.domain.recipe.manual.RecipeManualImg;
+import teamproject.capstone.recipe.domain.user.SessionUser;
 import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
-import teamproject.capstone.recipe.service.recipe.OpenRecipePageWithSearchService;
-import teamproject.capstone.recipe.service.recipe.OpenRecipeService;
+import teamproject.capstone.recipe.service.recipe.*;
+import teamproject.capstone.recipe.utils.login.session.LoginSession;
 import teamproject.capstone.recipe.utils.page.*;
-import teamproject.capstone.recipe.utils.values.TotalValue;
+import teamproject.capstone.recipe.utils.page.TotalValue;
+
+import java.util.List;
 
 @RequestMapping("/recipes")
 @RequiredArgsConstructor
@@ -23,27 +26,43 @@ import teamproject.capstone.recipe.utils.values.TotalValue;
 public class RecipeController {
     private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
     private final OpenRecipeService openRecipeService;
+    private final RecipeService recipeService;
+    private final FavoriteRecipeService favoriteRecipeService;
     private final SearchWithPageHandler searchWithPageHandler;
 
-    private final String DEFAULT_VALUE = "";
-    private final String DEFAULT_SEQ = "0";
-
     @GetMapping
-    public String showAllRecipes(PageCall pageCall, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq, Model model) {
-        SearchWrapper search = new SearchWrapper.Builder().name(name).seq(seq).detail(detail).part(part).way(way).build();
+    public String showAllRecipes(@LoginSession SessionUser user, PageCall pageCall, Search search, Model model) {
+        Search value = Search.builder().name(search.getName()).seq(search.getSeq()).detail(search.getDetail()).part(search.getPart()).way(search.getWay()).build();
         SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(search, pageCall.getPage(), pageCall.getSize());
         Sort sort = pageCall.getOrder().equals("") ? Sort.by("rcpNm").descending() : Sort.by("rcpNm").ascending();
-        RecipePageResult<OpenRecipe, OpenRecipeEntity> openRecipeOpenRecipeEntityPageResult = openRecipePageWithSearchService.searchPageWithSortRecipes(searchWithPageRequest.getSearchType().getSearchList(), searchWithPageHandler.searchPageWithSort(searchWithPageRequest, sort));
+        RecipePageResult<OpenRecipe, OpenRecipeEntity> openRecipeOpenRecipeEntityPageResult = openRecipePageWithSearchService.searchPageWithSortRecipes(value, searchWithPageHandler.searchPageWithSort(searchWithPageRequest, sort));
 
+        model.addAttribute("user", user);
         model.addAttribute("recipeTotal", TotalValue.getTotalCount());
         model.addAttribute("recipeList", openRecipeOpenRecipeEntityPageResult);
         return "recipe/recipeList";
     }
 
     @GetMapping("/detail/{id}")
-    public String detailRecipe(@PathVariable Long id, Model model) {
+    public String detailRecipe(@PathVariable Long id, @LoginSession SessionUser user, Model model) {
+        boolean isFavorite = false;
         OpenRecipe recipe = openRecipeService.findRecipe(id);
+
+        if (user != null) {
+            model.addAttribute("user", user);
+
+            FavoriteRecipe requestFavorite = FavoriteRecipe.builder().recipeSeq(recipe.getRcpSeq()).userEmail(user.getEmail()).build();
+            isFavorite = !favoriteRecipeService.isFavoriteNotExist(requestFavorite);
+        } else {
+            model.addAttribute("user", null);
+        }
+        List<RecipeManual> recipeManuals = recipeService.recipeManualSplit(recipe);
+        List<RecipeManualImg> recipeManualImages = recipeService.recipeManualImgSplit(recipe);
+
         model.addAttribute("recipe", recipe);
+        model.addAttribute("isFavorite", isFavorite);
+        model.addAttribute("recipeManuals", recipeManuals);
+        model.addAttribute("recipeManualImages", recipeManualImages);
         return "recipe/recipeDetail";
     }
 }

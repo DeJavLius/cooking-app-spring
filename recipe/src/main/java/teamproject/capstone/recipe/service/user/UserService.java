@@ -8,8 +8,10 @@ public interface UserService {
     void delete(User user);
     User findByEmail(String email);
     User findByUid(String uid);
+    User updateUserBeApp(User user);
+
     boolean isAppUser(User user);
-     User updateUserBeApp(User user);
+    boolean isUserExist(String email);
 
     default UserEntity dtoToEntity(User user) {
         return UserEntity.builder()

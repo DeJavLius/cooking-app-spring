@@ -115,4 +115,10 @@ public class FavoriteRecipeServiceImpl implements FavoriteRecipeService, Favorit
         }
         return resultSeq;
     }
+
+    @Override
+    public boolean isFavoriteNotExist(FavoriteRecipe favoriteRecipe) {
+        Optional<FavoriteRecipeEntity> favoriteRecipeFind = favoriteRecipeRepository.findByRecipeSeqAndUserEmail(favoriteRecipe.getRecipeSeq(), favoriteRecipe.getUserEmail());
+        return favoriteRecipeFind.isEmpty();
+    }
 }
