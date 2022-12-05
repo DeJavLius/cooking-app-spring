@@ -16,9 +16,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OpenRecipeWithSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, OpenRecipeFavoriteService {
+public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, OpenRecipeFavoriteService, RecipeService {
     private final OpenRecipeRepository openRecipeRepository;
     private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
+    private final RecipeTupleRepository recipeTupleRepository;
 
     @Override
     public OpenRecipe create(OpenRecipe openRecipe) {
@@ -68,23 +69,23 @@ public class OpenRecipeWithSearchServiceImpl implements OpenRecipeService, OpenR
 
 
     @Override
-    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(List<Search> searchList, PageRequest pageRequest) {
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(Search search, PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchOrPageHandling(searchList, pageRequest);
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchOrPageHandling(search, pageRequest);
         return new APIPageResult<>(openRecipeEntities, function);
     }
 
     @Override
-    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(List<Search> searchList, PageRequest pageRequest) {
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(searchList, pageRequest);
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(search, pageRequest);
         return new APIPageResult<>(openRecipeEntities, function);
     }
 
     @Override
-    public RecipePageResult<OpenRecipe, OpenRecipeEntity> searchPageWithSortRecipes(List<Search> searchList, PageRequest pageRequest) {
+    public RecipePageResult<OpenRecipe, OpenRecipeEntity> searchPageWithSortRecipes(Search search, PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.recipeSearchAndPageHandling(searchList, pageRequest);
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.recipeSearchAndPageHandling(search, pageRequest);
         return new RecipePageResult<>(openRecipeEntities, function);
     }
 
@@ -115,5 +116,15 @@ public class OpenRecipeWithSearchServiceImpl implements OpenRecipeService, OpenR
         }
 
         return resultOfRank;
+    }
+
+    @Override
+    public List<String> recipeWayValueFound() {
+        return recipeTupleRepository.recipeWayExtract();
+    }
+
+    @Override
+    public List<String> recipePartValueFound() {
+        return recipeTupleRepository.recipePartExtract();
     }
 }
