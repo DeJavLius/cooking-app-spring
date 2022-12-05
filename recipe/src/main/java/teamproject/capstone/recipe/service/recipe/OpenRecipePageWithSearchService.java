@@ -12,8 +12,8 @@ import java.util.List;
 public interface OpenRecipePageWithSearchService {
     APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest);
 
-    APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(List<Search> searchList, PageRequest pageRequest);
-    APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(List<Search> searchList, PageRequest pageRequest);
+    APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(Search search, PageRequest pageRequest);
+    APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest);
 
-    RecipePageResult<OpenRecipe, OpenRecipeEntity> searchPageWithSortRecipes(List<Search> searchList, PageRequest pageRequest);
+    RecipePageResult<OpenRecipe, OpenRecipeEntity> searchPageWithSortRecipes(Search search, PageRequest pageRequest);
 }

@@ -13,8 +13,12 @@ public class SearchWithPageHandlerImpl implements SearchWithPageHandler {
     }
 
     @Override
-    public SearchWithPageRequest choosePageWithSearch(SearchWrapper searchWrapper, int page, int size) {
-        return SearchWithPageRequest.searchPageRequest(searchWrapper, PageDetailRequest.otherPage(page, size));
+    public SearchWithPageRequest choosePageWithSearch(Search value, int page, int size) {
+        Search search = new Search();
+        if (value != null) {
+            search = Search.builder().name(value.getName()).detail(value.getDetail()).part(value.getPart()).seq(value.getSeq()).way(value.getWay()).build();
+        }
+        return SearchWithPageRequest.searchPageRequest(search, PageDetailRequest.otherPage(page, size));
     }
 
     @Override

@@ -2,10 +2,20 @@ package teamproject.capstone.recipe.utils.page;
 
 import lombok.*;
 
+@Builder
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Search {
-    private String type;
-    private String keyword;
+    @Builder.Default
+    private String name = "";
+    @Builder.Default
+    private String detail = "";
+    @Builder.Default
+    private String part = "";
+    @Builder.Default
+    private Long seq = 0L;
+    @Builder.Default
+    private String way = "";
 }

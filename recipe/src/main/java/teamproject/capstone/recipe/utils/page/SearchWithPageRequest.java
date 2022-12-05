@@ -4,15 +4,15 @@ import org.springframework.data.domain.*;
 
 public class SearchWithPageRequest {
     private final PageDetailRequest pageDetail;
-    private final SearchWrapper searchType;
+    private final Search search;
 
-    private SearchWithPageRequest(SearchWrapper searchType, PageDetailRequest pageDetail) {
-        this.searchType = searchType;
+    private SearchWithPageRequest(Search search, PageDetailRequest pageDetail) {
+        this.search = search;
         this.pageDetail = pageDetail;
     }
 
-    public static SearchWithPageRequest searchPageRequest(SearchWrapper searchType, PageDetailRequest pageDetail) {
-        return new SearchWithPageRequest(searchType, pageDetail);
+    public static SearchWithPageRequest searchPageRequest(Search search, PageDetailRequest pageDetail) {
+        return new SearchWithPageRequest(search, pageDetail);
     }
 
     public PageRequest detailOf() {
@@ -23,7 +23,7 @@ public class SearchWithPageRequest {
         return PageRequest.of(pageDetail.getPage(), pageDetail.getSize(), sort);
     }
 
-    public SearchWrapper getSearchType() {
-        return this.searchType;
+    public Search getSearch() {
+        return this.search;
     }
 }

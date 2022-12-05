@@ -13,7 +13,7 @@ import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 import teamproject.capstone.recipe.utils.api.openApi.*;
 import teamproject.capstone.recipe.utils.page.*;
-import teamproject.capstone.recipe.utils.values.TotalValue;
+import teamproject.capstone.recipe.utils.page.TotalValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +51,9 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
-        SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(new SearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build(), page, size);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearchType().getSearchList(), searchWithPageRequest.detailOf());
+    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, Search value) {
+        SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(value, page, size);
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOf());
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
@@ -65,9 +65,9 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-with", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_VALUE) String name, @RequestParam(defaultValue = DEFAULT_VALUE) String detail, @RequestParam(defaultValue = DEFAULT_VALUE) String part, @RequestParam(defaultValue = DEFAULT_VALUE) String way, @RequestParam(defaultValue = DEFAULT_SEQ) String seq) {
-        SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(new SearchWrapper.Builder().name(name).detail(detail).part(part).seq(seq).way(way).build(), page, size);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchOrAPIDataSources(searchWithPageRequest.getSearchType().getSearchList(), searchWithPageRequest.detailOf());
+    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, Search value) {
+        SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(value, page, size);
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchOrAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOf());
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
