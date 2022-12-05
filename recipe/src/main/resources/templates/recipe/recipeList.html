@@ -21,7 +21,7 @@
     <link rel="icon" type="image/png" href="../../static/assets/img/favicon.png" th:href="@{/assets/img/favicon.png}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title>
-        Material Kit PRO by Creative Tim
+        요리 레시피
     </title>
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
     <!--     Fonts and icons     -->
@@ -29,20 +29,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <!-- CSS Files -->
     <link href="../../static/assets/css/material-kit.css?v=2.2.1" rel="stylesheet" th:href="@{/assets/css/material-kit.css?v='2.2.1'}"/>
-    <!-- CSS Just for demo purpose, don't include it in your project -->
-    <link href="../../static/assets/demo/demo.css" rel="stylesheet" th:href="@{/assets/demo/demo.css}"/>
-    <link href="../../static/assets/demo/vertical-nav.css" rel="stylesheet" th:href="@{/assets/demo/vertical-nav.css}"/>
 </head>
 
 <body class="blog-posts sidebar-collapse">
 
     <div th:replace="~{header :: header}"></div>
 
-    <div class="page-header header-filter header-small" data-parallax="true" style="background-image: url('../../static/assets/img/bg10.jpg');">
+    <div class="page-header header-filter header-small" data-parallax="true" style="background-image: url('../../static/assets/img/food/chicken.jpg');" th:style="'background-image: url(/assets/img/food/chicken.jpg);'">
         <div class="container">
             <div class="row">
                 <div class="col-md-8 ml-auto mr-auto text-center">
-                    <h2 class="title">레시피를 찾고 즐거운 식사를 하시길 바랍니다.</h2>
+                    <h2 class="title">마음에 드는 레시피를 찾고</h2>
+                    <h2 class="title"> 즐거운 식사를 하시길 바랍니다.</h2>
                 </div>
             </div>
         </div>
@@ -76,29 +74,37 @@
                     </div>
                 </div>
             </div>
-            <div class="section">
-                <input type="hidden" name="size" value="30">
-                <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
-                <br>
-                <div class="row display-4" th:each="rowList : ${recipeList.divideList}">
-                    <div class="col-md-3 col-lg-3" th:each="recipe : ${rowList}">
-                        <div class="card card-plain card-blog">
-                            <div class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${recipe.attFileNoMain} + ')'">
-                                <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
-                                    <div class="card-body">
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="card-category text-info">[[ ${ recipe.rcpPat2 } ]]</h6>
-                                <h4 class="card-title">
-                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">[[ ${ recipe.rcpNm } ]]</a>
-                                </h4>
+            <form>
+                <div class="section">
+                    <input type="hidden" name="size" value="28">
+                    <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
+                    <br>
+                    <div class="row display-4" th:each="rowList : ${recipeList.divideList}">
+                        <div class="col-md-3 col-lg-3" th:each="recipe : ${rowList}">
+                            <div class="card card-plain card-blog">
+                                <div th:if="${recipe.attFileNoMain != ''}" class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${recipe.attFileNoMain} + ')'">
+                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
+                                        <div class="card-body">
+                                        </div>
+                                    </a>
+                                </div>
+                                <div th:unless="${recipe.attFileNoMain != ''}" class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg)'">
+                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
+                                        <div class="card-body">
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-category text-info">[[ ${ recipe.rcpPat2 } ]]</h6>
+                                    <h4 class="card-title">
+                                        <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">[[ ${ recipe.rcpNm } ]]</a>
+                                    </h4>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
         <div class="subscribe-line">
             <div class="pagination-area">

@@ -3348,6 +3348,11 @@ tbody.collapse.show {
   left: 0;
   padding: 1.25rem; }
 
+.card-img-detail {
+  width: 50%;
+  border-top-left-radius: calc(0.25rem - 1px);
+  border-top-right-radius: calc(0.25rem - 1px); }
+
 .card-img {
   width: 100%;
   border-radius: calc(0.25rem - 1px); }
@@ -8430,7 +8435,7 @@ label {
   margin: auto; }
 
 .carousel .carousel-indicators {
-  bottom: 5px; }
+  bottom: 50px; }
   .carousel .carousel-indicators li,
   .carousel .carousel-indicators .active {
     margin: 11px 10px; }

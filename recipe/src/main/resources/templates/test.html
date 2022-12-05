@@ -43,6 +43,9 @@
     <a th:href="@{/api/v1/favorites/give/recipe}">/api/v1/favorites/give/recipe : 레시피별 좋아요한 유저</a>
     <p>쿼리 : recipeSeq</p>
     <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/favorite}">/api/v1/favorites/give/favorite : 레시피별 좋아요한 유저</a>
+    <p>쿼리 : email, recipeSeq</p>
+    <p>없을 경우 에러 발생</p>
     <a th:href="@{/api/v1/favorites/give/best}">/api/v1/favorites/give/best : 가장 많은 좋아요를 받은 레시피부터</a>
     <p>쿼리 : recipeSeq</p>
     <p>없을 경우 에러 발생</p>
@@ -69,6 +72,9 @@
     <p>레시피 추가하기</p>
     <p>/api/v1/favorites/take/choose : 모든 좋아요 레시피</p>
     <p>쿼리 : uid, recipeSeq</p>
+    <p>/api/v1/favorites/take/favorite : 모든 좋아요 레시피</p>
+    <p>쿼리 : email, recipeSeq</p>
+    <p>결과값 : boolean</p>
 
     <p>해당 유저의 삭제하기</p>
     <p>/api/v1/favorites/delete : 모든 좋아요 레시피</p>
@@ -76,6 +82,15 @@
     <p>해당 유저의 레시지 지정 삭제하기</p>
     <p>/api/v1/favorites/delete/choose : 모든 좋아요 레시피</p>
     <p>쿼리 : uid, recipeSeq</p>
+</div>
+<div>
+    추가사항 : 레시피 pat, way 의 목록 제공 api
+    <a th:href="@{/api/v1/favorites/attributes/tuple/part}">
+        레시피 먹는 방법
+    </a>
+    <a th:href="@{/api/v1/favorites/attributes/tuple/way}">
+        레시피 조리 방법
+    </a>
 </div>
 </body>
 </html>
