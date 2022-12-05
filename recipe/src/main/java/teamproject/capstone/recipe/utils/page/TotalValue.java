@@ -1,4 +1,4 @@
-package teamproject.capstone.recipe.utils.values;
+package teamproject.capstone.recipe.utils.page;
 
 public final class TotalValue {
     private static int totalCount = 0;
