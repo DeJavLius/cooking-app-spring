@@ -1,9 +1,8 @@
 package teamproject.capstone.recipe.utils.page;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

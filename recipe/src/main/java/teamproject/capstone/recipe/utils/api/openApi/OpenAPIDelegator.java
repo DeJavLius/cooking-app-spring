@@ -24,6 +24,16 @@ public class OpenAPIDelegator {
                 .build();
     }
 
+    private static String imageCheckString(String value) {
+        String defaultImage = "http://www.foodsafetykorea.go.kr/";
+        String check = insteadEmptyString(value);
+
+        if (check.equals(defaultImage)) {
+            return "";
+        }
+        return check;
+    }
+
     private static String insteadEmptyString(String value) {
         if (value.isEmpty()) {
             return "";
