@@ -12,16 +12,16 @@ import teamproject.capstone.recipe.utils.login.session.LoginSession;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RequestMapping("/account")
+@RequestMapping("/")
 @Slf4j
 @Controller
 public class LoginController {
-    @GetMapping
-    public String loginPage() {
-        return "login/recipeLogin";
+    @GetMapping("login")
+    public String loginOtherPage() {
+        return "redirect:/";
     }
 
-    @GetMapping("/login/success")
+    @GetMapping("account/login/success")
     public String loginSuccessPage() {
         return "redirect:/";
     }

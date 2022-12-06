@@ -27,7 +27,7 @@ public class OpenAPIController {
     private final OpenRecipeService openRecipeService;
     private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
     private final OpenRecipeFavoriteService openRecipeFavoriteService;
-    private final FavoriteRecipeRankService favoriteRecipeRankService;
+    private final FavoriteRankService favoriteRankService;
     private final OpenAPIHandler openApiHandler;
     private final SearchWithPageHandler searchWithPageHandler;
 
@@ -80,8 +80,8 @@ public class OpenAPIController {
 
     @GetMapping(value = "/v1/recipes/rank", produces = "application/json; charset=UTF-8")
     public RecipeData responseFavoriteOpenAPI() {
-        List<Long> favoriteRankRecipe = favoriteRecipeRankService.mostFavoriteRankRecipe();
-        List<OpenRecipe> favoriteRecipes = openRecipeFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
+        List<Long> favoriteRankRecipe = favoriteRankService.mostFavoriteRankRecipe();
+        List<OpenRecipe> favoriteRecipes = openRecipeFavoriteService.rankFavorite(favoriteRankRecipe);
 
         Meta metaInfo = MetaDelegator.metaGenerator(true, favoriteRecipes.size(), 0);
 

@@ -54,6 +54,11 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
     }
 
     @Override
+    public Page<OpenRecipeEntity> userFavoriteRecipePageHandling(List<Long> recipeSeq) {
+        return null;
+    }
+
+    @Override
     public List<String> recipeWayExtract() {
         JPQLQuery<String> recipeWayList = jpqlQuerySelectWayInit();
         recipeWayList.groupBy(openRecipeEntity.rcpWay2);

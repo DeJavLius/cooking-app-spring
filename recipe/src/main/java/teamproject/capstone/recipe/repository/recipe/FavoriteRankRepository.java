@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 
 import java.util.List;
 
-public interface FavoriteRecipeRankRepository {
+public interface FavoriteRankRepository {
     List<Tuple> findWithRankFavoriteRecipe();
+    List<Long> findAllFavoriteRecipe(String email);
 }

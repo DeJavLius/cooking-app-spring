@@ -1,7 +1,7 @@
 package teamproject.capstone.recipe.utils.api.json;
 
 import lombok.*;
-import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
+import teamproject.capstone.recipe.domain.recipe.Favorite;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ import java.util.List;
 @Getter
 public class FavoriteData {
     private int count;
-    private List<FavoriteRecipe> favoriteRecipes;
+    private List<Favorite> favoriteRecipes;
 }

@@ -12,14 +12,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class FavoriteRecipeEntity {
+public class FavoriteEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO, generator="native")
     @GenericGenerator(name = "native", strategy = "native")
     private Long id;
 
-    @Column
-    private Long recipeSeq;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private OpenRecipeEntity recipe;
 
     @Column
     private String userEmail;

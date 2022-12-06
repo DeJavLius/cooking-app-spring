@@ -9,8 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class FavoriteRecipe {
+public class Favorite {
     private Long id;
+    private Long recipeId;
     @JsonProperty("recipe_seq")
     private Long recipeSeq;
     @JsonProperty("user_email")

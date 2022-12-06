@@ -90,25 +90,25 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipe
     }
 
     @Override
-    public List<FavoriteRecipe> provideFavorites(String email, List<Long> recipeSeqList) {
-        List<FavoriteRecipe> findResult = new ArrayList<>();
+    public List<Favorite> provideFavorites(String email, List<Long> recipeSeqList) {
+        List<Favorite> findResult = new ArrayList<>();
         for (Long seq : recipeSeqList) {
-            FavoriteRecipe provide = provideFavorite(email, seq);
+            Favorite provide = provideFavorite(email, seq);
             findResult.add(provide);
         }
         return findResult;
     }
 
     @Override
-    public FavoriteRecipe provideFavorite(String email, Long recipeSeq) {
-        FavoriteRecipe favorite = FavoriteRecipe.builder().userEmail(email).build();
+    public Favorite provideFavorite(String email, Long recipeSeq) {
+        Favorite favorite = Favorite.builder().userEmail(email).build();
         Optional<OpenRecipeEntity> findOpenRecipe = openRecipeRepository.findByRcpSeq(recipeSeq);
         findOpenRecipe.ifPresent(openRecipeEntity -> favorite.setRecipeSeq(openRecipeEntity.getRcpSeq()));
         return favorite;
     }
 
     @Override
-    public List<OpenRecipe> rankFavoriteRecipe(List<Long> sequences) {
+    public List<OpenRecipe> rankFavorite(List<Long> sequences) {
         List<OpenRecipe> resultOfRank = new ArrayList<>();
 
         for (Long seq : sequences) {

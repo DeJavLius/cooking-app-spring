@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import teamproject.capstone.recipe.domain.recipe.FavoriteRecipe;
+import teamproject.capstone.recipe.utils.api.json.FavoriteRecipe;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManual;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManualImg;
@@ -17,6 +17,7 @@ import teamproject.capstone.recipe.utils.login.session.LoginSession;
 import teamproject.capstone.recipe.utils.page.*;
 import teamproject.capstone.recipe.utils.page.TotalValue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/recipes")
@@ -27,7 +28,8 @@ public class RecipeController {
     private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
     private final OpenRecipeService openRecipeService;
     private final RecipeService recipeService;
-    private final FavoriteRecipeService favoriteRecipeService;
+    private final FavoriteService favoriteService;
+    private final FavoriteRankService favoriteRankService;
     private final SearchWithPageHandler searchWithPageHandler;
 
     @GetMapping
@@ -37,7 +39,13 @@ public class RecipeController {
         Sort sort = pageCall.getOrder().equals("") ? Sort.by("rcpNm").descending() : Sort.by("rcpNm").ascending();
         RecipePageResult<OpenRecipe, OpenRecipeEntity> openRecipeOpenRecipeEntityPageResult = openRecipePageWithSearchService.searchPageWithSortRecipes(value, searchWithPageHandler.searchPageWithSort(searchWithPageRequest, sort));
 
+        List<Long> userFavoriteRecipe = new ArrayList<>();
+        if (user != null) {
+            userFavoriteRecipe = favoriteRankService.allFavoriteRecipe(user.getEmail());
+        }
+
         model.addAttribute("user", user);
+        model.addAttribute("userFavoriteList", userFavoriteRecipe);
         model.addAttribute("recipeTotal", TotalValue.getTotalCount());
         model.addAttribute("recipeList", openRecipeOpenRecipeEntityPageResult);
         return "recipe/recipeList";
@@ -52,7 +60,7 @@ public class RecipeController {
             model.addAttribute("user", user);
 
             FavoriteRecipe requestFavorite = FavoriteRecipe.builder().recipeSeq(recipe.getRcpSeq()).userEmail(user.getEmail()).build();
-            isFavorite = !favoriteRecipeService.isFavoriteNotExist(requestFavorite);
+            isFavorite = !favoriteService.isFavoriteNotExist(requestFavorite);
         } else {
             model.addAttribute("user", null);
         }
