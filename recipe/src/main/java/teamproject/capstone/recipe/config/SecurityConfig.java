@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/").permitAll()
                 .antMatchers("/recipes/**").permitAll()
-                .antMatchers("/account", "/test/**").permitAll()
+                .antMatchers("/account", "/login/**", "/test/**").permitAll()
                 .antMatchers("/cookers/**").authenticated()
                 .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
                 .anyRequest().authenticated()

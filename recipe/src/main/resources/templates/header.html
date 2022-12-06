@@ -30,15 +30,12 @@
                             <i class="material-icons">account_circle</i> 나의 메뉴
                         </a>
                         <div class="dropdown-menu dropdown-with-icons">
-<!--                            <a href="user/userInfo.html" th:href="@{/cookers/info}" class="dropdown-item">-->
-<!--                                <i class="material-icons">assignment</i> 나의 정보-->
+                            <a href="user/userInfo.html" th:href="@{/cookers/info}" class="dropdown-item">
+                                <i class="material-icons">assignment</i> 나의 정보
+                            </a>
+<!--                            <a href="#" th:href="@{/}" class="dropdown-item">-->
+<!--                                <i class="material-icons">monetization_on</i> 나의 레시피-->
 <!--                            </a>-->
-                            <a href="#" th:href="@{/}" class="dropdown-item">
-                                <i class="material-icons">monetization_on</i> 나의 레시피
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="material-icons">chat</i> 내가 좋아요한 레시피
-                            </a>
                         </div>
                     </li>
                     <li class="button-container nav-item iframe-extern" th:if="${user == null}">
