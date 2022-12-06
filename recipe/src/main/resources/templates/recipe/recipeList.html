@@ -99,6 +99,11 @@
                                     <h4 class="card-title">
                                         <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">[[ ${ recipe.rcpNm } ]]</a>
                                     </h4>
+                                    <div class="card-avatar">
+                                        <button type="button" class="btn btn-sm btn-light btn-link btn-rose" th:if="${#arrays.contains(userFavoriteList, recipe.rcpSeq)}">
+                                            <i class="material-icons">favorite</i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
