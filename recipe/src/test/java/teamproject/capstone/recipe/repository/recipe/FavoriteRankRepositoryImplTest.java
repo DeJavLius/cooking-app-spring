@@ -8,17 +8,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @Slf4j
-class FavoriteRecipeRankRepositoryImplTest {
+class FavoriteRankRepositoryImplTest {
     @Autowired
-    FavoriteRecipeRankRepository favoriteRecipeRankRepository;
+    FavoriteRankRepository favoriteRankRepository;
 
     @Test
     void findWithRankFavoriteRecipe() {
-        List<Tuple> withRankFavoriteRecipe = favoriteRecipeRankRepository.findWithRankFavoriteRecipe();
+        List<Tuple> withRankFavoriteRecipe = favoriteRankRepository.findWithRankFavoriteRecipe();
 
         log.info("value check of tuple : {}", withRankFavoriteRecipe.toString());
     }
