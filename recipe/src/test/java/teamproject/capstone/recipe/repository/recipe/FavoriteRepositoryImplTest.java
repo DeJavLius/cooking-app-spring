@@ -10,14 +10,12 @@ import java.util.List;
 
 @SpringBootTest
 @Slf4j
-class FavoriteRankRepositoryImplTest {
+class FavoriteRepositoryImplTest {
     @Autowired
-    FavoriteRankRepository favoriteRankRepository;
+    FavoriteRepository favoriteRepository;
 
     @Test
     void findWithRankFavoriteRecipe() {
-        List<Tuple> withRankFavoriteRecipe = favoriteRankRepository.findWithRankFavoriteRecipe();
 
-        log.info("value check of tuple : {}", withRankFavoriteRecipe.toString());
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import teamproject.capstone.recipe.domain.recipe.Favorite;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.User;
-import teamproject.capstone.recipe.repository.recipe.FavoriteRepository;
+import teamproject.capstone.recipe.repository.recipe.FavoriteSimpleRepository;
 import teamproject.capstone.recipe.repository.user.UserRepository;
 import teamproject.capstone.recipe.service.user.UserService;
 import teamproject.capstone.recipe.utils.values.Role;
@@ -24,7 +24,7 @@ class FavoriteServiceImplTest {
     @Autowired
     FavoriteService favoriteService;
     @Autowired
-    FavoriteRepository favoriteRepository;
+    FavoriteSimpleRepository favoriteSimpleRepository;
     @Autowired
     OpenRecipeService openRecipeService;
     @Autowired
@@ -56,6 +56,7 @@ class FavoriteServiceImplTest {
         OpenRecipe byRecipeSeq = openRecipeService.findByRecipeSeq(28L);
 
         Favorite given = Favorite.builder()
+                .id(null)
                 .recipeId(byRecipeSeq.getId())
                 .recipeSeq(byRecipeSeq.getRcpSeq())
                 .userEmail("1@1")
@@ -89,6 +90,39 @@ class FavoriteServiceImplTest {
 
     @Test
     void findAll() {
+        // given
+        User byEmail = userService.findByEmail("1@1");
+        OpenRecipe byRecipeSeq1 = openRecipeService.findByRecipeSeq(18L);
+        OpenRecipe byRecipeSeq2 = openRecipeService.findByRecipeSeq(28L);
+
+        Favorite given1 = Favorite.builder()
+                .id(null)
+                .recipeId(byRecipeSeq1.getId())
+                .recipeSeq(byRecipeSeq1.getRcpSeq())
+                .userEmail("1@1")
+                .build();
+
+        Favorite given2 = Favorite.builder()
+                .id(null)
+                .recipeId(byRecipeSeq2.getId())
+                .recipeSeq(byRecipeSeq2.getRcpSeq())
+                .userEmail("1@1")
+                .build();
+
+        // when
+        Favorite value1 = favoriteService.create(given1);
+        Favorite value2 = favoriteService.create(given2);
+        List<Favorite> result = favoriteService.findAll();
+
+        // taken
+        log.info("result check : {}", result);
+
+        assertThat(result.get(0).getUserEmail()).isEqualTo(value1.getUserEmail());
+        assertThat(result.get(0).getRecipeSeq()).isEqualTo(value1.getRecipeSeq());
+        assertThat(result.get(0).getId()).isGreaterThan(0L);
+        assertThat(result.get(1).getUserEmail()).isEqualTo(value2.getUserEmail());
+        assertThat(result.get(1).getRecipeSeq()).isEqualTo(value2.getRecipeSeq());
+        assertThat(result.get(1).getId()).isGreaterThan(0L);
     }
 
     @Test
@@ -98,18 +132,18 @@ class FavoriteServiceImplTest {
         OpenRecipe byRecipeSeq = openRecipeService.findByRecipeSeq(28L);
 
         Favorite given = Favorite.builder()
+                .id(null)
                 .recipeId(byRecipeSeq.getId())
                 .recipeSeq(byRecipeSeq.getRcpSeq())
                 .userEmail("1@1")
                 .build();
 
-        Favorite value = favoriteService.create(given);
-
         // when
+        Favorite value = favoriteService.create(given);
         List<Favorite> result = favoriteService.findByEmail("1@1");
 
         // taken
-        log.info("result check : {}", byEmail.getId());
+        log.info("result check : {}", result);
 
         assertThat(result.get(0).getUserEmail()).isEqualTo(value.getUserEmail());
         assertThat(result.get(0).getRecipeSeq()).isEqualTo(value.getRecipeSeq());
@@ -124,12 +158,14 @@ class FavoriteServiceImplTest {
         OpenRecipe byRecipeSeq2 = openRecipeService.findByRecipeSeq(28L);
 
         Favorite given1 = Favorite.builder()
+                .id(null)
                 .recipeId(byRecipeSeq1.getId())
                 .recipeSeq(byRecipeSeq1.getRcpSeq())
                 .userEmail("1@1")
                 .build();
 
         Favorite given2 = Favorite.builder()
+                .id(null)
                 .recipeId(byRecipeSeq2.getId())
                 .recipeSeq(byRecipeSeq2.getRcpSeq())
                 .userEmail("1@1")
@@ -156,31 +192,7 @@ class FavoriteServiceImplTest {
     @AfterEach
     void deleteEach () {
         userRepository.deleteAll();
-        favoriteRepository.deleteAll();
-    }
-
-    @Test
-    void testCreateAll() {
-    }
-
-    @Test
-    void testCreate() {
-    }
-
-    @Test
-    void testDelete() {
-    }
-
-    @Test
-    void testDeleteByEmail() {
-    }
-
-    @Test
-    void findRecipe() {
-    }
-
-    @Test
-    void testFindAll() {
+        favoriteSimpleRepository.deleteAll();
     }
 
     @Test

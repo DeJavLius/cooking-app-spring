@@ -5,12 +5,13 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
-@Entity(name = "recipe_favorite")
+@Entity
+@Table(name = "recipe_favorite")
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 public class FavoriteEntity {
     @Id
@@ -19,6 +20,7 @@ public class FavoriteEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private OpenRecipeEntity recipe;
 
     @Column

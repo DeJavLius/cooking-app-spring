@@ -37,7 +37,8 @@
             const recipe =$("#recipe").val();
             const FavoriteRecipe = {
                 id : null,
-                recipeSeq : recipe,
+                recipeId : recipeId,
+                recipeSeq : recipeSeq,
                 userEmail : user
             };
             $.ajax({
@@ -82,7 +83,8 @@
                             </div>
                         </div>
                         <form th:if="${user != null}">
-                            <input type="hidden" id="recipe" th:value="${recipe.rcpSeq}">
+                            <input type="hidden" id="recipeId" th:value="${recipe.id}">
+                            <input type="hidden" id="recipeSeq" th:value="${recipe.rcpSeq}">
                             <input type="hidden" id="user" th:value="${user.email}">
                             <div id="favoriteCheck">
                                 <button type="button" onclick="favoriteSend()" rel="tooltip" th:class="'btn btn-light btn-link' + ${isFavorite ? ' btn-rose' : ' btn-default'}">

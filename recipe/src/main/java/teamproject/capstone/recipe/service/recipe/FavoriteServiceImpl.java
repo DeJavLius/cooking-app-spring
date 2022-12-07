@@ -2,24 +2,23 @@ package teamproject.capstone.recipe.service.recipe;
 
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamproject.capstone.recipe.domain.recipe.Favorite;
-import teamproject.capstone.recipe.utils.api.json.FavoriteRecipe;
 import teamproject.capstone.recipe.entity.recipe.FavoriteEntity;
-import teamproject.capstone.recipe.repository.recipe.FavoriteRankRepository;
 import teamproject.capstone.recipe.repository.recipe.FavoriteRepository;
+import teamproject.capstone.recipe.repository.recipe.FavoriteSimpleRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService {
+    private final FavoriteSimpleRepository favoriteSimpleRepository;
     private final FavoriteRepository favoriteRepository;
-    private final FavoriteRankRepository favoriteRankRepository;
 
     @Override
     public List<Favorite> createAll(List<Favorite> favorites) {
@@ -38,92 +37,56 @@ public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService
     public Favorite create(Favorite favorite) {
         if (!isPresent(favorite.getRecipeSeq(), favorite.getUserEmail())) {
             FavoriteEntity favoriteEntity = dtoToEntity(favorite);
-            FavoriteEntity savedFavoriteEntity = favoriteRepository.save(favoriteEntity);
+            FavoriteEntity savedFavoriteEntity = favoriteSimpleRepository.save(favoriteEntity);
             return entityToDto(savedFavoriteEntity);
         }
-        return Favorite.builder().recipeSeq(null).userEmail(favorite.getUserEmail()).build();
+        return Favorite.builder().recipeId(0L).recipeSeq(0L).userEmail("").build();
     }
 
-    private boolean isPresent(Long seq, String email) {
-        Optional<FavoriteEntity> byRecipeSeqAndUserEmail = favoriteRepository.findByRecipeSeqAndUserEmail(seq, email);
-        return byRecipeSeqAndUserEmail.isPresent();
-    }
-
-    @Transactional
-    @Override
-    public void delete(String email, Long recipeSeq) {
-        favoriteRepository.deleteByUserEmailAndRecipeSeq(email, recipeSeq);
+    private boolean isPresent(Long recipeSeq, String userEmail) {
+        Object[] find = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, userEmail);
+        return find != null;
     }
 
     @Transactional
     @Override
     public void deleteByEmail(String email) {
-        favoriteRepository.deleteByUserEmail(email);
+        favoriteSimpleRepository.deleteByUserEmail(email);
     }
 
     @Transactional
     @Override
     public void deleteAll() {
-        favoriteRepository.deleteAll();
+        favoriteSimpleRepository.deleteAll();
     }
 
     @Override
     public Favorite findRecipe(long recipeSeq, String email) {
-        Optional<FavoriteEntity> findEntityBySeqAndEmail = favoriteRepository.findByRecipeSeqAndUserEmail(recipeSeq, email);
-        FavoriteEntity favoriteEntity = findEntityBySeqAndEmail.orElse(FavoriteEntity.builder().build());
-        return entityToDto(favoriteEntity);
+        return null;
     }
 
     @Override
     public List<Favorite> findAll() {
-        return favoriteRepository.findAll().stream().map(this::entityToDto).collect(Collectors.toList());
+        return favoriteSimpleRepository.findAll().stream().map(this::entityToDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<Favorite> findByEmail(String email) {
-        Optional<List<FavoriteEntity>> findEntities = favoriteRepository.findByUserEmail(email);
-        List<FavoriteEntity> favoriteEntities = findEntities.orElse(new ArrayList<>());
-
-        return entitiesToDto(favoriteEntities);
+    public List<Favorite> findByEmail(String userEmail) {
+        return null;
     }
 
     @Override
     public List<Favorite> findBySeq(long recipeSeq) {
-        Optional<List<FavoriteEntity>> findEntities = favoriteRepository.findByRecipeSeq(recipeSeq);
-        List<FavoriteEntity> favoriteEntities = findEntities.orElse(new ArrayList<>());
-
-        return entitiesToDto(favoriteEntities);
-    }
-
-    private List<Favorite> entitiesToDto(List<FavoriteEntity> entities) {
-        List<Favorite> findDomains = new ArrayList<>();
-        for (FavoriteEntity entity : entities) {
-            Favorite dto = entityToDto(entity);
-
-            findDomains.add(dto);
-        }
-
-        return findDomains;
-    }
-
-    @Override
-    public List<Long> mostFavoriteRankRecipe() {
-        List<Tuple> favoriteRank = favoriteRankRepository.findWithRankFavoriteRecipe();
-        List<Long> resultSeq = new ArrayList<>();
-        for (Tuple tuple : favoriteRank) {
-            resultSeq.add(tuple.get(0, Long.class));
-        }
-        return resultSeq;
-    }
-
-    @Override
-    public List<Long> allFavoriteRecipe(String email) {
-        return favoriteRankRepository.findAllFavoriteRecipe(email);
+        return null;
     }
 
     @Override
     public boolean isFavoriteNotExist(Favorite favorite) {
-        Optional<FavoriteEntity> favoriteRecipeFind = favoriteRepository.findByRecipeSeqAndUserEmail(favorite.getRecipeSeq(), favorite.getUserEmail());
-        return favoriteRecipeFind.isEmpty();
+        return false;
+    }
+
+    @Override
+    public List<Favorite> usersFavoriteRecipe(String email) {
+        return null;
     }
 }

@@ -24,7 +24,7 @@ public class UserController {
     @GetMapping("/info")
     public String userInfo(Model model, PageCall pageCall, @LoginSession SessionUser user) {
         User foundUser = userService.findByEmail(user.getEmail());
-        List<Long> favoriteList = favoriteRankService.allFavoriteRecipe(user.getEmail());
+//        List<Long> favoriteList = favoriteRankService.allFavoriteRecipe(user.getEmail());
 
         model.addAttribute("user", foundUser);
         return "/user/userInfo";

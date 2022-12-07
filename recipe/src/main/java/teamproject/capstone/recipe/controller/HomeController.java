@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.SessionUser;
-import teamproject.capstone.recipe.service.recipe.OpenRecipeFavoriteService;
 import teamproject.capstone.recipe.service.recipe.FavoriteRankService;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
 
@@ -20,8 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class HomeController {
-    private final OpenRecipeFavoriteService openRecipeFavoriteService;
-    private final FavoriteRankService favoriteRankService;
+//    private final FavoriteRankService favoriteRankService;
 
     @GetMapping("test")
     public String testPage() {
@@ -30,17 +28,17 @@ public class HomeController {
 
     @GetMapping
     public String homePage(Model model, @LoginSession SessionUser user) {
-        List<Long> favoriteRankRecipe = favoriteRankService.mostFavoriteRankRecipe();
-        List<OpenRecipe> openRecipes = openRecipeFavoriteService.rankFavoriteRecipe(favoriteRankRecipe);
+//        List<Long> favoriteRankRecipe = favoriteRankService.mostFavoriteRankRecipe();
+//        List<OpenRecipe> openRecipes = openRecipeFavoriteService.rankFavorite(favoriteRankRecipe);
         List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
         if (user != null) {
             log.info("login test : {}", user.getEmail());
             model.addAttribute("user", user);
         }
 
-        if (openRecipes.size() > 0) {
-            rankRecipe = rotatingPageRank(openRecipes);
-        }
+//        if (openRecipes.size() > 0) {
+//            rankRecipe = rotatingPageRank(openRecipes);
+//        }
 
         model.addAttribute("rank_recipes", rankRecipe);
         return "index";

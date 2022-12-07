@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import teamproject.capstone.recipe.utils.api.json.FavoriteRecipe;
+import teamproject.capstone.recipe.domain.recipe.Favorite;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManual;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManualImg;
@@ -41,7 +41,7 @@ public class RecipeController {
 
         List<Long> userFavoriteRecipe = new ArrayList<>();
         if (user != null) {
-            userFavoriteRecipe = favoriteRankService.allFavoriteRecipe(user.getEmail());
+//            userFavoriteRecipe = favoriteRankService.allFavoriteRecipe(user.getEmail());
         }
 
         model.addAttribute("user", user);
@@ -59,7 +59,7 @@ public class RecipeController {
         if (user != null) {
             model.addAttribute("user", user);
 
-            FavoriteRecipe requestFavorite = FavoriteRecipe.builder().recipeSeq(recipe.getRcpSeq()).userEmail(user.getEmail()).build();
+            Favorite requestFavorite = Favorite.builder().id(id).recipeSeq(recipe.getRcpSeq()).userEmail(user.getEmail()).build();
             isFavorite = !favoriteService.isFavoriteNotExist(requestFavorite);
         } else {
             model.addAttribute("user", null);

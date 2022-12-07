@@ -1,8 +1,9 @@
 package teamproject.capstone.recipe.service.recipe;
 
+import teamproject.capstone.recipe.domain.recipe.Favorite;
+
 import java.util.List;
 
 public interface FavoriteRankService {
-    List<Long> mostFavoriteRankRecipe();
-    List<Long> allFavoriteRecipe(String email);
+    List<Favorite> usersFavoriteRecipe(String email);
 }

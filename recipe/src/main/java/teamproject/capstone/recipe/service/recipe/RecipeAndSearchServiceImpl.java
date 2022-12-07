@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, OpenRecipeFavoriteService, RecipeService {
+public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, RecipeService {
     private final OpenRecipeRepository openRecipeRepository;
     private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
     private final RecipeTupleRepository recipeTupleRepository;
@@ -87,35 +87,6 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipe
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
         Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.recipeSearchAndPageHandling(search, pageRequest);
         return new RecipePageResult<>(openRecipeEntities, function);
-    }
-
-    @Override
-    public List<Favorite> provideFavorites(String email, List<Long> recipeSeqList) {
-        List<Favorite> findResult = new ArrayList<>();
-        for (Long seq : recipeSeqList) {
-            Favorite provide = provideFavorite(email, seq);
-            findResult.add(provide);
-        }
-        return findResult;
-    }
-
-    @Override
-    public Favorite provideFavorite(String email, Long recipeSeq) {
-        Favorite favorite = Favorite.builder().userEmail(email).build();
-        Optional<OpenRecipeEntity> findOpenRecipe = openRecipeRepository.findByRcpSeq(recipeSeq);
-        findOpenRecipe.ifPresent(openRecipeEntity -> favorite.setRecipeSeq(openRecipeEntity.getRcpSeq()));
-        return favorite;
-    }
-
-    @Override
-    public List<OpenRecipe> rankFavorite(List<Long> sequences) {
-        List<OpenRecipe> resultOfRank = new ArrayList<>();
-
-        for (Long seq : sequences) {
-            resultOfRank.add(findByRecipeSeq(seq));
-        }
-
-        return resultOfRank;
     }
 
     @Override
