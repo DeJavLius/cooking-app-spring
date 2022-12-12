@@ -14,6 +14,7 @@ import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.recipe.FavoriteSimpleRepository;
 import teamproject.capstone.recipe.repository.user.UserRepository;
 import teamproject.capstone.recipe.service.user.UserService;
+import teamproject.capstone.recipe.utils.api.openApi.OpenAPIHandler;
 import teamproject.capstone.recipe.utils.values.Role;
 
 import java.util.List;
@@ -34,9 +35,12 @@ class FavoriteServiceImplTest {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    OpenAPIHandler openAPIHandler;
 
     @BeforeEach
-    void genUser() {
+    void gen() {
+        openAPIHandler.requestAllOpenAPI();
         userService.create(User.builder()
                         .email("lee@email")
                         .role(Role.USER)
