@@ -14,6 +14,6 @@ public class PageCall {
     public PageCall() {
         this.page = 1;
         this.size = 24;
-        this.order = "";
+        this.order = "d";
     }
 }

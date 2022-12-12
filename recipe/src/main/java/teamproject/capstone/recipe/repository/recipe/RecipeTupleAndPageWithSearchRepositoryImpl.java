@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
-import teamproject.capstone.recipe.entity.recipe.FavoriteEntity;
 import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.entity.recipe.QFavoriteEntity;
 import teamproject.capstone.recipe.entity.recipe.QOpenRecipeEntity;
@@ -37,8 +36,9 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
 
     @Override
     public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
-        JPAQuery<OpenRecipeEntity> openAPIDataHandle = jpaQueryStart();
-        return pagingHandler(openAPIDataHandle, pageable);
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
+        return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
     }
 
     @Override
@@ -50,23 +50,26 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
 
     @Override
     public Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable) {
-        JPAQuery<OpenRecipeEntity> openAPIDataHandle = jpaQueryStart();
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
         openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords));
-        return pagingHandler(openAPIDataHandle, pageable);
+        return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
     }
 
     @Override
     public Page<OpenRecipeEntity> recipeSearchAndPageHandling(Search searchKeywords, Pageable pageable) {
-        JPAQuery<OpenRecipeEntity> recipeDataHandle = jpaQueryStart();
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        JPAQuery<Tuple> recipeDataHandle = withSelectInit(aliasRecipe);
         recipeDataHandle.where(searchAndQueryBuilder(searchKeywords));
-        return pagingWithSortHandler(recipeDataHandle, pageable);
+        return pagingWithSortHandler(recipeDataHandle, aliasRecipe, pageable);
     }
 
     @Override
     public Page<Object[]> recipeSearchAndPageSeparateHandling(Search searchKeywords, Pageable pageable) {
-        JPAQuery<Tuple> tupleJPAQuery = separateSelectInit();
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        JPAQuery<Tuple> tupleJPAQuery = separateSelectInit(aliasRecipe);
         tupleJPAQuery.where(searchAndQueryBuilder(searchKeywords));
-        return tuplePagingWithSortHandler(tupleJPAQuery, pageable);
+        return tuplePagingWithSortHandler(tupleJPAQuery, aliasRecipe, pageable);
     }
 
     @Override
@@ -92,16 +95,24 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
         return fetch.stream().map(Tuple::toArray).collect(Collectors.toList());
     }
 
-    private JPAQuery<Tuple> separateSelectInit() {
-        return jpaQuerySeparateStart().leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
+    private JPAQuery<Tuple> separateSelectInit(NumberPath<Long> aliasRecipe) {
+        return jpaQuerySeparateStart(aliasRecipe).leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
+    }
+
+    private JPAQuery<Tuple> withSelectInit(NumberPath<Long> aliasRecipe) {
+        return jpaQueryWithCountStart(aliasRecipe).leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
     }
 
     private JPAQuery<OpenRecipeEntity> jpaQueryStart() {
         return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity);
     }
 
-    private JPAQuery<Tuple> jpaQuerySeparateStart() {
-        return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity.id, openRecipeEntity.attFileNoMain, openRecipeEntity.rcpPat2, openRecipeEntity.rcpNm, favoriteEntity.recipe.id.count());
+    private JPAQuery<Tuple> jpaQueryWithCountStart(NumberPath<Long> aliasRecipe) {
+        return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity, favoriteEntity.recipe.id.count().as(aliasRecipe));
+    }
+
+    private JPAQuery<Tuple> jpaQuerySeparateStart(NumberPath<Long> aliasRecipe) {
+        return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity.id, openRecipeEntity.attFileNoMain, openRecipeEntity.rcpPat2, openRecipeEntity.rcpNm, favoriteEntity.recipe.id.count().as(aliasRecipe));
     }
 
     private JPAQuery<String> jpaQuerySelectWayInit() {
@@ -132,18 +143,19 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
         return new PageImpl<>(result, pageable, count);
     }
 
-    private Page<OpenRecipeEntity> pagingWithSortHandler(JPAQuery<OpenRecipeEntity> query, Pageable pageable) {
+    private Page<OpenRecipeEntity> pagingWithSortHandler(JPAQuery<Tuple> query, NumberPath<Long> aliasRecipe, Pageable pageable) {
         totalCountSetting(query.fetch().size());
-        pageSortSetting(query, pageable.getSort());
+        pageSortSetting(query, aliasRecipe, pageable.getSort());
 
-        List<OpenRecipeEntity> result = sqlPageSetting(query, pageable);
+        List<Tuple> tupleResult = sqlTuplePageSetting(query, pageable);
+        List<OpenRecipeEntity> result = tupleResult.stream().map(tuple -> (OpenRecipeEntity) tuple.toArray()[0]).collect(Collectors.toList());
         long count = TotalValue.getTotalCount();
         return new PageImpl<>(result, pageable, count);
     }
 
-    private Page<Object[]> tuplePagingWithSortHandler(JPAQuery<Tuple> query, Pageable pageable) {
+    private Page<Object[]> tuplePagingWithSortHandler(JPAQuery<Tuple> query, NumberPath<Long> aliasRecipe, Pageable pageable) {
         totalCountSetting(query.fetch().size());
-        tuplePageSortSetting(query, pageable.getSort());
+        pageSortSetting(query, aliasRecipe, pageable.getSort());
 
         List<Tuple> tuples = sqlTuplePageSetting(query, pageable);
         List<Object[]> result = tuples.stream().map(Tuple::toArray).collect(Collectors.toList());
@@ -157,21 +169,16 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
         }
     }
 
-    private void pageSortSetting(JPQLQuery<OpenRecipeEntity> query, Sort pageSort) {
+    private void pageSortSetting(JPQLQuery<Tuple> query, NumberPath<Long> aliasRecipe, Sort pageSort) {
         pageSort.stream().forEach(order -> {
-            Order direction = order.isAscending() ? Order.ASC: Order.DESC;
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
             String prop = order.getProperty();
             PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
-            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
-        });
-    }
-
-    private void tuplePageSortSetting(JPAQuery<Tuple> query, Sort pageSort) {
-        pageSort.stream().forEach(order -> {
-            Order direction = order.isAscending() ? Order.ASC: Order.DESC;
-            String prop = order.getProperty();
-            PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
-            query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+            if (prop.equals("favorite")) {
+                query.orderBy(aliasRecipe.desc());
+            } else {
+                query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+            }
         });
     }
 

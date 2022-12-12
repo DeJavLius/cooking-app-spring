@@ -38,9 +38,9 @@ public class RecipeController {
         ways.add(0, new Way("All"));
         parts.add(0, new Part("All"));
 
+        Sort sort = pageCall.getOrder().equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
         Search value = Search.builder().name(search.getName()).seq(search.getSeq()).detail(search.getDetail()).part(search.getPart().equals("All") ? "" : search.getPart()).way(search.getWay().equals("All") ? "" : search.getWay()).build();
         SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(search, pageCall.getPage(), pageCall.getSize());
-        Sort sort = pageCall.getOrder().equals("") ? Sort.by("rcpNm").descending() : Sort.by("rcpNm").ascending();
         RecipePageResult<Favorite, Object[]> recipePageResult = openRecipePageWithSearchService.searchTuplePageWithSortRecipes(value, searchWithPageHandler.searchPageWithSort(searchWithPageRequest, sort));
 
         List<Long> favoriteSeq = new ArrayList<>();

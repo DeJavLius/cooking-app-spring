@@ -89,7 +89,6 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipe
         return new APIPageResult<>(openRecipeEntities, function);
     }
 
-
     @Override
     public APIPageResult<OpenRecipe, OpenRecipeEntity> searchOrAPIDataSources(Search search, PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);

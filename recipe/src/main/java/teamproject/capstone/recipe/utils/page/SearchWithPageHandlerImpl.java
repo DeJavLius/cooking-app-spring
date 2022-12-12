@@ -11,9 +11,9 @@ import java.util.List;
 @Component
 public class SearchWithPageHandlerImpl<T> implements SearchWithPageHandler<T> {
     @Override
-    public PageRequest choosePage(int page, int size) {
+    public PageRequest choosePage(int page, int size, Sort sort) {
         PageDetailRequest pageMeta = PageDetailRequest.otherPage(page, size);
-        return PageRequest.of(pageMeta.getPage(), pageMeta.getSize());
+        return PageRequest.of(pageMeta.getPage(), pageMeta.getSize(), sort);
     }
 
     @Override

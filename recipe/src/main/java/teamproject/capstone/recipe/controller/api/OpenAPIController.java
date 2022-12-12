@@ -3,6 +3,7 @@ package teamproject.capstone.recipe.controller.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.service.recipe.*;
 import teamproject.capstone.recipe.utils.api.*;
@@ -27,14 +28,16 @@ public class OpenAPIController {
     private final OpenRecipeService openRecipeService;
     private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
     private final OpenAPIHandler openApiHandler;
-    private final SearchWithPageHandler searchWithPageHandler;
+    private final SearchWithPageHandler<OpenRecipe> searchWithPageHandler;
 
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
+    private final String DEFAULT_ORDER = "d";
 
     @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
-    public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
-        PageRequest pageRequest = searchWithPageHandler.choosePage(page, size);
+    public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order) {
+        Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
+        PageRequest pageRequest = searchWithPageHandler.choosePage(page, size, sort);
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.allAPIDataSources(pageRequest);
 
         boolean isEnd = page == TotalValue.getTotalCount();
@@ -47,9 +50,10 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, Search value) {
+    public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order, Search value) {
+        Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
         SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(value, page, size);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOf());
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOfSort(sort));
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
@@ -61,9 +65,10 @@ public class OpenAPIController {
     }
 
     @GetMapping(value = "/v1/search/find-with", produces = "application/json; charset=UTF-8")
-    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, Search value) {
+    public RecipeData responseSearchOrOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order, Search value) {
+        Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
         SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(value, page, size);
-        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchOrAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOf());
+        APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchOrAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOfSort(sort));
 
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());

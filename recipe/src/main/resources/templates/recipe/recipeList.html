@@ -141,6 +141,12 @@
                                                         <button type="submit" class="btn btn-success">
                                                             검색
                                                         </button>
+                                                        <div class="col-lg-5 col-md-6 col-sm-12">
+                                                            <select class="selectpicker" data-style="select-with-transition" title="Single Select" name="order" data-size="2">
+                                                                <option value="d" th:selected="${ pageCall.order == 'd' }">등록순</option>
+                                                                <option value="f" th:selected="${ pageCall.order == 'f' }">인기순</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
