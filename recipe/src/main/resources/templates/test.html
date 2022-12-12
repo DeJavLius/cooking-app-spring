@@ -19,14 +19,13 @@
 <div>
     <a th:href="@{/api/v1}">api 보기</a>
 
-    <a th:href="@{/api/v1/search/find-with}"> or 검색</a>
     <a th:href="@{/api/v1/search/find-only}"> and 검색</a>
     <a th:href="@{/api/v1/recipes/rank}"> and 검색</a>
 
     <div>
         <pre>
             페이지 쿼리 값과 기본값
-            page : 0, size : 10
+            page : 0, size : 10, order : f, d -> f - 인기순 d - 일반순
             검색 쿼리 값과 기본값
             name : null, detail : null, part : null, seq : 0, way : null
             음식 이름    , 재료 상세      , 음식 구분   , 레시피 seq, 조리방식
