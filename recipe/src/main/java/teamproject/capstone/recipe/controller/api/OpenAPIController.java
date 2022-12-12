@@ -31,8 +31,6 @@ public class OpenAPIController {
 
     private final String DEFAULT_PAGE = "1";
     private final String DEFAULT_SIZE = "10";
-    private final String DEFAULT_VALUE = "";
-    private final String DEFAULT_SEQ = "0";
 
     @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size) {
@@ -78,16 +76,14 @@ public class OpenAPIController {
 
     @GetMapping(value = "/v1/recipes/rank", produces = "application/json; charset=UTF-8")
     public RecipeData responseFavoriteOpenAPI() {
-//        List<Long> favoriteRankRecipe = favoriteRankService.mostFavoriteRankRecipe();
-//        List<OpenRecipe> favoriteRecipes = openRecipeFavoriteService.rankFavorite(favoriteRankRecipe);
+        List<OpenRecipe> openRecipes = openRecipePageWithSearchService.mostAndroidRecipe();
 
-//        Meta metaInfo = MetaDelegator.metaGenerator(true, favoriteRecipes.size(), 0);
+        Meta metaInfo = MetaDelegator.metaGenerator(true, openRecipes.size(), 0);
 
-//        return RecipeData.builder()
-//                .meta(metaInfo)
-//                .openRecipes(favoriteRecipes)
-//                .build();
-        return null;
+        return RecipeData.builder()
+                .meta(metaInfo)
+                .openRecipes(openRecipes)
+                .build();
     }
 
     @GetMapping("/v2/save")

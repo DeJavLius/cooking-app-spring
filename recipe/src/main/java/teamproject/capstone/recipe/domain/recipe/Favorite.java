@@ -7,6 +7,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @ToString
 public class Favorite {
     private Long id;
@@ -17,4 +18,6 @@ public class Favorite {
     private String recipeWay;
     private String recipePart;
     private String userEmail;
+    @Builder.Default
+    private Long count = 0L;
 }

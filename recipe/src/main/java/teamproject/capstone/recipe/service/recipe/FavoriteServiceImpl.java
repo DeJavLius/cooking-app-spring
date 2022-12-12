@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamproject.capstone.recipe.domain.recipe.Favorite;
+import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.entity.recipe.FavoriteEntity;
+import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
+import teamproject.capstone.recipe.repository.recipe.FavoriteRankRepository;
 import teamproject.capstone.recipe.repository.recipe.FavoriteRepository;
 import teamproject.capstone.recipe.repository.recipe.FavoriteSimpleRepository;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService {
     private final FavoriteSimpleRepository favoriteSimpleRepository;
+    private final FavoriteRankRepository favoriteRankRepository;
     private final FavoriteRepository favoriteRepository;
 
     @Override
@@ -26,7 +30,7 @@ public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService
         List<FavoriteEntity> createEntities = favorites.stream().map(this::dtoToEntity).collect(Collectors.toList());
 
         for (FavoriteEntity entity : createEntities) {
-            Favorite favorite = create(entityToDto(entity));
+            Favorite favorite = entityToDto(favoriteSimpleRepository.save(entity));
             savedEntities.add(favorite);
         }
 
@@ -34,18 +38,41 @@ public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService
     }
 
     @Override
+    public List<Favorite> createAll(String email, List<OpenRecipe> recipeList) {
+        List<Favorite> savedEntities = new ArrayList<>();
+
+        for (OpenRecipe or : recipeList) {
+            Favorite f = Favorite.builder()
+                    .recipeId(or.getId())
+                    .recipeSeq(or.getRcpSeq())
+                    .userEmail(email)
+                    .build();
+            FavoriteEntity favoriteEntity = dtoToEntity(f);
+            Favorite favorite = entityToDto(favoriteSimpleRepository.save(favoriteEntity));
+            savedEntities.add(favorite);
+        }
+
+        return savedEntities;
+    }
+
+    @Override
+    public void delete(Favorite favorite) {
+        FavoriteEntity deleteFavorite = dtoToEntity(favorite);
+        favoriteSimpleRepository.delete(deleteFavorite);
+    }
+
+    @Override
     public Favorite create(Favorite favorite) {
-        if (!isPresent(favorite.getRecipeSeq(), favorite.getUserEmail())) {
-            FavoriteEntity favoriteEntity = dtoToEntity(favorite);
+        FavoriteEntity favoriteEntity = dtoToEntity(favorite);
+        if (!isExist(favorite.getRecipeId(), favorite.getUserEmail())) {
             FavoriteEntity savedFavoriteEntity = favoriteSimpleRepository.save(favoriteEntity);
             return entityToDto(savedFavoriteEntity);
         }
-        return Favorite.builder().recipeId(0L).recipeSeq(0L).userEmail("").build();
+        return Favorite.builder().build();
     }
 
-    private boolean isPresent(Long recipeSeq, String userEmail) {
-        Object[] find = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, userEmail);
-        return find != null;
+    private boolean isExist(Long recipeSeq, String email) {
+        return favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email) != null;
     }
 
     @Transactional
@@ -61,32 +88,65 @@ public class FavoriteServiceImpl implements FavoriteService, FavoriteRankService
     }
 
     @Override
-    public Favorite findRecipe(long recipeSeq, String email) {
-        return null;
+    public Favorite findRecipe(Long recipeSeq, String email) {
+        Favorite favorite = Favorite.builder().id(0L).build();
+
+        Object[] foundRawValue = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email);
+        if (foundRawValue != null) {
+            FavoriteEntity favoriteEntity = (FavoriteEntity) foundRawValue[0];
+            OpenRecipeEntity openRecipeEntity = (OpenRecipeEntity) foundRawValue[1];
+            favorite = entityToDto(favoriteEntity, openRecipeEntity);
+        }
+        return favorite;
     }
 
     @Override
     public List<Favorite> findAll() {
-        return favoriteSimpleRepository.findAll().stream().map(this::entityToDto).collect(Collectors.toList());
+        List<Object[]> allFavorite = favoriteRepository.findAllFavorite();
+        return valueNotFoundCheck(allFavorite);
     }
 
     @Override
-    public List<Favorite> findByEmail(String userEmail) {
-        return null;
+    public List<Favorite> findByEmail(String email) {
+        List<Object[]> allFavorite = favoriteRepository.findFavoriteByEmail(email);
+        return valueNotFoundCheck(allFavorite);
     }
 
     @Override
-    public List<Favorite> findBySeq(long recipeSeq) {
-        return null;
+    public List<Favorite> findBySeq(Long recipeSeq) {
+        List<Object[]> allFavorite = favoriteRepository.findFavoriteByRecipeSeq(recipeSeq);
+        return valueNotFoundCheck(allFavorite);
     }
 
     @Override
-    public boolean isFavoriteNotExist(Favorite favorite) {
-        return false;
+    public List<Favorite> mostFavoriteRecipe() {
+        List<Object[]> allFavorite = favoriteRankRepository.findWithRankFavoriteRecipe();
+        return valueNotFoundCheck(allFavorite);
     }
 
     @Override
     public List<Favorite> usersFavoriteRecipe(String email) {
-        return null;
+        List<Object[]> allFavorite = favoriteRankRepository.findRankFavoriteRecipeByEmail(email);
+        return valueNotFoundCheck(allFavorite);
+    }
+
+    @Override
+    public List<Long> usersFavoriteOnlySeq(String email) {
+        return favoriteRankRepository.findRankFavoriteRecipeByEmailOnlySeq(email);
+    }
+
+    private List<Favorite> valueNotFoundCheck(List<Object[]> found) {
+        List<Favorite> favoriteList = new ArrayList<>();
+
+        if (found != null) {
+            for (Object[] values : found) {
+                Favorite f = entityToDto((FavoriteEntity) values[0], (OpenRecipeEntity) values[1]);
+                f.setCount((Long) values[2]);
+                favoriteList.add(f);
+            }
+        } else {
+            favoriteList.add(Favorite.builder().id(0L).build());
+        }
+        return favoriteList;
     }
 }
