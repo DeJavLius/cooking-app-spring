@@ -1,5 +1,6 @@
 package teamproject.capstone.recipe.repository.api;
 
+import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.paukov.combinatorics3.Generator;
@@ -7,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import teamproject.capstone.recipe.repository.recipe.OpenRecipePageWithSearchRepository;
-import teamproject.capstone.recipe.repository.recipe.OpenRecipeRepository;
+import org.springframework.data.domain.Pageable;
+import teamproject.capstone.recipe.domain.recipe.Favorite;
+import teamproject.capstone.recipe.domain.recipe.Recommend;
+import teamproject.capstone.recipe.entity.recipe.FavoriteEntity;
+import teamproject.capstone.recipe.repository.recipe.*;
+import teamproject.capstone.recipe.service.recipe.FavoriteRankService;
 import teamproject.capstone.recipe.utils.api.APIPageResult;
+import teamproject.capstone.recipe.utils.page.RecipePageResult;
 import teamproject.capstone.recipe.utils.page.Search;
 import teamproject.capstone.recipe.utils.api.json.parts.OpenAPIRecipe;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
@@ -22,6 +28,7 @@ import teamproject.capstone.recipe.utils.converter.OpenRecipeConverter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +43,10 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
     OpenRecipeRepository openRecipeRepository;
     @Autowired
     OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
+    @Autowired
+    RecipeTupleRepository recipeTupleRepository;
+    @Autowired
+    FavoriteSimpleRepository favoriteSimpleRepository;
 
     HashMap<String, Object> insertValue = new HashMap<>();
 
@@ -49,17 +60,17 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
 
     @BeforeEach
     void pageInsertionBefore() {
-        List<OpenAPIRecipe> fetchValues = openAPIHandler.requestAllOpenAPI();
-        List<OpenRecipeEntity> forInsert = new ArrayList<>();
-        for (OpenAPIRecipe oap: fetchValues) {
-            for (Row r : oap.getRow()) {
-                OpenRecipe op = OpenAPIDelegator.rowToOpenRecipe(r);
-                OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
-                forInsert.add(ope);
-            }
-            openRecipeRepository.saveAll(forInsert);
-            forInsert.clear();
-        }
+//        List<OpenAPIRecipe> fetchValues = openAPIHandler.requestAllOpenAPI();
+//        List<OpenRecipeEntity> forInsert = new ArrayList<>();
+//        for (OpenAPIRecipe oap: fetchValues) {
+//            for (Row r : oap.getRow()) {
+//                OpenRecipe op = OpenAPIDelegator.rowToOpenRecipe(r);
+//                OpenRecipeEntity ope = OpenRecipeConverter.dtoToEntity(op);
+//                forInsert.add(ope);
+//            }
+//            openRecipeRepository.saveAll(forInsert);
+//            forInsert.clear();
+//        }
     }
 
     @Test
@@ -154,7 +165,6 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
             int i = 0;
 
             while (i < total) {
-                log.info("search value of : name - {}, detail - {}, way - {}, seq - {}, part - {}", search.getName(), search.getDetail(), search.getWay(), search.getSeq(), search.getPart());
                 PageRequest of = PageRequest.of(i, 100);
 
                 // when
@@ -163,6 +173,7 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
                 APIPageResult<OpenRecipe, OpenRecipeEntity> andPageResult = new APIPageResult<>(openRecipeEntities, fn);
 
                 if (!andPageResult.getDtoList().isEmpty()) {
+                    log.info("page request value check : {}", andPageResult.getDtoList());
 
                     total = openRecipeEntities.getTotalPages();
 
@@ -190,6 +201,43 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
 
                 i++;
             }
+        }
+    }
+
+    @Test
+    void openAPISearchSimpleAndHandling() {
+        // given
+        int total = 1058;
+        Search search = Search.builder().part("찌기").build();
+
+        PageRequest of = PageRequest.of(0, 100);
+
+        // when
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(search, of);
+        Function<OpenRecipeEntity, OpenRecipe> fn = (OpenRecipeConverter::entityToDto);
+        APIPageResult<OpenRecipe, OpenRecipeEntity> andPageResult = new APIPageResult<>(openRecipeEntities, fn);
+
+        if (!andPageResult.getDtoList().isEmpty()) {
+            log.info("page request value check : {}", andPageResult.getDtoList());
+
+            // then
+            if (!search.getName().equals("")) {
+                assertThat(andPageResult.getDtoList().get(0).getRcpNm()).contains((String) insertValue.getOrDefault("name", null));
+            }
+            if (!search.getDetail().equals("")) {
+                assertThat(andPageResult.getDtoList().get(0).getRcpPartsDtls()).contains((String) insertValue.getOrDefault("detail", null));
+            }
+            if (!search.getPart().equals("")) {
+                assertThat(andPageResult.getDtoList().get(0).getRcpPat2()).isEqualTo((String) insertValue.getOrDefault("part", null));
+            }
+            if (search.getSeq() > 0L) {
+                assertThat(insertValue.getOrDefault((Object) "seq", 0L)).isEqualTo(andPageResult.getDtoList().get(0).getRcpSeq());
+            }
+            if (!search.getWay().equals("")) {
+                assertThat(andPageResult.getDtoList().get(0).getRcpWay2()).isEqualTo((String) insertValue.getOrDefault("way", null));
+            }
+        } else {
+            log.info("nothing found");
         }
     }
 
@@ -242,8 +290,64 @@ class OpenPageDetailRequestWithSearchRepositoryImplTest {
         return result;
     }
 
+    @Test
+    void randValueSelectTest() {
+        // given
+        String way = "찌기";
+//        String part = "밥";
+        Search test = Search.builder().way(way).build();
+        PageRequest of = PageRequest.of(0, 500);
+        List<Recommend> recommends = new ArrayList<>();
+
+        List<Object[]> objects = recipeTupleRepository.sameRecommendRecipe(test);
+
+        // then
+        for (Object[] ol : objects) {
+            Long id = (Long) ol[0];
+            String image = (String) ol[1];
+            String name = (String) ol[2];
+
+            Recommend build = Recommend.builder().id(id).image(image).name(name).build();
+            log.info("recommend value : id - {}, image - {}, name - {}", build.getId(), build.getImage(), build.getName());
+            recommends.add(build);
+        }
+
+        for (Recommend r : recommends) {
+            Optional<OpenRecipeEntity> byId = openRecipeRepository.findById(r.getId());
+            byId.ifPresent(openRecipeEntity -> assertThat(openRecipeEntity.getId()).isEqualTo(r.getId()));
+        }
+    }
+
+    @Test
+    void tupleCountWithSearchPage() {
+        // given
+        Search test = Search.builder().build();
+        PageRequest of = PageRequest.of(0, 1058);
+        Page<Object[]> tuples = openRecipePageWithSearchRepository.recipeSearchAndPageSeparateHandling(test, of);
+
+        List<FavoriteEntity> all = favoriteSimpleRepository.findAll();
+
+        // when
+        Function<Object[], Favorite> fn = (entity -> Favorite.builder().recipeId((Long) entity[0]).recipeMainImage((String) entity[1]).recipePart((String) entity[2]).recipeName((String) entity[3]).count((Long) entity[4]).build());
+        RecipePageResult<Favorite, Object[]> value = new RecipePageResult<>(tuples, fn);
+
+        List<Favorite> dtoList = value.getDtoList();
+        int count = 0;
+        for (Favorite f : dtoList) {
+            log.info("value test of etc : {}, {}, {}, {}, {}", f.getRecipeId(), f.getRecipeMainImage(), f.getRecipePart(), f.getRecipeName(), f.getCount());
+            for (FavoriteEntity fe : all) {
+                if (f.getRecipeId().equals(fe.getId())) {
+                    count++;
+                }
+            }
+        }
+
+        assertThat(count).isEqualTo(all.size());
+    }
+
     @AfterEach
     void deleteAllInsertValue() {
-        openRecipeRepository.deleteAll();
+//        favoriteSimpleRepository.deleteAll();
+//        openRecipeRepository.deleteAll();
     }
 }

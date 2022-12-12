@@ -9,12 +9,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import teamproject.capstone.recipe.domain.recipe.Favorite;
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
 import teamproject.capstone.recipe.domain.user.User;
+import teamproject.capstone.recipe.entity.recipe.FavoriteEntity;
+import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
 import teamproject.capstone.recipe.repository.recipe.FavoriteSimpleRepository;
 import teamproject.capstone.recipe.repository.user.UserRepository;
 import teamproject.capstone.recipe.service.user.UserService;
 import teamproject.capstone.recipe.utils.values.Role;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +38,7 @@ class FavoriteServiceImplTest {
     @BeforeEach
     void genUser() {
         userService.create(User.builder()
-                        .email("1@1")
+                        .email("lee@email")
                         .role(Role.USER)
                         .name("1")
                         .Uid("")
@@ -70,6 +73,32 @@ class FavoriteServiceImplTest {
 
         assertThat(byEmail.getEmail()).isEqualTo(result.getUserEmail());
         assertThat(given.getRecipeSeq()).isEqualTo(result.getRecipeSeq());
+    }
+
+    @Test
+    void createDuplicateTest() {
+        User leeEmail = userService.findByEmail("lee@email");
+        OpenRecipe byRecipeSeq = openRecipeService.findByRecipeSeq(18L);
+
+        Favorite f = Favorite.builder()
+                .recipeId(byRecipeSeq.getId())
+                .recipeSeq(byRecipeSeq.getRcpSeq())
+                .recipeWay(byRecipeSeq.getRcpWay2())
+                .recipePart(byRecipeSeq.getRcpPat2())
+                .recipeMainImage(byRecipeSeq.getAttFileNoMain())
+                .recipeName(byRecipeSeq.getRcpNm())
+                .userEmail(leeEmail.getEmail()).build();
+
+        favoriteService.create(f);
+        favoriteService.create(f);
+        favoriteService.create(f);
+        favoriteService.create(f);
+        favoriteService.create(f);
+
+        List<Favorite> all = favoriteService.findAll();
+        for (Favorite fa : all) {
+            log.info("value check : {}, {}", fa, fa.getRecipeSeq());
+        }
     }
 
     @Test
