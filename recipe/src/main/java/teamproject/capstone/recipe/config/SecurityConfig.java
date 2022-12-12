@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import teamproject.capstone.recipe.service.login.CustomOAuthService;
+import teamproject.capstone.recipe.utils.login.CustomOAuthService;
 import teamproject.capstone.recipe.utils.login.handler.OAuthSuccessHandler;
 
 @Configuration
@@ -31,12 +31,10 @@ public class SecurityConfig {
                 .antMatchers("/assets/**").permitAll()
                 .antMatchers("/").permitAll()
                 .antMatchers("/recipes/**").permitAll()
-                .antMatchers("/account", "/login/**", "/test/**").permitAll()
+                .antMatchers("/account", "/login/**", "/test/**", "/oauth2/authorization/google").permitAll()
                 .antMatchers("/cookers/**").authenticated()
                 .antMatchers("/api/v1/**", "/api/v2/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin()
                 .and()
                 .logout()
                 .logoutSuccessUrl("/")

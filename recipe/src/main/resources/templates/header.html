@@ -17,15 +17,20 @@
             </div>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ml-auto">
-                    <li class="button-container nav-item iframe-extern">
-                        <a href="test.html" th:href="@{/test}">테스트 페이지 (v 1.1.5)</a>
-                    </li>
-                    <li class="button-container nav-item">
-                        <a href="./recipe/recipeList.html" class="nav-pills-success" th:href="@{/recipes}">
-                            <i class="material-icons">store</i> 레시피 보기
+                    <li class="dropdown nav-item">
+                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                            <i class="material-icons">dinner_dining</i> 레시피
                         </a>
+                        <div class="dropdown-menu dropdown-with-icons">
+                            <a href="./index.html" class="dropdown-item" th:href="@{/}">
+                                <i class="material-icons">store</i> 메인화면
+                            </a>
+                            <a href="./recipe/recipeList.html" class="dropdown-item" th:href="@{/recipes}">
+                                <i class="material-icons">restaurant_menu</i> 레시피 보기
+                            </a>
+                        </div>
                     </li>
-                    <li class="dropdown nav-item" th:if="${user != null}">
+                    <li class="dropdown nav-item" th:if="${ user != null }">
                         <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                             <i class="material-icons">account_circle</i> 나의 메뉴
                         </a>
@@ -33,24 +38,16 @@
                             <a href="user/userInfo.html" th:href="@{/cookers/info}" class="dropdown-item">
                                 <i class="material-icons">assignment</i> 나의 정보
                             </a>
-<!--                            <a href="#" th:href="@{/}" class="dropdown-item">-->
-<!--                                <i class="material-icons">monetization_on</i> 나의 레시피-->
-<!--                            </a>-->
                         </div>
                     </li>
-                    <li class="button-container nav-item iframe-extern" th:if="${user == null}">
+                    <li class="button-container nav-item iframe-extern" th:if="${ user == null }">
                         <button class="btn btn-sm btn-block btn-round" data-toggle="modal" data-target="#loginModal">
                             로그인
                         </button>
                     </li>
-                    <li class="button-container nav-item iframe-extern" th:unless="${user == null}">
+                    <li class="button-container nav-item iframe-extern" th:unless="${ user == null }">
                         <a href="#" th:href="@{/logout}" class="btn btn-sm btn-round btn-block">
                             로그아웃
-                        </a>
-                    </li>
-                    <li class="button-container nav-item iframe-extern">
-                        <a href="#" class="btn btn-sm btn-success btn-block btn-round">
-                            <i class="material-icons">shopping_cart</i> 레시피 등록
                         </a>
                     </li>
                 </ul>
@@ -71,13 +68,13 @@
                                     구글로 로그인하기
                                 </p>
                             </div>
-                            <div class="card-body">
-                                <div class="modal-body">
-                                    <a href="index.html" th:href="@{/oauth2/authorization/google}" id="google" class="btn btn-google btn-round">
-                                        <i class="fa fa-google-plus"></i> Google
-                                    </a>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card-body">
+                            <a href="index.html" th:href="@{http://www.inndiary.xyz/oauth2/authorization/google}" id="google" class="btn btn-google btn-round">
+                                <i class="fa fa-google-plus"></i> Google
+                            </a>
                         </div>
                     </div>
                 </div>
