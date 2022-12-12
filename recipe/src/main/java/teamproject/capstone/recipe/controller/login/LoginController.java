@@ -3,26 +3,28 @@ package teamproject.capstone.recipe.controller.login;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import teamproject.capstone.recipe.domain.user.SessionUser;
 import teamproject.capstone.recipe.utils.firebase.FirebaseUserManager;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RequestMapping("/")
+@RequestMapping("/account")
 @Slf4j
 @Controller
 public class LoginController {
-    @GetMapping("login")
-    public String loginOtherPage() {
+    @GetMapping("/login/success")
+    public String loginGetSuccessPage(@LoginSession SessionUser sUser) {
+        log.info("start account login or success : GET");
+        log.info("login user : {}", sUser.getEmail());
         return "redirect:/";
     }
 
-    @GetMapping("account/login/success")
-    public String loginSuccessPage() {
+    @PostMapping("/login/success")
+    public String loginPostSuccessPage(@LoginSession SessionUser sUser) {
+        log.info("start account login or success : POST");
+        log.info("login user : {}", sUser.getEmail());
         return "redirect:/";
     }
 

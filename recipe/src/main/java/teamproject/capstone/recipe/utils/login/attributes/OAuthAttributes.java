@@ -9,7 +9,6 @@ import teamproject.capstone.recipe.utils.values.Role;
 import java.util.Map;
 
 @Getter
-@Slf4j
 public class OAuthAttributes {
     private Map<String, Object> attributes;
     private String nameAttributeKey;
