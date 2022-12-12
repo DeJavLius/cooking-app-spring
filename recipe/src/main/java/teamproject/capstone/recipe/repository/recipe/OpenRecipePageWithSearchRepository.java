@@ -1,5 +1,6 @@
 package teamproject.capstone.recipe.repository.recipe;
 
+import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import teamproject.capstone.recipe.entity.recipe.OpenRecipeEntity;
@@ -13,6 +14,5 @@ public interface OpenRecipePageWithSearchRepository {
     Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable);
 
     Page<OpenRecipeEntity> recipeSearchAndPageHandling(Search searchKeywords, Pageable pageable);
-
-    Page<OpenRecipeEntity> userFavoriteRecipePageHandling(List<Long> recipeSeq);
+    Page<Object[]> recipeSearchAndPageSeparateHandling(Search searchKeywords, Pageable pageable);
 }
