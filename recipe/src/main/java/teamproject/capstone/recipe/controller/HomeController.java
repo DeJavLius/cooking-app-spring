@@ -4,22 +4,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
+import org.springframework.web.bind.annotation.*;
+import teamproject.capstone.recipe.domain.recipe.Favorite;
+import teamproject.capstone.recipe.domain.recipe.Recommend;
 import teamproject.capstone.recipe.domain.user.SessionUser;
 import teamproject.capstone.recipe.service.recipe.FavoriteRankService;
+import teamproject.capstone.recipe.service.recipe.RecipeRecommendService;
 import teamproject.capstone.recipe.utils.login.session.LoginSession;
+import teamproject.capstone.recipe.utils.page.Search;
+import teamproject.capstone.recipe.utils.page.SearchWithPageHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RequestMapping("/")
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class HomeController {
-//    private final FavoriteRankService favoriteRankService;
+    private final FavoriteRankService favoriteRankService;
+    private final RecipeRecommendService recipeRecommendService;
+    private final SearchWithPageHandler<Favorite> searchWithPageHandler;
 
     @GetMapping("test")
     public String testPage() {
@@ -28,34 +32,46 @@ public class HomeController {
 
     @GetMapping
     public String homePage(Model model, @LoginSession SessionUser user) {
-//        List<Long> favoriteRankRecipe = favoriteRankService.mostFavoriteRankRecipe();
-//        List<OpenRecipe> openRecipes = openRecipeFavoriteService.rankFavorite(favoriteRankRecipe);
-        List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
+        List<Favorite> favorites = favoriteRankService.mostFavoriteRecipe();
+        List<List<Favorite>> rankRecipe = new ArrayList<>();
         if (user != null) {
-            log.info("login test : {}", user.getEmail());
             model.addAttribute("user", user);
         }
 
-//        if (openRecipes.size() > 0) {
-//            rankRecipe = rotatingPageRank(openRecipes);
-//        }
+        String way = "굽기";
+        String part = "반찬";
+        Search waySearch = Search.builder().way("굽기").build();
+        Search partSearch = Search.builder().part("반찬").build();
+        if (favorites.size() > 0) {
+            rankRecipe = searchWithPageHandler.pageRowRank(favorites);
 
+            Favorite bestFavorite = favorites.get(0);
+            way = bestFavorite.getRecipeWay();
+            part = bestFavorite.getRecipePart();
+            waySearch = waySearch(way);
+            partSearch = partSearch(part);
+        }
+
+        List<Recommend> wayRecommend = recommendRecipeList(waySearch);
+        List<Recommend> partRecommend = recommendRecipeList(partSearch);
+
+        model.addAttribute("way", way);
+        model.addAttribute("part", part);
         model.addAttribute("rank_recipes", rankRecipe);
+        model.addAttribute("wayList", wayRecommend);
+        model.addAttribute("partList", partRecommend);
         return "index";
     }
 
-    List<List<OpenRecipe>> rotatingPageRank(List<OpenRecipe> openRecipes) {
-        List<List<OpenRecipe>> rankRecipe = new ArrayList<>();
+    private List<Recommend> recommendRecipeList(Search search) {
+        return recipeRecommendService.findRecommendRecipe(search);
+    }
 
-        int start = 0;
-        int midIndex = 4;
-        int recipesSize = openRecipes.size();
-        if (recipesSize > midIndex) {
-            rankRecipe.add(openRecipes.subList(start, midIndex));
-            start = midIndex;
-        }
+    private Search waySearch(String way) {
+        return Search.builder().way(way).build();
+    }
 
-        rankRecipe.add(openRecipes.subList(start, recipesSize));
-        return rankRecipe;
+    private Search partSearch(String part) {
+        return Search.builder().part(part).build();
     }
 }

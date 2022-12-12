@@ -5,7 +5,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
 public class Search {
     @Builder.Default
@@ -18,4 +18,12 @@ public class Search {
     private Long seq = 0L;
     @Builder.Default
     private String way = "";
+
+    public Search() {
+        this.name = "";
+        this.detail = "";
+        this.part = "";
+        this.way = "";
+        this.seq = 0L;
+    }
 }

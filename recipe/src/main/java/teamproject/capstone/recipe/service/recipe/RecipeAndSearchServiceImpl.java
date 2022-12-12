@@ -1,5 +1,6 @@
 package teamproject.capstone.recipe.service.recipe;
 
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, RecipeService {
+public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipePageWithSearchService, RecipeRecommendService, RecipeService {
     private final OpenRecipeRepository openRecipeRepository;
     private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
     private final RecipeTupleRepository recipeTupleRepository;
+    private final FavoriteRankRepository favoriteRankRepository;
 
     @Override
     public OpenRecipe create(OpenRecipe openRecipe) {
@@ -61,6 +63,26 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipe
     }
 
     @Override
+    public List<OpenRecipe> findByRecipeSeqList(List<Long> seqList) {
+        List<OpenRecipe> result = new ArrayList<>();
+        List<Optional<OpenRecipeEntity>> recipeResult = seqList.stream().map(openRecipeRepository::findByRcpSeq).collect(Collectors.toList());
+
+        for (Optional<OpenRecipeEntity> recipeEntity : recipeResult) {
+            if (recipeEntity.isPresent()) {
+                OpenRecipe openRecipe = OpenRecipeConverter.entityToDto(recipeEntity.get());
+                result.add(openRecipe);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<Recommend> findRecommendRecipe(Search search) {
+        List<Object[]> objects = recipeTupleRepository.sameRecommendRecipe(search);
+        return objects.stream().map(objs -> Recommend.builder().id((Long) objs[0]).image((String) objs[1]).name((String) objs[2]).build()).collect(Collectors.toList());
+    }
+
+    @Override
     public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
         Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
         Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPIPageHandling(pageRequest);
@@ -90,12 +112,29 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService, OpenRecipe
     }
 
     @Override
-    public List<String> recipeWayValueFound() {
-        return recipeTupleRepository.recipeWayExtract();
+    public RecipePageResult<Favorite, Object[]> searchTuplePageWithSortRecipes(Search search, PageRequest pageRequest) {
+        Page<Object[]> recipeDetails = openRecipePageWithSearchRepository.recipeSearchAndPageSeparateHandling(search, pageRequest);
+        Function<Object[], Favorite> fn = (entity -> Favorite.builder().recipeId((Long) entity[0]).recipeMainImage((String) entity[1]).recipePart((String) entity[2]).recipeName((String) entity[3]).count((Long) entity[4]).build());
+        return new RecipePageResult<>(recipeDetails, fn);
     }
 
     @Override
-    public List<String> recipePartValueFound() {
-        return recipeTupleRepository.recipePartExtract();
+    public List<OpenRecipe> mostAndroidRecipe() {
+        List<OpenRecipe> result = new ArrayList<>();
+        List<Object[]> rankFavorites = favoriteRankRepository.findWithRankFavoriteRecipe();
+        if (!rankFavorites.isEmpty()) {
+            result = rankFavorites.stream().map(entity -> OpenRecipeConverter.entityToDto((OpenRecipeEntity) entity[1])).collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    @Override
+    public List<Way> recipeWayValueFound() {
+        return recipeTupleRepository.recipeWayExtract().stream().map(Way::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Part> recipePartValueFound() {
+        return recipeTupleRepository.recipePartExtract().stream().map(Part::new).collect(Collectors.toList());
     }
 }

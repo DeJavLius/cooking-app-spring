@@ -33,7 +33,7 @@
 
 <body class="blog-posts sidebar-collapse">
 
-    <div th:replace="~{header :: header}"></div>
+    <div th:replace="~{ header :: header }"></div>
 
     <div class="page-header header-filter header-small" data-parallax="true" style="background-image: url('../../static/assets/img/food/chicken.jpg');" th:style="'background-image: url(/assets/img/food/chicken.jpg);'">
         <div class="container">
@@ -48,83 +48,179 @@
     <div class="main main-raised">
         <div class="container">
             <div class="section">
-                <div class="row">
-                    <div class="col-md-8 ml-auto mr-auto text-center">
-                        <ul class="nav nav-pills nav-pills-primary">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#pill1" data-toggle="tab">All</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#pill2" data-toggle="tab">World</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#pill3" data-toggle="tab">Arts</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#pill3" data-toggle="tab">Tech</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#pill3" data-toggle="tab">Business</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content tab-space">
-                            <div class="tab-pane active" id="pill1"></div>
-                            <div class="tab-pane" id="pill2"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <form>
-                <div class="section">
+                <form class="ml-auto" th:action="@{/recipes(page=${ page }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" th:method="get">
                     <input type="hidden" name="size" value="28">
                     <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
-                    <br>
-                    <div class="row display-4" th:each="rowList : ${recipeList.divideList}">
-                        <div class="col-md-3 col-lg-3" th:each="recipe : ${rowList}">
-                            <div class="card card-plain card-blog">
-                                <div th:if="${recipe.attFileNoMain != ''}" class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${recipe.attFileNoMain} + ')'">
-                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
-                                        <div class="card-body">
+                    <div id="collapse">
+                        <div class="container">
+                            <nav class="navbar navbar-default navbar-expand-lg">
+                                <div class="container">
+                                    <div class="navbar-translate">
+                                        <div class="navbar-brand">
+                                            검색하기
+                                            <div class="ripple-container"></div>
                                         </div>
-                                    </a>
-                                </div>
-                                <div th:unless="${recipe.attFileNoMain != ''}" class="card-header card-header-image card-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg)'">
-                                    <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">
-                                        <div class="card-body">
+                                    </div>
+                                    <div class="collapse navbar-collapse">
+                                        <div class="form-inline ml-auto">
+                                            <label class="form-group bmd-form-group">
+                                                <input type="text" name="name" th:name="name" class="input-group input-group-text" placeholder="음식 이름 ..." th:field="*{search.name}">
+                                            </label>
+                                            <button type="submit" class="btn btn-white btn-raised btn-fab btn-round">
+                                                <i class="material-icons">search</i>
+                                            </button>
                                         </div>
-                                    </a>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <h6 class="card-category text-info">[[ ${ recipe.rcpPat2 } ]]</h6>
-                                    <h4 class="card-title">
-                                        <a href="#" th:href="@{'/recipes/detail/' + ${recipe.id}}">[[ ${ recipe.rcpNm } ]]</a>
-                                    </h4>
-                                    <div class="card-avatar">
-                                        <button type="button" class="btn btn-sm btn-light btn-link btn-rose" th:if="${#arrays.contains(userFavoriteList, recipe.rcpSeq)}">
-                                            <i class="material-icons">favorite</i>
-                                        </button>
+                            </nav>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="accordion" role="tablist">
+                                        <div class="card card-collapse">
+                                            <div class="card-header" role="tab" id="headingOne">
+                                                <h5 class="mb-0">
+                                                    <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                        카테고리
+                                                        <i class="material-icons">keyboard_arrow_down</i>
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-12 ml-auto mr-auto">
+                                                            <div class="row">
+                                                                <h5 class="col-md-4 title">식재료 검색</h5>
+                                                                <div class="ol-md-4 form-inline ml-auto">
+                                                                    <div class="form-group bmd-form-group">
+                                                                        <div class="input-group-prepend">
+                                                                            <label>
+                                                                                <input type="text" name="detail" th:name="detail" class="form-control" placeholder="식재료 종류" th:field="*{search.detail}"/>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="container">
+                                                                <div class="row">
+                                                                    <h5 class="title">조리 방식</h5>
+                                                                    <div class="form-inline ml-auto">
+                                                                        <div class="form-group bmd-form-group">
+                                                                            <div class="form-check" th:each="way, wayStat : ${ ways }">
+                                                                                <label class="form-check-label">
+                                                                                    <input class="form-check-input" type="radio" th:field="*{search.way}" name="way" th:value="${ way.value }">
+                                                                                    <span class="circle">
+                                                                                    <span class="check"></span>
+                                                                                </span>
+                                                                                    [[ ${ way.value } ]]
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="ripple-container"></div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <h5 class="title">음식 분류</h5>
+                                                                    <div class="form-inline ml-auto">
+                                                                        <div class="form-group bmd-form-group">
+                                                                            <div class="form-check" th:each="part, partStat : ${ parts }">
+                                                                                <label class="form-check-label">
+                                                                                    <input type="radio" th:field="*{search.part}" name="part" th:value="${ part.value }" class="form-check-input">
+                                                                                    <span class="circle">
+                                                                                    <span class="check"></span>
+                                                                                </span>
+                                                                                    [[ ${ part.value } ]]
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="ripple-container"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success">
+                                                            검색
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+                <th:block th:if="${ #lists.size(recipeList.divideList) > 0 }">
+                    <div class="row display-4" th:each="rowList : ${ recipeList.divideList }">
+                        <div class="col-md-3 col-lg-3" th:each="recipe : ${ rowList }">
+                            <div class="card card-blog">
+                                <div class="row col-lg-12 ml-auto mr-auto">
+                                    <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'" th:if="${ #arrays.contains(favoriteSeqList, recipe.recipeId) }">
+                                        <i class="material-icons">favorite</i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-light btn-link" style="pointer-events: none;" th:style="'pointer-events: none;'" th:unless="${ #arrays.contains(favoriteSeqList, recipe.recipeId) }">
+                                        <i class="material-icons">favorite</i>
+                                    </button>
+                                    <h4>[[ ${ recipe.count } ]]</h4>
+                                </div>
+                                <div th:if="${ recipe.recipeMainImage != '' }" class="front front-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.recipeMainImage } + ');'">
+                                    <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.recipeId }}">
+                                        <div class="card-body">
+                                        </div>
+                                    </a>
+                                </div>
+                                <div th:unless="${ recipe.recipeMainImage != '' }" class="front front-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                    <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.recipeId }}">
+                                        <div class="card-body">
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-category text-info">[[ ${ recipe.recipePart } ]]</h6>
+                                    <h4 class="card-title">
+                                        <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">[[ ${ recipe.recipeName } ]]</a>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:unless="${ #lists.size(recipeList.divideList) > 0 }">
+                    <div class="row">
+                        <div class="container">
+                            <h4 class="content-center">검색결과가 없습니다</h4>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
         </div>
         <div class="subscribe-line">
             <div class="pagination-area">
                 <ul class="pagination justify-content-center text-center">
-                    <li class="page-item" th:if="${recipeList.firstPage}"><a href="recipeList.html" th:href="@{/recipes(page=1, size=${pageCall.size})}" class="page-link">&#xAB;&#xAB;</a></li>
-                    <li class="page-item" th:if="${recipeList.prevPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.startPage - 1}, size=${pageCall.size})}" class="page-link">&#xAB;</a></li>
-                    <li th:class="'page-item' + ${recipeList.nowPage == page? ' active':''}" th:each="page : ${recipeList.pageList}"><a href="recipeList.html" th:href="@{/recipes(page=${page}, size=${pageCall.size})}" class="page-link">[[${page}]]</a></li>
-                    <li class="page-item" th:if="${recipeList.nextPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.endPage + 1}, size=${pageCall.size})}" class="page-link">&#xBB;</a></li>
-                    <li class="page-item" th:if="${recipeList.lastPage}"><a href="recipeList.html" th:href="@{/recipes(page=${recipeList.totalPage}, size=${pageCall.size})}" class="page-link">&#xBB;&#xBB;</a></li>
+                    <li class="page-item" th:if="${ recipeList.firstPage }">
+                        <a href="recipeList.html" th:href="@{/recipes(page=1, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xAB;&#xAB;</a>
+                    </li>
+                    <li class="page-item" th:if="${ recipeList.prevPage }">
+                        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.startPage - 1 }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xAB;</a>
+                    </li>
+
+                    <li th:class="'page-item' + ${ recipeList.nowPage == page ? ' active' : '' }" th:each="page : ${ recipeList.pageList }">
+                        <a href="recipeList.html" th:href="@{/recipes(page=${ page }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">[[ ${ page } ]]</a>
+                    </li>
+
+                    <li class="page-item" th:if="${ recipeList.nextPage }">
+                        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.endPage + 1 }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xBB;</a>
+                    </li>
+                    <li class="page-item" th:if="${ recipeList.lastPage }">
+                        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.totalPage }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xBB;&#xBB;</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{ footer :: footer }"></div>
 
 </body>
 </html>

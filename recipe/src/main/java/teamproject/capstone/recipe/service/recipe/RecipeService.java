@@ -1,6 +1,8 @@
 package teamproject.capstone.recipe.service.recipe;
 
 import teamproject.capstone.recipe.domain.recipe.OpenRecipe;
+import teamproject.capstone.recipe.domain.recipe.Part;
+import teamproject.capstone.recipe.domain.recipe.Way;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManual;
 import teamproject.capstone.recipe.domain.recipe.manual.RecipeManualImg;
 
@@ -142,6 +144,6 @@ public interface RecipeService {
         return recipeManualImages;
     }
 
-    List<String> recipeWayValueFound();
-    List<String> recipePartValueFound();
+    List<Way> recipeWayValueFound();
+    List<Part> recipePartValueFound();
 }
