@@ -33,54 +33,99 @@
 
 <body class="profile-page sidebar-collapse">
 
-    <div th:replace="~{header :: header}"></div>
+    <div th:replace="~{ header :: header }"></div>
 
-    <div class="page-header header-filter" data-parallax="true" style="background-image: url('../../static/assets/img/city-profile.jpg');" th:style="'background-image: url(/assets/img/city-profile.jpg);'"></div>
+    <div class="page-header header-filter" data-parallax="true" style="background-image: url('../../static/assets/img/food/kitchen.jpg');" th:style="'background-image: url(/assets/img/food/kitchen.jpg);'"></div>
 
     <div class="main main-raised">
-        <div class="profile-content">
+        <div class="section">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 ml-auto mr-auto">
                         <div class="profile">
                             <div class="name">
-                                <h4 class="title">[[ ${user.name} ]]</h4>
-                                <h5>[[ ${user.email} ]]</h5>
+                                <br>
+                                <h4 class="title">닉네임</h4>
+                                <h5>[[ ${ user.name } ]]</h5>
+                                <h4 class="title">이메일</h4>
+                                <h5>[[ ${ user.email } ]]</h5>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 ml-auto mr-auto">
-                        <div class="profile-tabs">
-                            <ul class="nav nav-pills nav-pills-icons justify-content-center" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="#studio" role="tab" data-toggle="tab">
-                                        <i class="material-icons">camera</i>
-                                        Studio
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#works" role="tab" data-toggle="tab">
-                                        <i class="material-icons">palette</i>
-                                        Work
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#favorite" role="tab" data-toggle="tab">
-                                        <i class="material-icons">favorite</i>
-                                        Favorite
-                                    </a>
-                                </li>
-                            </ul>
+<!--                            <h5 class="title"> 앱 연동 여부 </h5>-->
+<!--                            <div class="togglebutton" style="pointer-events: none;" th:style="'pointer-events: none;'">-->
+<!--                                <label>-->
+<!--                                    <input type="checkbox" th:if="${ user.uid != null }" checked="">-->
+<!--                                    <input type="checkbox" th:unless="${ user.uid != null }">-->
+<!--                                    <span class="toggle" style="pointer-events: none;" th:style="'pointer-events: none;'"></span>-->
+<!--                                </label>-->
+<!--                            </div>-->
+<!--                            <br>-->
+<!--                            <br>-->
+<!--                            <button type="button">연동확인</button>-->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="section section-pricing pricing-5 iframe-extern">
+            <div class="container">
+                <div class="cards">
+                    <div class="title">
+                        <h3 id="usersFavoriteRecipe">내가 좋아요한 레시피들</h3>
+                    </div>
+                    <th:block th:if="${ #lists.size(usersFavorite) > 0 }">
+                        <div class="row display-4" th:each="rowEachList : ${ usersFavorite }">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rowEachList }" th:object="${ recipe }">
+                                <div class="rotating-card-container manual-flip">
+                                    <div class="card card-rotate">
+                                        <div class="front">
+                                            <div th:if="*{recipeMainImage == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                                <div class="card-body">
+                                                    <h5 class="card-title card-category card-category-social text-success">
+                                                        [[ *{ recipeName } ]]
+                                                    </h5>
+                                                    <div class="stats text-center">
+                                                        <a th:href="@{'/recipes/detail/' + *{recipeId}}" type="button" class="btn btn-success btn-fill btn-round">
+                                                            자세히
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div th:unless="*{recipeMainImage == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{recipeMainImage} + ');'">
+                                                <div class="card-body">
+                                                    <h5 class="card-title card-category card-category-social text-success">
+                                                        [[ *{ recipeName } ]]
+                                                    </h5>
+                                                    <div class="stats text-center">
+                                                        <a th:href="@{'/recipes/detail/' + *{recipeId}}" type="button" class="btn btn-success btn-fill btn-round">
+                                                             자세히
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:unless="${ #lists.size(usersFavorite) > 0 }">
+                        <br>
+                        <div class="row">
+                            <div>
+                                아직 좋아요한
+                                레시피가 없습니다.
+                            </div>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{ footer :: footer }"></div>
 
 </body>
 </html>

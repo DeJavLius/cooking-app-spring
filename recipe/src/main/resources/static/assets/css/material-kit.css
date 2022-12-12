@@ -12912,7 +12912,7 @@ thead.thead-inverse th,
     background-color: transparent; }
 
 .card-background, .back-background,
-.front-background {
+.front-background, .detail-background {
   background-position: center center;
   background-size: cover;
   text-align: center; }
@@ -12931,11 +12931,11 @@ thead.thead-inverse th,
   .card-background small,
   .back-background small,
   .front-background small {
-    color: rgba(255, 255, 255, 0.7) !important; }
+    color: rgba(255, 255, 255, 0.9) !important; }
   .card-background .card-title, .back-background .card-title, .front-background .card-title {
     color: #fff;
     margin-top: 10px; }
-  .card-background:not(.card-pricing) .btn, .back-background:not(.card-pricing) .btn, .front-background:not(.card-pricing) .btn {
+  .card-background:not(.card-pricing) .btn, .back-background:not(.card-pricing) .btn, .front-background:not(.card-pricing), .btn {
     margin-bottom: 0; }
   .card-background:after, .back-background:after,
   .front-background:after {
@@ -12947,7 +12947,7 @@ thead.thead-inverse th,
     left: 0;
     top: 0;
     content: "";
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(175, 175, 175, 0.1);
     border-radius: 6px; }
 
 .card-blog {

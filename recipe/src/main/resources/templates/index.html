@@ -33,7 +33,7 @@
 
 <body class="sections-page sidebar-collapse">
 
-    <div th:replace="~{header :: header}"></div>
+    <div th:replace="~{ header :: header }"></div>
 
     <!-- Carousel Card -->
     <div class="header">
@@ -105,15 +105,15 @@
                     <div class="title">
                         <h3 id="manualRotatingCards">추천 요리 레시피</h3>
                     </div>
-                    <th:block th:if="${#lists.size(rank_recipes) > 0}">
+                    <th:block th:if="${ #lists.size(rank_recipes) > 0 }">
                         <div class="row display-4">
-                            <div class="col-md-3 col-lg-3" th:each="recipe : ${rank_recipes[0]}" th:object="${recipe}">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rank_recipes[0] }" th:object="${ recipe }">
                                 <div class="rotating-card-container manual-flip">
                                     <div class="card card-rotate">
-                                        <div th:if="*{ attFileNoMain == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                        <div th:if="*{ recipeMainImage == null }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
                                             <div class="card-body">
                                                 <h5 class="card-category card-category-social text-success">
-                                                    [[ *{ rcpNm } ]]
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <div class="stats text-center">
                                                     <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
@@ -122,10 +122,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div th:unless="*{ attFileNoMain == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ attFileNoMain } + ');'">
+                                        <div th:unless="*{ recipeMainImage == null }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ recipeMainImage } + ');'">
                                             <div class="card-body">
                                                 <h5 class="card-category card-category-social text-success">
-                                                    [[ *{ rcpNm } ]]
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <div class="stats text-center">
                                                     <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
@@ -136,18 +136,21 @@
                                         </div>
                                         <div class="back">
                                             <div class="card-body">
-                                                <br>
+                                                <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'">
+                                                    <i class="material-icons">favorite</i>
+                                                </button>
+                                                <p>[[ *{ count } ]]</p>
                                                 <h5 class="card-title">
-                                                    [[ *{ rcpNm } ]]
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <p class="card-description">
-                                                    조리방식 : [[ *{ rcpWay2 } ]]
+                                                    조리방식 : [[ *{ recipeWay } ]]
                                                 </p>
                                                 <p class="card-description">
-                                                    조리분류 : [[ *{ rcpPat2 } ]]
+                                                    조리분류 : [[ *{ recipePart } ]]
                                                 </p>
                                                 <br>
-                                                <a type="button" th:href="@{'/recipes/detail/' + *{id}}">
+                                                <a type="button" th:href="@{'/recipes/detail/' + *{ recipeId }}">
                                                     <i class="material-icons">subject</i> 자세히보기
                                                 </a>
                                                 <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
@@ -159,14 +162,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row display-4" th:if="${#lists.size(rank_recipes) >= 2}">
-                            <div class="col-md-3 col-lg-3" th:each="recipe : ${rank_recipes[1]}" th:object="${recipe}">
+                        <div class="row display-4" th:if="${ #lists.size(rank_recipes) >= 2 }">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rank_recipes[1] }" th:object="${ recipe }">
                                 <div class="rotating-card-container manual-flip">
                                     <div class="card card-rotate">
-                                        <div th:if="*{ attFileNoMain == ''}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                        <div th:if="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
                                             <div class="card-body">
-                                                <h5 class="card-category card-category-social text-success">
-                                                    [[ *{ rcpNm } ]]
+                                                <h5 class="card-title card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <div class="stats text-center">
                                                     <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
@@ -175,10 +178,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div th:unless="*{ attFileNoMain == ''}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ attFileNoMain } + ');'">
+                                        <div th:unless="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ recipeMainImage } + ');'">
                                             <div class="card-body">
-                                                <h5 class="card-category card-category-social text-success">
-                                                    [[ *{ rcpNm } ]]
+                                                <h5 class="card-title card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <div class="stats text-center">
                                                     <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
@@ -191,20 +194,20 @@
                                             <div class="card-body">
                                                 <br>
                                                 <h5 class="card-title">
-                                                    [[ *{ rcpNm } ]]
+                                                    [[ *{ recipeName } ]]
                                                 </h5>
                                                 <div class="stats text-center">
                                                     <p>
-                                                        조리방식 : [[ *{ rcpWay2 } ]]
+                                                        조리방식 : [[ *{ recipeWay } ]]
                                                     </p>
                                                     <p>
-                                                        조리분류 : [[ *{ rcpPat2 } ]]
+                                                        조리분류 : [[ *{ recipePart } ]]
                                                     </p>
                                                 </div>
                                                 <br>
-                                                <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
+                                                <a type="button" th:href="@{'/recipes/detail/' + *{ recipeId }}">
                                                     <i class="material-icons">subject</i> 자세히보기
-                                                </button>
+                                                </a>
                                                 <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
                                                     <i class="material-icons">refresh</i> 돌아가기
                                                 </button>
@@ -216,11 +219,11 @@
                         </div>
                     </th:block>
 
-                    <th:block th:unless="${#lists.size(rank_recipes) > 0}">
+                    <th:block th:unless="${ #lists.size(rank_recipes) > 0 }">
                         <br>
                         <div class="row">
                             <div>
-                                아직 다수가 좋다고한
+                                아직 좋아요한
                                 레시피가 없습니다.
                             </div>
                         </div>
@@ -232,49 +235,66 @@
     </div>
     <div class="section section-pricing pricing-5 iframe-extern">
         <div class="container">
-            <div class="row">
-                <div class="col-md-8 ml-auto mr-auto text-center">
-                    <h2 class="title">Ready to grab Material Kit PRO?</h2>
-                    <div class="nav nav-pills nav-pills-rose">
-                        <div class="nav-tabs-wrapper">
-                            <ul class="nav nav-pills" data-tabs="tabs">
-                                <li class="nav-item">
-                                    <a class="nav-link active show" href="#profile" data-toggle="tab">
-                                        Personal License
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#messages" data-toggle="tab">
-                                        Developer License
-                                    </a>
-                                </li>
-                            </ul>
+            <div class="title">
+                <h2>[[ ${ way } ]]</h2> <h3 id="recommendWayRecipe"> 조리 관련 음식 레시피입니다.</h3>
+            </div>
+            <div class="row display-4">
+                <div class="col-md-3 col-lg-3" th:each="recipe : ${ wayList }">
+                    <div class="card card-plain">
+                        <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                        <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="social-line text-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h4 class="title">Thank you for sharing!</h4>
-                        <a href="#pablo" id="twitter" class="btn btn-twitter btn-round">
-                            <i class="fa fa-twitter"></i> Twitter
-                        </a>
-                        <a href="#pablo" id="facebook" class="btn btn-facebook btn-round">
-                            <i class="fa fa-facebook-square"></i> Facebook
-                        </a>
-                        <a href="#pablo" id="google" class="btn btn-google btn-round">
-                            <i class="fa fa-google-plus"></i> Google
-                        </a>
+        <div class="container">
+            <div class="title">
+                <h2>[[ ${ part } ]]</h2> <h3 id="recommendPartRecipe"> 관련 추천 음식 레시피입니다.</h3>
+            </div>
+            <div class="row display-4">
+                <div class="col-md-3 col-lg-3" th:each="recipe : ${ partList }">
+                    <div class="card card-plain">
+                        <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                        <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div th:replace="~{footer :: footer}"></div>
+    <div th:replace="~{ footer :: footer }"></div>
 
     <script th:type="module" th:inline="javascript">
         $(document).ready(function() {

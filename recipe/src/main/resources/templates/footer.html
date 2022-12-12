@@ -2,9 +2,9 @@
 
 <th:block th:fragment="footer">
 
-    <footer class="footer footer-white">
+    <footer class="footer">
         <div class="container">
-            <a class="footer-brand" href="https://www.creative-tim.com/product/material-kit-pro">Material Kit PRO</a>
+            <a class="footer-brand" href="index.html" th:href="@{/}">Eco Recipe</a>
             <ul class="pull-center">
                 <li>
                     <a href="#" target="_blank">
@@ -17,7 +17,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" target="_blank">
+                    <a href="#">
                         Mlink 개발
                     </a>
                 </li>
@@ -25,8 +25,11 @@
             <ul class="social-buttons float-right">
                 <li>
                     <a href="https://github.com/college-capstone-team-1/cooking-app-spring" target="_blank" class="btn btn-just-icon btn-link btn-github">
-                        <i class="fa iframe-github"></i>
+                        <i class="fa fa-github"></i>
                     </a>
+                </li>
+                <li>
+                    <a href="test.html" th:href="@{/test}">API 테스트 페이지</a>
                 </li>
             </ul>
         </div>
