@@ -28,6 +28,7 @@ public class OpenAPIController {
     private final OpenRecipeService openRecipeService;
     private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
     private final OpenAPIHandler openApiHandler;
+    private final FavoriteService favoriteService;
     private final SearchWithPageHandler<OpenRecipe> searchWithPageHandler;
 
     private final String DEFAULT_PAGE = "1";
@@ -107,6 +108,7 @@ public class OpenAPIController {
 
     @GetMapping("/v2/delete/all")
     public String deleteOpenAPI() {
+        favoriteService.deleteAll();
         openRecipeService.deleteAll();
 
         return "데이터 삭제 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";

@@ -98,15 +98,22 @@ public class RecipeAPIController {
     @PostMapping("/take/choose")
     public FavoriteData responseOneFavoriteRecipe(@RequestParam String uid, @RequestParam Long recipeSeq) {
         List<Favorite> savedValues = new ArrayList<>();
+
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
             OpenRecipe recipe = openRecipeService.findByRecipeSeq(recipeSeq);
-            Favorite build = Favorite.builder()
-                    .recipeId(recipe.getId())
-                    .recipeSeq(recipe.getRcpSeq())
-                    .userEmail(email)
-                    .build();
-            savedValues.add(favoriteService.create(build));
+            Favorite favorite = favoriteService.findRecipe(recipeSeq, email);
+
+            if (favorite.getId().equals(0L)) {
+                Favorite build = Favorite.builder()
+                        .recipeId(recipe.getId())
+                        .recipeSeq(recipe.getRcpSeq())
+                        .userEmail(email)
+                        .build();
+
+                favorite = favoriteService.create(build);
+            }
+            savedValues.add(favorite);
         }
 
         return FavoriteData.builder()
@@ -116,7 +123,20 @@ public class RecipeAPIController {
     }
 
     @PostMapping("/delete")
-    public FavoriteData deleteAllFavoriteRecipe(@RequestParam String uid) {
+    public FavoriteData deleteAllFavoriteRecipe() {
+        List<Favorite> deleteCheck = new ArrayList<>();
+
+        favoriteService.deleteAll();
+        deleteCheck = favoriteService.findAll();
+
+        return FavoriteData.builder()
+                .count(deleteCheck.size())
+                .favoriteRecipes(favoriteRecipeSerialization(deleteCheck))
+                .build();
+    }
+
+    @PostMapping("/delete/user")
+    public FavoriteData deleteAllByEmailFavoriteRecipe(@RequestParam String uid) {
         List<Favorite> deleteCheck = new ArrayList<>();
 
         if (firebaseUserManager.isAppUserByUid(uid)) {
@@ -137,13 +157,8 @@ public class RecipeAPIController {
 
         if (firebaseUserManager.isAppUserByUid(uid)) {
             String email = firebaseUserManager.findEmailByUid(uid);
-            OpenRecipe recipe = openRecipeService.findByRecipeSeq(recipeSeq);
-            Favorite build = Favorite.builder()
-                    .userEmail(email)
-                    .recipeId(recipe.getId())
-                    .recipeSeq(recipe.getRcpSeq())
-                    .build();
-            favoriteService.delete(build);
+            Favorite recipe = favoriteService.findRecipe(recipeSeq, email);
+            favoriteService.delete(recipe);
 
             deleteCheck = favoriteService.findByEmail(email);
         }
