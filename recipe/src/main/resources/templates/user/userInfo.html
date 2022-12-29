@@ -1,0 +1,131 @@
+<!--
+ =========================================================
+ Material Kit PRO - v2.2.1
+ =========================================================
+
+ Product Page: https://www.creative-tim.com/product/material-kit-pro
+ Copyright 2022 Creative Tim (https://www.creative-tim.com)
+
+ Coded by Creative Tim
+
+ =========================================================
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="../../static/assets/img/apple-icon.png" th:href="@{/assets/img/apple-icon.png}">
+    <link rel="icon" type="image/png" href="../../static/assets/img/favicon.png" th:href="@{/assets/img/favicon.png}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>
+        요리 레시피
+    </title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <!-- CSS Files -->
+    <link href="../../static/assets/css/material-kit.css?v=2.2.1" rel="stylesheet" th:href="@{/assets/css/material-kit.css?v='2.2.1'}" />
+</head>
+
+<body class="profile-page sidebar-collapse">
+
+    <div th:replace="~{ header :: header }"></div>
+
+    <div class="page-header header-filter" data-parallax="true" style="background-image: url('../../static/assets/img/food/kitchen.jpg');" th:style="'background-image: url(/assets/img/food/kitchen.jpg);'"></div>
+
+    <div class="main main-raised">
+        <div class="section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 ml-auto mr-auto">
+                        <div class="profile">
+                            <div class="name">
+                                <br>
+                                <h4 class="title">닉네임</h4>
+                                <h5>[[ ${ user.name } ]]</h5>
+                                <h4 class="title">이메일</h4>
+                                <h5>[[ ${ user.email } ]]</h5>
+                            </div>
+<!--                            <h5 class="title"> 앱 연동 여부 </h5>-->
+<!--                            <div class="togglebutton" style="pointer-events: none;" th:style="'pointer-events: none;'">-->
+<!--                                <label>-->
+<!--                                    <input type="checkbox" th:if="${ user.uid != null }" checked="">-->
+<!--                                    <input type="checkbox" th:unless="${ user.uid != null }">-->
+<!--                                    <span class="toggle" style="pointer-events: none;" th:style="'pointer-events: none;'"></span>-->
+<!--                                </label>-->
+<!--                            </div>-->
+<!--                            <br>-->
+<!--                            <br>-->
+<!--                            <button type="button">연동확인</button>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section section-pricing pricing-5 iframe-extern">
+            <div class="container">
+                <div class="cards">
+                    <div class="title">
+                        <h3 id="usersFavoriteRecipe">내가 좋아요한 레시피들</h3>
+                    </div>
+                    <th:block th:if="${ #lists.size(usersFavorite) > 0 }">
+                        <div class="row display-4" th:each="rowEachList : ${ usersFavorite }">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rowEachList }" th:object="${ recipe }">
+                                <div class="rotating-card-container manual-flip">
+                                    <div class="card card-rotate">
+                                        <div class="front">
+                                            <div th:if="*{recipeMainImage == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                                <div class="card-body">
+                                                    <h5 class="card-title card-category card-category-social text-success">
+                                                        [[ *{ recipeName } ]]
+                                                    </h5>
+                                                    <div class="stats text-center">
+                                                        <a th:href="@{'/recipes/detail/' + *{recipeId}}" type="button" class="btn btn-success btn-fill btn-round">
+                                                            자세히
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div th:unless="*{recipeMainImage == null}" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{recipeMainImage} + ');'">
+                                                <div class="card-body">
+                                                    <h5 class="card-title card-category card-category-social text-success">
+                                                        [[ *{ recipeName } ]]
+                                                    </h5>
+                                                    <div class="stats text-center">
+                                                        <a th:href="@{'/recipes/detail/' + *{recipeId}}" type="button" class="btn btn-success btn-fill btn-round">
+                                                             자세히
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:unless="${ #lists.size(usersFavorite) > 0 }">
+                        <br>
+                        <div class="row">
+                            <div>
+                                아직 좋아요한
+                                레시피가 없습니다.
+                            </div>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{ footer :: footer }"></div>
+
+</body>
+</html>

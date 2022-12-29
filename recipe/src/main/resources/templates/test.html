@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+<h1>
+    test page
+</h1>
+
+<a th:href="@{account}"> 로그인하기 </a>
+
+<div>
+    <a th:href="@{/api/v2/save}">만일 데이터가 없는 경우에만</a>
+    <a th:href="@{/api/v2/delete/all}">데이터 날리기</a>
+</div>
+
+<div>
+    <a th:href="@{/api/v1}">api 보기</a>
+
+    <a th:href="@{/api/v1/search/find-only}"> and 검색</a>
+    <a th:href="@{/api/v1/recipes/rank}"> and 검색</a>
+
+    <div>
+        <pre>
+            페이지 쿼리 값과 기본값
+            page : 0, size : 10, order : f, d -> f - 인기순 d - 일반순
+            검색 쿼리 값과 기본값
+            name : null, detail : null, part : null, seq : 0, way : null
+            음식 이름    , 재료 상세      , 음식 구분   , 레시피 seq, 조리방식
+        </pre>
+    </div>
+</div>
+
+<div>
+    <a th:href="@{/api/v1/favorites/give}">/api/v1/favorites/give : 모든 좋아요 레시피</a>
+    <br>
+    <a th:href="@{/api/v1/favorites/give/user}">/api/v1/favorites/give/user : 유저가 좋아요한 모든 레시피</a>
+    <p>쿼리 : uid</p>
+    <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/recipe}">/api/v1/favorites/give/recipe : 레시피별 좋아요한 유저</a>
+    <p>쿼리 : recipeSeq</p>
+    <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/favorite}">/api/v1/favorites/give/favorite : 레시피별 좋아요한 유저</a>
+    <p>쿼리 : email, recipeSeq</p>
+    <p>없을 경우 에러 발생</p>
+    <a th:href="@{/api/v1/favorites/give/best}">/api/v1/favorites/give/best : 가장 많은 좋아요를 받은 레시피부터</a>
+    <p>쿼리 : recipeSeq</p>
+    <p>없을 경우 에러 발생</p>
+    <br>
+    <br>
+    post 요청은 postman이나 프로그램으로 확인해 보시면 됩니다.
+    아래의 list 내 seq는 recipe_seq == rcpSeq 로 open database 의 recipe seq 값입니다.
+
+    <p>모든 레시피 json으로 추가하기</p>
+    <p>/api/v1/favorites/take : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid</p>
+    <p>받는 값 : responseBody Json List[Long]</p>
+    <pre>
+        postman에서 post, body에 json 으로 설정 후 아래 예시로 입력하고 send 하면 값이 입력됨
+        {
+            "sequences" : [ recipe_seq1, recipe_seq2, ... ]
+        }
+
+        {
+            "sequences" : [ 28, 636, 640, 640, 280, 281, 387, 389, 505 ]
+        }
+    </pre>
+    전달 받는 값 예시
+    <p>레시피 추가하기</p>
+    <p>/api/v1/favorites/take/choose : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid, recipeSeq</p>
+    <p>/api/v1/favorites/take/favorite : 모든 좋아요 레시피</p>
+    <p>쿼리 : email, recipeSeq</p>
+    <p>결과값 : boolean</p>
+
+    <p>해당 유저의 삭제하기</p>
+    <p>/api/v1/favorites/delete : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid</p>
+    <p>해당 유저의 레시지 지정 삭제하기</p>
+    <p>/api/v1/favorites/delete/choose : 모든 좋아요 레시피</p>
+    <p>쿼리 : uid, recipeSeq</p>
+</div>
+<div>
+    추가사항 : 레시피 pat, way 의 목록 제공 api
+    <a th:href="@{/api/v1/favorites/attributes/tuple/part}">
+        레시피 먹는 방법
+    </a>
+    <a th:href="@{/api/v1/favorites/attributes/tuple/way}">
+        레시피 조리 방법
+    </a>
+</div>
+</body>
+</html>
