@@ -1,0 +1,62 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="footer">
+
+    <footer class="footer">
+        <div class="container">
+            <a class="footer-brand" href="index.html" th:href="@{/}">Eco Recipe</a>
+            <ul class="pull-center">
+                <li>
+                    <a href="#" target="_blank">
+                        Capstone Team Eco.Recipe
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.notion.so/71de63e68df245bc93187039d681a12c" target="_blank">
+                        초안
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        Mlink 개발
+                    </a>
+                </li>
+            </ul>
+            <ul class="social-buttons float-right">
+                <li>
+                    <a href="https://github.com/college-capstone-team-1/cooking-app-spring" target="_blank" class="btn btn-just-icon btn-link btn-github">
+                        <i class="fa fa-github"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="test.html" th:href="@{/test}">API 테스트 페이지</a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+    <!--   Core JS Files   -->
+    <script src="../static/assets/js/core/jquery.min.js" type="text/javascript" th:src="@{/assets/js/core/jquery.min.js}"></script>
+    <script src="../static/assets/js/core/popper.min.js" type="text/javascript" th:src="@{/assets/js/core/popper.min.js}"></script>
+    <script src="../static/assets/js/core/bootstrap-material-design.min.js" type="text/javascript" th:src="@{/assets/js/core/bootstrap-material-design.min.js}"></script>
+    <script src="../static/assets/js/plugins/moment.min.js" th:src="@{/assets/js/plugins/moment.min.js}"></script>
+    <!--	Plugin for the Datepicker, full documentation here: https://github.com/Eonasdan/bootstrap-datetimepicker -->
+    <script src="../static/assets/js/plugins/bootstrap-datetimepicker.js" type="text/javascript" th:src="@{/assets/js/plugins/bootstrap-datetimepicker.js}"></script>
+    <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+    <script src="../static/assets/js/plugins/nouislider.min.js" type="text/javascript" th:src="@{/assets/js/plugins/nouislider.min.js}"></script>
+    <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
+    <script src="../static/assets/js/plugins/bootstrap-tagsinput.js" th:src="@{/assets/js/plugins/bootstrap-tagsinput.js}"></script>
+    <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
+    <script src="../static/assets/js/plugins/bootstrap-selectpicker.js" type="text/javascript" th:src="@{/assets/js/plugins/bootstrap-selectpicker.js}"></script>
+    <!--	Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
+    <script src="../static/assets/js/plugins/jasny-bootstrap.min.js" type="text/javascript" th:src="@{/assets/js/plugins/jasny-bootstrap.min.js}"></script>
+    <!--	Plugin for Small Gallery in Product Page -->
+    <script src="../static/assets/js/plugins/jquery.flexisel.js" type="text/javascript" th:src="@{/assets/js/plugins/jquery.flexisel.js}"></script>
+    <!-- Plugins for presentation and navigation  -->
+    <script src="../static/assets/demo/modernizr.js" type="text/javascript" th:src="@{/assets/demo/modernizr.js}"></script>
+    <script src="../static/assets/demo/vertical-nav.js" type="text/javascript" th:src="@{/assets/demo/vertical-nav.js}"></script>
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
+    <script src="../static/assets/js/material-kit.js?v=2.2.1" type="text/javascript" th:src="@{/assets/js/material-kit.js?v='2.2.1'}"></script>
+
+</th:block>

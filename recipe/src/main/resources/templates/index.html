@@ -1,0 +1,309 @@
+<!--
+ =========================================================
+ Material Kit PRO - v2.2.1
+ =========================================================
+
+ Product Page: https://www.creative-tim.com/product/material-kit-pro
+ Copyright 2022 Creative Tim (https://www.creative-tim.com)
+
+ Coded by Creative Tim
+
+ =========================================================
+
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="../static/assets/img/apple-icon.png" th:href="@{/assets/img/apple-icon.png}">
+    <link rel="icon" type="image/png" href="../static/assets/img/favicon.png" th:href="@{/assets/img/favicon.png}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>
+        요리 레시피
+    </title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <!-- CSS Files -->
+    <link href="../static/assets/css/material-kit.css?v=2.2.1" rel="stylesheet" th:href="@{/assets/css/material-kit.css?v='2.2.1'}">
+</head>
+
+<body class="sections-page sidebar-collapse">
+
+    <div th:replace="~{ header :: header }"></div>
+
+    <!-- Carousel Card -->
+    <div class="header">
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="page-header header-filter" style="background-image: url('../static/assets/img/food/barbecue.jpg');" th:style="'background-image: url(/assets/img/food/barbecue.jpg);'">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6 text-left">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="page-header header-filter" style="background-image: url('../static/assets/img/food/food_stuff.jpg');" th:style="'background-image: url(/assets/img/food/food_stuff.jpg);'">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-8 ml-auto mr-auto text-center">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="page-header header-filter" style="background-image: url('../static/assets/img/food/spices.jpg');" th:style="'background-image: url(/assets/img/food/spices.jpg);'">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-7 ml-auto text-right">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="page-header header-filter" style="background-image: url('../static/assets/img/food/steak.jpg');" th:style="'background-image: url(/assets/img/food/steak.jpg);'">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-8 ml-auto mr-auto text-center">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                <i class="material-icons">keyboard_arrow_left</i>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                <i class="material-icons">keyboard_arrow_right</i>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+    <!-- End Carousel Card -->
+
+    <div class="main main-raised">
+        <div class="section section-basic">
+            <div class="cards" id="morphingCards">
+                <div class="container">
+                    <div class="title">
+                        <h3 id="manualRotatingCards">추천 요리 레시피</h3>
+                    </div>
+                    <th:block th:if="${ #lists.size(rank_recipes) > 0 }">
+                        <div class="row display-4">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rank_recipes[0] }" th:object="${ recipe }">
+                                <div class="rotating-card-container manual-flip">
+                                    <div class="card card-rotate">
+                                        <div th:if="*{ recipeMainImage == null }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                            <div class="card-body">
+                                                <h5 class="card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <div class="stats text-center">
+                                                    <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
+                                                        <i class="material-icons">refresh</i> 자세히
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div th:unless="*{ recipeMainImage == null }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ recipeMainImage } + ');'">
+                                            <div class="card-body">
+                                                <h5 class="card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <div class="stats text-center">
+                                                    <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
+                                                        <i class="material-icons">refresh</i> 자세히
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back">
+                                            <div class="card-body">
+                                                <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'">
+                                                    <i class="material-icons">favorite</i>
+                                                </button>
+                                                <p>[[ *{ count } ]]</p>
+                                                <h5 class="card-title">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <p class="card-description">
+                                                    조리방식 : [[ *{ recipeWay } ]]
+                                                </p>
+                                                <p class="card-description">
+                                                    조리분류 : [[ *{ recipePart } ]]
+                                                </p>
+                                                <br>
+                                                <a type="button" th:href="@{'/recipes/detail/' + *{ recipeId }}">
+                                                    <i class="material-icons">subject</i> 자세히보기
+                                                </a>
+                                                <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
+                                                    <i class="material-icons">refresh</i> 돌아가기
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row display-4" th:if="${ #lists.size(rank_recipes) >= 2 }">
+                            <div class="col-md-3 col-lg-3" th:each="recipe : ${ rank_recipes[1] }" th:object="${ recipe }">
+                                <div class="rotating-card-container manual-flip">
+                                    <div class="card card-rotate">
+                                        <div th:if="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                                            <div class="card-body">
+                                                <h5 class="card-title card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <div class="stats text-center">
+                                                    <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
+                                                        <i class="material-icons">refresh</i> 자세히
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div th:unless="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ recipeMainImage } + ');'">
+                                            <div class="card-body">
+                                                <h5 class="card-title card-category card-category-social text-success">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <div class="stats text-center">
+                                                    <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
+                                                        <i class="material-icons">refresh</i> 자세히
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="back">
+                                            <div class="card-body">
+                                                <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'">
+                                                    <i class="material-icons">favorite</i>
+                                                </button>
+                                                <p>[[ *{ count } ]]</p>
+                                                <h5 class="card-title">
+                                                    [[ *{ recipeName } ]]
+                                                </h5>
+                                                <div class="stats text-center">
+                                                    <p>
+                                                        조리방식 : [[ *{ recipeWay } ]]
+                                                    </p>
+                                                    <p>
+                                                        조리분류 : [[ *{ recipePart } ]]
+                                                    </p>
+                                                </div>
+                                                <br>
+                                                <a type="button" th:href="@{'/recipes/detail/' + *{ recipeId }}">
+                                                    <i class="material-icons">subject</i> 자세히보기
+                                                </a>
+                                                <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
+                                                    <i class="material-icons">refresh</i> 돌아가기
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:unless="${ #lists.size(rank_recipes) > 0 }">
+                        <br>
+                        <div class="row">
+                            <div>
+                                아직 좋아요한
+                                레시피가 없습니다.
+                            </div>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section section-pricing pricing-5 iframe-extern">
+        <div class="container">
+            <div class="title">
+                <h2>[[ ${ way } ]]</h2> <h3 id="recommendWayRecipe"> 조리 관련 음식 레시피입니다.</h3>
+            </div>
+            <div class="row display-4">
+                <div class="col-md-3 col-lg-3" th:each="recipe : ${ wayList }">
+                    <div class="card card-plain">
+                        <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                        <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="title">
+                <h2>[[ ${ part } ]]</h2> <h3 id="recommendPartRecipe"> 관련 추천 음식 레시피입니다.</h3>
+            </div>
+            <div class="row display-4">
+                <div class="col-md-3 col-lg-3" th:each="recipe : ${ partList }">
+                    <div class="card card-plain">
+                        <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                        <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+                            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
+                                <div class="card-body">
+                                    <h4 class="card-title card-category card-category-social text-success">
+                                        [[ ${ recipe.name } ]]
+                                    </h4>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{ footer :: footer }"></div>
+
+    <script th:type="module" th:inline="javascript">
+        $(document).ready(function() {
+            materialKitDemo.presentationAnimations();
+        });
+    </script>
+</body>
+
+</html>
