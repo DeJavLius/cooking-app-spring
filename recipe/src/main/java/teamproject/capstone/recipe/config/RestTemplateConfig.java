@@ -32,4 +32,6 @@ public class RestTemplateConfig {
             }
         };
     }
+
+    // 참고 자료 : https://mangkyu.tistory.com/256
 }
