@@ -24,6 +24,8 @@
 
 - 배포 환경 : Amazone EC2, Amazone Route 53
 
+- 로직 설계 툴 : Notion, Figma
+
 ## 사용 API
      http://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=COOKRCP01
 
@@ -41,8 +43,6 @@
   - 웹 서비스용 API 제공
     - 좋아요를 동적으로 제공하기 위한 API
 
-#
-    
 - 웹 서비스
   - 메인화면에서 사용자들이 좋아한 레시피 top 8가지를 보여줌
   - 제일 많은 좋아요를 받은 레시피와 관련된 카테고리의 레시피를 무작위로 추천
@@ -56,6 +56,26 @@
     - 상세히 누른 레시피 하단에 관련 카테고리 레시피 무작위로 추천
   - 로그인 사용자는 좋아요한 레시피와 사용자 정보를 조회할 수 있음
     - 앱, iOS 유저는 동일한 구글 로그인이 가능하다면 연동해 조회 가능
+
+
+---
+
+### 초안
+![](recipe/img/레시피_로직_초안.png)
+
+### 개발 완료 후
+![](recipe/img/레시피_로직_결과물.png)
+
+#### 도메인
+![](recipe/img/레시피_도메인_결과물.png)
+
+# 로직
+
+### OpenAPI
+![](recipe/img/레시피_로직_OpenAPI.png)
+
+### 로그인
+![](recipe/img/레시피_로직_로그인.png)
 
 ---
 
