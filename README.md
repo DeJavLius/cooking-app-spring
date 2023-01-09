@@ -24,7 +24,7 @@
 
 - 배포 환경 : Amazone EC2, Amazone Route 53
 
-- 로직 설계 툴 : Notion, Figma
+- 로직 설계 : Notion, Figma
 
 ## 사용 API
      http://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=COOKRCP01
@@ -57,17 +57,18 @@
   - 로그인 사용자는 좋아요한 레시피와 사용자 정보를 조회할 수 있음
     - 앱, iOS 유저는 동일한 구글 로그인이 가능하다면 연동해 조회 가능
 
-
 ---
 
-### 초안
+### 도메인
+![](recipe/img/레시피_도메인_결과물.png)
+
+### 설계
+
+#### 초안
 ![](recipe/img/레시피_로직_초안.png)
 
-### 개발 완료 후
+#### 개발 완료 후
 ![](recipe/img/레시피_로직_결과물.png)
-
-#### 도메인
-![](recipe/img/레시피_도메인_결과물.png)
 
 # 로직
 
@@ -117,7 +118,7 @@
 
 ---
 
-# 로직
+# 코드
 ## API
 ### 앱 / 어플 통신용 API 구현
 - 웹에서 API를 구현해 앱과 iOS에 레시피 데이터를 JSON을 통해 전달
@@ -134,12 +135,22 @@
 ```java
 @RestController
 public class OpenAPIController {
+    
+    /*
+            모든 레시피를 조회하는 API로 page, size, order 3가지 parameter 지원
+            기본값 : 0, "d"로 parameter 값을 주지 않아도 사용 가능
+     */
     @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
     public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order) {
+
+        // 정렬 d 일 경우 기본 순, f 일 경우 favorite - 좋아요 많은 순
         Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
         PageRequest pageRequest = searchWithPageHandler.choosePage(page, size, sort);
+
+        // 페이지 설정을 보내 해당 설정에 맞게 모든 레시피 조회
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.allAPIDataSources(pageRequest);
       
+        // 페이지의 끝인지, 최종 페이지는 몇 페이지인지, 총 몇 개가 찾아졌는지
         boolean isEnd = page == TotalValue.getTotalCount();
         Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
       
@@ -149,10 +160,16 @@ public class OpenAPIController {
                 .build();
     }
 
+    /*
+            레시피를 검색 조건에 따라 조회하는 API로 page, size, order에 Search 객체를 parameter로 지원
+            Search는 id, 이름, 조리 방법, 요리 구분, 식재료를 조건으로 설정, and 검색
+     */
     @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
     public RecipeData responseSearchAndOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order, Search value) {
         Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
         SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(value, page, size);
+        
+        // 페이지 설정과 검색 조건을 담은 객체를 전달
         APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOfSort(sort));
       
         boolean isEnd = page == TotalValue.getTotalCount();
@@ -164,6 +181,9 @@ public class OpenAPIController {
                 .build();
     }
 
+    /*
+            좋아요 레시피를 많은 순으로 상위 8가지를 조회하는 API
+     */
     @GetMapping(value = "/v1/recipes/rank", produces = "application/json; charset=UTF-8")
     public RecipeData responseFavoriteOpenAPI() {
         List<OpenRecipe> openRecipes = openRecipePageWithSearchService.mostAndroidRecipe();
@@ -176,15 +196,22 @@ public class OpenAPIController {
                 .build();
     }
   
+    /*
+            임시 API로 공공 데이터의 레시피 데이터를 가져와 저장
+    */
     @GetMapping("/v2/save")
     public String saveOpenAPI() {
+        
+        // 공공 데이터를 요청
         List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI();
         List<OpenRecipe> totalRecipes = new ArrayList<>();
     
         for (OpenAPIRecipe cr : openAPIRecipes) {
-          totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
+            
+            // 저장할 수 있도록 받아진 Json 데이터를 entity로 변환 
+            totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
         }
-    
+        
         openRecipeService.createAll(totalRecipes);
     
         return "데이터 저장 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
@@ -192,10 +219,208 @@ public class OpenAPIController {
 }
 ```
 
-@RestController 어노테이션을 사용해 URL로 요청이 오게 되면 객체가 바로 JSON으로 변환되어 전달됩니다.
+```java
+// 레시피 조회 관련 service
+public interface OpenRecipePageWithSearchService {
+    // 모든 레시피 조회
+    APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest);
+  
+    // 조건 검색 레시피 조회
+    APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest);
+}
 
-Service에서 page 처리된 객체를 가져와 RecipeData라는 전달용 객체에 넣습니다. Meta는 페이지 관련 정보가 담긴 객체, OpenRecipe는
-조회된 객체를 담습니다.
+@Service
+public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchService {
+    @Override
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
+        // API page 생성 시 Stream 함수의 map에 function 자리에 들어감
+        // Functional interface로 entity를 DTO로 바꿔 Json으로 전달하도록 함
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        
+        // DB로 조회된 값
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPIPageHandling(pageRequest);
+        return new APIPageResult<>(openRecipeEntities, function);
+    }
+
+    @Override
+    public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest) {
+        Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
+        
+        // 검색이 추가됨
+        Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(search, pageRequest);
+        return new APIPageResult<>(openRecipeEntities, function);
+    }
+}
+
+// API page 설정
+public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
+    /*
+            API의 page 처리를 위한 객체
+            
+            추상 클래스 PageResult를 구현
+     */
+  
+    public APIPageResult(Page<EN> result, Function<EN, DTO> fn) {
+        super(result, fn);
+    }
+  
+    @Override
+    public void makePageList(Pageable pageable) {
+        setPage(pageable);
+        boolean isLast = super.getNowPage() == super.getTotalPage();
+        super.setLastPage(isLast);
+    }
+  
+    @Override
+    public void setPage(Pageable pageable) {
+        super.setNowPage(pageable.getPageNumber() + 1);
+    }
+}
+
+// 레시피 DB 조회 repository
+public interface OpenRecipePageWithSearchRepository {
+    Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable);
+  
+    Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable);
+}
+
+@Repository
+public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository {
+    // 기존의 EntityManager에 필요한 EntityFactory를 생성해 주입
+    @PersistenceContext
+    private EntityManager entityManager;
+    
+    // 쿼리 DSL 생성 entity
+    private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+
+    public RecipeTupleAndPageWithSearchRepositoryImpl() {
+        // querydsl 설정
+        super(OpenRecipeEntity.class);
+    }
+
+    // 모든 레시피 조회
+    @Override
+    public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
+        
+        // 정렬 시 레시피의 좋아요 개수는 정렬 기준인 OpenRecipeEntity에 존재하지 않기 때문에 NumberPath를 통해 개별로 지정을 해줘야 함
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        
+        // count가 포함되어 있기 때문에 Tuple로 조회됨
+        JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
+        
+        // 최종적으로 Page 객체 반환
+        return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
+    }
+  
+    @Override
+    public Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable) {
+        NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+        JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
+        
+        // And 검색을 위한 where 절 조회
+        openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords));
+        return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
+    }
+
+    // left join을 통해 Favorite Recipe DB의 Recipe의 개수를 count
+    private JPAQuery<Tuple> withSelectInit(NumberPath<Long> aliasRecipe) {
+        return jpaQueryWithCountStart(aliasRecipe).leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
+    }
+  
+    // select 문에서 OpenRecipe와 count를 조회
+    private JPAQuery<Tuple> jpaQueryWithCountStart(NumberPath<Long> aliasRecipe) {
+        return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity, favoriteEntity.recipe.id.count().as(aliasRecipe));
+    }
+
+    // entityManager를 통해 JPA Query 생성
+    private JPAQuery<OpenRecipeEntity> jpaQueryOpenInit() {
+        return new JPAQuery<>(entityManager);
+    }
+    
+    private Page<OpenRecipeEntity> pagingWithSortHandler(JPAQuery<Tuple> query, NumberPath<Long> aliasRecipe, Pageable pageable) {
+        totalCountSetting(query.fetch().size());
+        
+        // JPAQuery page의 sort를 통해 정렬함 
+        pageSortSetting(query, aliasRecipe, pageable.getSort());
+        
+        List<Tuple> tupleResult = sqlTuplePageSetting(query, pageable);
+
+        // tuple로 조회된 데이터를 object[]로 전환해 0번째 인덱스의 값을 가져옴 (OpenRecipe 값) - 1번 인덱스는 count 값 그리고 stream을 통해 list를 생성
+        List<OpenRecipeEntity> result = tupleResult.stream().map(tuple -> (OpenRecipeEntity) tuple.toArray()[0]).collect(Collectors.toList());
+        long count = TotalValue.getTotalCount();
+        return new PageImpl<>(result, pageable, count);
+    }
+
+    private void pageSortSetting(JPQLQuery<Tuple> query, NumberPath<Long> aliasRecipe, Sort pageSort) {
+        
+        // page sort의 구체적인 방식으로 querydsl에서 지원하는 정렬보다 상세하게 설정하기 위해 사용
+        pageSort.stream().forEach(order -> {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+            String prop = order.getProperty();
+            PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
+            
+            // 만약 prop이 id, 즉 기존의 정렬이라면 위처럼 openRecipeEntity에 있는 값이므로 PathBuilder를 통해 orderExpression을 생성해도 되지만
+            if (prop.equals("favorite")) {
+                
+                // 좋아요의 개수는 없으므로 numberPath를 통해 정렬
+                query.orderBy(aliasRecipe.desc());
+            } else {
+                query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+            }
+        });
+    }
+
+    private List<Tuple> sqlTuplePageSetting(JPAQuery<Tuple> openAPIDataHandle, Pageable pageable) {
+        log.info("page offset value : {} / page size value : {}", pageable.getOffset(), pageable.getPageSize());
+        
+        // offset 번째 page, size 설정 
+        openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
+        return openAPIDataHandle.fetch();
+    }
+    
+    private BooleanBuilder searchAndQueryBuilder(Search keywords) {
+        BooleanBuilder queryResult = defaultBooleanBuilder();
+        
+        // and 조건문 설정
+        queryResult.and(detailQuery(keywords.getDetail())
+                .and(nameQuery(keywords.getName()))
+                .and(partQuery(keywords.getPart()))
+                .and(wayQuery(keywords.getWay()))
+        );
+    
+        // seq는 0L일 경우 조회가 안되기 때문에 0L 이상일 경우만 검색
+        if (keywords.getSeq() > 0L) {
+            queryResult.and(seqQuery(keywords.getSeq()));
+        }
+        return queryResult;
+    }
+
+    private BooleanBuilder defaultBooleanBuilder() {
+        BooleanExpression booleanExpression = openRecipeEntity.id.gt(0L);
+        return new BooleanBuilder().and(booleanExpression);
+    }
+  
+    private BooleanExpression nameQuery(String name) {
+        return openRecipeEntity.rcpNm.contains(name);
+    }
+  
+    private BooleanExpression detailQuery(String detail) {
+        return openRecipeEntity.rcpPartsDtls.contains(detail);
+    }
+  
+    private BooleanExpression partQuery(String part) {
+        return openRecipeEntity.rcpPat2.contains(part);
+    }
+  
+    private BooleanExpression wayQuery(String way) {
+        return openRecipeEntity.rcpWay2.contains(way);
+    }
+  
+    private BooleanExpression seqQuery(Long seq) {
+        return openRecipeEntity.rcpSeq.eq(seq);
+    }
+}
+```
 
 #### 조회 API 
 모든 레시피를 조회하는 API의 경우 페이지, 정렬 관련 Query만 필요합니다. 검색 조회 API는 Search 객체를 만들어 Query로 받도록 했습니다.
