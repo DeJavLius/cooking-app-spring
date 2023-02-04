@@ -1,5 +1,4 @@
 # cooking-app-spring
-#
 ## Eco Recipe 사이트
 
 - 제목 : Eco Recipe 웹 프로젝트
@@ -99,6 +98,230 @@
 ---
 
 # 코드
+
+## OpenAPI 값 받아오기
+
+### 코드 상세
+
+#### OpenAPI 데이터 불러오기
+```java
+public class OpenAPIController {
+  /*
+          임시 API로 공공 데이터의 레시피 데이터를 가져와 저장
+  */
+  @GetMapping("/v2/save")
+  public String saveOpenAPI() {
+    List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI(); // 공공 데이터 (Json) 객체 리스트로 변환해 받음
+    
+    List<OpenRecipe> totalRecipes = new ArrayList<>();
+    // 다른 객체 내의 데이터를 저장을 위한 객체로 변환
+    for (OpenAPIRecipe cr : openAPIRecipes) {
+      totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
+    }
+    openRecipeService.createAll(totalRecipes); // 데이터를 DB로 저장
+
+    return "데이터 저장 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
+  }
+}
+```
+
+#### OpenAPI 관련 코드
+```java
+/*
+        OpenAPIHandler 코드
+        API 요청을 받아 OpenAPIProvider에서 공공데이터로 실질적으로 데이터를 요청하고 값을 받아옴
+        받은 데이터가 옳바른지 확인하고 OpenAPIParser를 통해 Json String에서 openRecipe로 변환해 객체를 반환
+ */
+@Component
+public class OpenAPIHandler {
+    private final OpenAPIProvider openApiProvider = OpenAPIProvider.getInstance();
+    private final OpenAPIParser apiParser = OpenAPIParser.getInstance();
+    private final OpenAPIErrorHandler openApiErrorHandler = new OpenAPIErrorHandler();
+
+    // 1번의 요청 시 가져올 값
+    private static final int MAXIMUM_REQUEST = 1000;
+    private int totalIndex = 0;
+
+    // 공공 데이터의 1부터 끝까지의 데이터 요청
+    public List<OpenAPIRecipe> requestAllOpenAPI() {
+        List<OpenAPIRecipe> openAPIRecipes = new ArrayList<>();
+        List<OpenAPIRecipe> resultOfFetchValues = startScanOpenAPI(openAPIRecipes);
+        return resultOfFetchValues;
+    }
+
+    private List<OpenAPIRecipe> startScanOpenAPI(List<OpenAPIRecipe> openAPIRecipes) {
+        int endSearch = MAXIMUM_REQUEST;
+        setTotalIndex();
+        
+        // 설정한 최대값까지 모든 레시피 데이터를 요청
+        for (int search = 1; search < totalIndex; search += MAXIMUM_REQUEST) {
+            openApiProvider.urlIndexRangeScan(search, endSearch);
+            OpenAPIRecipe requestCR = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
+
+            openAPIRecipes.add(requestCR);
+            endSearch += MAXIMUM_REQUEST;
+        }
+        return openAPIRecipes;
+    }
+
+    // API 요청에 특정 값 요청 시 총 몇 개의 레시피가 있는지 알려주는 값을 최대 값에 넣어줌
+    private void setTotalIndex() {
+        int searchTotalNumber = 1;
+        openApiProvider.urlIndexRangeScan(searchTotalNumber, searchTotalNumber);
+        OpenAPIRecipe totalSearch = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
+        this.totalIndex = Integer.parseInt(totalSearch.getTotalCount());
+    }
+
+    // url로부터 받은 String Json에서 openRecipe 객체로 변환한 값에 이상이 없는지 확인
+    private OpenAPIRecipe cookRecipeRequest(URL apiUrl) {
+        try {
+            OpenAPIRecipe needValueCheck = requestOpenAPIFromURL(apiUrl);
+            return openApiErrorHandler.cookRecipeRightValueCheck(needValueCheck);
+        } catch (Exception e) {
+            throw new NullPointerException();
+        }
+    }
+
+    // url 값으로 받아 Json String 값을 openRecipe 객체로 변환
+    private OpenAPIRecipe requestOpenAPIFromURL(URL apiUrl) {
+        try {
+            return apiParser.parseURLToCookRecipe(apiUrl);
+        } catch (IOException e) {
+            e.getStackTrace();
+            log.error("wrong json value : can't parse Json to String need to check");
+            throw new IllegalArgumentException();
+        }
+    }
+}
+
+/*
+        공공 데이터에 접속해 데이터를 요청하는 객체
+        url과 해당 데이터 요청 API키 코드를 통해 데이터를 가져온다. 
+ */
+class OpenAPIProvider {
+  private static final OpenAPIProvider INSTANCE = new OpenAPIProvider();
+  private static final String RECIPE_OPEN_API = "https://openapi.foodsafetykorea.go.kr";
+  private static final String API_KEY = "ac3c23441c1c4a1e9696";
+
+  private OpenAPI openApi;
+
+  // 다른 클래스에서 객체 생성 불가능 - 오류는 생기지 않음
+  private OpenAPIProvider() { }
+
+  // 싱글턴 패턴으로 새로운 객체를 생성할 필요가 없기 때문에 인스턴스 생성을 해두고 해당 객체를 반환
+  public static OpenAPIProvider getInstance() {
+    return INSTANCE;
+  }
+
+  // 인덱스에 따라 데이터를 요청
+  private URL requestOpenAPIJSON(int startIndex, int endIndex) throws MalformedURLException {
+    return new URL(RECIPE_OPEN_API + "/api/" + API_KEY +
+            "/COOKRCP01/json/" + startIndex + "/" + endIndex);
+  }
+  
+  // 시작 인덱스, 끝 인덱스를 설정해도 이상이 없는지 확인 (요청 시 정상적인지)
+  public void urlIndexRangeScan(int startIndex, int endIndex) {
+    try {
+      openApi = new OpenAPI(requestOpenAPIJSON(startIndex, endIndex));
+      log.info("test of open Api : {}", openApi.getAPIUrl().toString());
+    } catch (MalformedURLException mal) {
+      mal.printStackTrace();
+      log.error("wrong url or wrong api key");
+    }
+  }
+
+  public OpenAPI getApi() {
+    return openApi;
+  }
+}
+
+/*
+        받은 Json 공공 데이터의 String을 Object로 변환해 받음
+        
+        ObjectMapper를 통해 만들어둔 클래스를 활용해 String을 객체로 전환
+ */
+class OpenAPIParser {
+  private static final OpenAPIParser INSTANCE = new OpenAPIParser();
+
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
+  private OpenAPIParser() { }
+
+  public static OpenAPIParser getInstance() {
+    return INSTANCE;
+  }
+
+  public OpenAPIRecipe parseURLToCookRecipe(URL apiUrl) throws IOException {
+    return objectMapper.readValue(apiUrl, OpenAPIMeta.class).getOpenRecipe();
+  }
+}
+
+public class OpenAPIDelegator {
+  public static OpenRecipe rowToOpenRecipe(Row row) {
+    return OpenRecipe.builder()
+            .attFileNoMain(insteadEmptyString(row.getAttFileNoMain())).attFileNoMk(insteadEmptyString(row.getAttFileNoMk()))
+            .hashTag(insteadEmptyString(row.getHashTag()))
+            .infoCar(doubleFormatting(row.getInfoCar())).infoEng(doubleFormatting(row.getInfoEng()))
+            .infoFat(doubleFormatting(row.getInfoFat())).infoNa(doubleFormatting(row.getInfoNa()))
+            .infoPro(doubleFormatting(row.getInfoPro())).infoWgt(doubleFormatting(row.getInfoWgt()))
+            .manual01(insteadEmptyString(row.getManual01()))....manual20(insteadEmptyString(row.getManual20()))
+            .manualImg01(insteadEmptyString(row.getManualImg01()))....manualImg20(insteadEmptyString(row.getManualImg20()))
+            .rcpNm(insteadEmptyString(row.getRcpNm())).rcpSeq(Long.parseLong(row.getRcpSeq())).rcpWay2(insteadEmptyString(row.getRcpWay2()))
+            .rcpPat2(insteadEmptyString(row.getRcpPat2())).rcpPartsDtls(insteadEmptyString(row.getRcpPartsDtls()))
+            .build(); // 공공 데이터에서 메뉴얼, 메뉴얼 이미지를 20개나 만들었기 때문에 너무 긴 나머지 해당 값의 전달 생략 1부터 20까지 메뉴얼
+  }
+
+  /*
+          이미지가 비었는지, 비어있지 않는지 확인
+          이유는 해당 값을 저장하고 DB에서 꺼내 앱에 Json 객체로 전달해야 하는데, 값이 없는 경우 null 값이 넘어가고,
+          해당 값이 null로 넘어가면 안드로이드에서 그 값을 String이 전달 됐을 때 타입이 아닌 null 관련 타입으로 저장하게 되고
+          이로 인해 나중에 String 값이 저장되면 오류가 발생
+          
+          해결을 위해 전달받는 값이 비었는지 확인 후 ""를 넣도록 확인하는 함수
+   */
+  private static String imageCheckString(String value) {
+    String defaultImage = "http://www.foodsafetykorea.go.kr/"; // 이미지의 값은 링크인데, 이 링크만 전달되는 경우가 있음 의미가 없는 값인 듯 해서 ""로 전달하게 바꿈
+    String check = insteadEmptyString(value);
+
+    if (check.equals(defaultImage)) {
+      return "";
+    }
+    return check;
+  }
+
+  // String 값은 위의 사진의 예시와 같이 전부 해당 처리를 해주었다.
+  private static String insteadEmptyString(String value) {
+    if (value.isEmpty()) {
+      return "";
+    } else {
+      return value;
+    }
+  }
+
+  /*
+          위의 String 값들과 같은 이유로 공공데이터의 double 값이 String으로 넘어오는데 
+          이때 어떤 값은 .0 같은 double인데, int 값도 종종 넘어와서 형변환이 쉽지 않음
+          
+          그렇기 때문에 String에 .이 있는지 확인하고 형변환을 함
+           빈값인 경우엔 0.0 값을 넣어줌
+   */
+  private static Double doubleFormatting(String value) {
+    boolean isContains = value.contains(".");
+    boolean isEmpty = (value.length() == 0);
+    if (isEmpty) {
+      return 0.0;
+    }
+
+    if (!isContains) {
+      return (double) Integer.parseInt(value);
+    }
+    else {
+      return Double.parseDouble(value);
+    }
+  }
+}
+```
+
 ## API
 ### 앱 / 어플 통신용 API 구현
 - 웹에서 API를 구현해 앱과 iOS에 레시피 데이터를 JSON을 통해 전달
@@ -112,37 +335,29 @@
   - 오픈 DB로부터 모든 데이터 저장 : `/api/v2/save`
   - 현재 DB의 모든 레시피 데이터 삭제 : `/api/v2/delete/all`
 
-### 코드 상세
-
-### Controller
+#### OpenAPIController
 ```java
 @RequestMapping("/api")
-@RequiredArgsConstructor
 @RestController
 public class OpenAPIController {
-  private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
-  private final SearchWithPageHandler<OpenRecipe> searchWithPageHandler;
-  private final OpenAPIHandler openApiHandler;
-
+  // query param에 값이 없이 전달 받을 경우 사용될 기본 값
   private final String DEFAULT_PAGE = "1";
   private final String DEFAULT_SIZE = "10";
   private final String DEFAULT_ORDER = "d";
-  
+
   /*
           모든 레시피를 조회하는 API로 page, size, order 3가지 parameter 지원
           기본값 : 0, "d"로 parameter 값을 주지 않아도 사용 가능
    */
   @GetMapping(value = "/v1", produces = "application/json; charset=UTF-8")
   public RecipeData responseOpenAPI(@RequestParam(defaultValue = DEFAULT_PAGE) int page, @RequestParam(defaultValue = DEFAULT_SIZE) int size, @RequestParam(defaultValue = DEFAULT_ORDER) String order) {
-
-    // 정렬 d 일 경우 기본 순, f 일 경우 favorite - 좋아요 많은 순
-    Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
+    Sort sort = order.equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending(); // 정렬 d 일 경우 기본 순, f 일 경우 favorite - 좋아요 많은 순
     PageRequest pageRequest = searchWithPageHandler.choosePage(page, size, sort);
 
     // 페이지 설정을 보내 해당 설정에 맞게 모든 레시피 조회
     APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.allAPIDataSources(pageRequest);
 
-    // 페이지의 끝인지, 최종 페이지는 몇 페이지인지, 총 몇 개가 찾아졌는지
+    // 페이지의 끝인지, 최종 페이지는 몇 페이지인지, 총 몇 개가 찾아졌는지에 대한 정보
     boolean isEnd = page == TotalValue.getTotalCount();
     Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
 
@@ -178,7 +393,7 @@ public class OpenAPIController {
    */
   @GetMapping(value = "/v1/recipes/rank", produces = "application/json; charset=UTF-8")
   public RecipeData responseFavoriteOpenAPI() {
-    List<OpenRecipe> openRecipes = openRecipePageWithSearchService.mostAndroidRecipe();
+    List<OpenRecipe> openRecipes = openRecipePageWithSearchService.mostAndroidRecipe(); // 좋아요를 1개 이상 받은 레시피 중 제일 좋아요가 많은 순서로 최대 8가지 전달
 
     Meta metaInfo = MetaDelegator.metaGenerator(true, openRecipes.size(), 0);
 
@@ -187,67 +402,35 @@ public class OpenAPIController {
             .openRecipes(openRecipes)
             .build();
   }
-
-  /*
-          임시 API로 공공 데이터의 레시피 데이터를 가져와 저장
-  */
-  @GetMapping("/v2/save")
-  public String saveOpenAPI() {
-
-    // 공공 데이터를 요청
-    List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI();
-    List<OpenRecipe> totalRecipes = new ArrayList<>();
-
-    for (OpenAPIRecipe cr : openAPIRecipes) {
-  
-      // 저장할 수 있도록 받아진 Json 데이터를 entity로 변환
-      totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
-    }
-
-    openRecipeService.createAll(totalRecipes);
-
-    return "데이터 저장 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
-  }
 }
 ```
 
-#### Service, Repository
+#### OpenRecipePageWithSearchService
 ```java
-// 레시피 조회 관련 service
 public interface OpenRecipePageWithSearchService {
-  // 모든 레시피 조회
-  APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest);
-
-  // 조건 검색 레시피 조회
-  APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest);
-
-  // 좋아요된 인기순 레시피 앱에 보내기 위한 Json 리스트 생성
-  List<OpenRecipe> mostAndroidRecipe();
+  APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest); // 모든 레시피 조회
+  APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest); // 레시피 검색 조회 가능
+  List<OpenRecipe> mostAndroidRecipe(); // 좋아요된 인기순 레시피 앱에 보내기 위한 Json 리스트 생성
 }
 
-// 레시피 Service들의 구현체
-@RequiredArgsConstructor
 @Service
 public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchService {
-  private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
-  private final FavoriteRankRepository favoriteRankRepository;
-  
   @Override
   public APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest) {
-    // API page 생성 시 Stream 함수의 map에 function 자리에 들어감
-    // Functional interface로 entity를 DTO로 바꿔 Json으로 전달하도록 함
+    /*
+            API page 생성 시 Stream 함수의 map에 function 자리에 들어감
+            Functional interface로 entity를 DTO로 바꿔 Json으로 전달하도록 함
+     */
     Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-    
-    // DB로 조회된 값
-    Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPIPageHandling(pageRequest);
-    return new APIPageResult<>(openRecipeEntities, function);
+    Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPIPageHandling(pageRequest); // 페이지 처리된 레시피 데이터 리스트
+    return new APIPageResult<>(openRecipeEntities, function); // 추가 페이지 정보를 담은 객체로 전달
   }
 
   @Override
   public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest) {
     Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-    
-    // 검색이 추가됨
+
+    // 검색 기능을 추가한 DB 조회용 API Search 객체에 검색할 단어를 담아 전달
     Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(search, pageRequest);
     return new APIPageResult<>(openRecipeEntities, function);
   }
@@ -256,60 +439,52 @@ public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchServi
   @Override
   public List<OpenRecipe> mostAndroidRecipe() {
     List<OpenRecipe> result = new ArrayList<>();
+    List<Object[]> rankFavorites = favoriteRankRepository.findWithRankFavoriteRecipe(); // 제일 좋아요를 많이 받은 순으로 8가지의 레시피를 제공
     
-    // 동일 레시피 추천
-    List<Object[]> rankFavorites = favoriteRankRepository.findWithRankFavoriteRecipe();
-    
-    // 값이 있다면 object[]로부터 값 꺼내 레시피로 변경
+    // 값이 있다면 object[]로부터 값 꺼내 레시피 객체로 변경
     if (!rankFavorites.isEmpty()) {
       result = rankFavorites.stream().map(entity -> OpenRecipeConverter.entityToDto((OpenRecipeEntity) entity[1])).collect(Collectors.toList());
     }
     return result;
   }
 }
+```
 
-// 레시피 Repository interface
+#### OpenRecipePageWithSearchRepository
+```java
 public interface OpenRecipePageWithSearchRepository {
-  Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable);
+  Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable); // API 전달을 위해 page 처리된 (offset, limit) 결과의 리스트 객체를 반환
+  // 검색 조건 where 절에 and 조건으로 원하는 결과에 맞는 page 처리된 (offset, limit) 결과의 리스트 객체를 반환
   Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable);
 }
 
-@RequiredArgsConstructor
 @Repository
 public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository {
-  // 기존의 EntityManager에 필요한 EntityFactory를 생성해 주입
   @PersistenceContext
-  private EntityManager entityManager;
-  
-  // 쿼리 DSL 생성 entity
-  private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+  private EntityManager entityManager; // 기존의 EntityManager에 필요한 EntityFactory를 사용한 생성 등을 주입
+  private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity; // QueryDsl 빌드 시 생성되는 QEntity
 
   public RecipeTupleAndPageWithSearchRepositoryImpl() {
-    // querydsl 설정
-    super(OpenRecipeEntity.class);
+    super(OpenRecipeEntity.class); // QueryDsl 생성자 전달용
   }
 
-    // 모든 레시피 조회
+  // 모든 레시피 조회
   @Override
   public Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable) {
-      
-    // 정렬 시 레시피의 좋아요 개수는 정렬 기준인 OpenRecipeEntity에 존재하지 않기 때문에 NumberPath를 통해 개별로 지정을 해줘야 함
+    /*
+            레시피의 좋아요 개수로 정렬하는 경우 OpenRecipeEntity에 해당 필드가 없기 때문에 오류 발생
+            NumberPath를 통해 정렬 때 사용할 수 있도록 함
+     */
     NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
-    
-    // count가 포함되어 있기 때문에 Tuple로 조회됨
-    JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
-    
-    // 최종적으로 Page 객체 반환
-    return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
+    JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe); // select시 필드가 여러값이기 때문에 단일 객체가 아닌 tuple로 조회
+    return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable); // 최종적으로 데이터를 담은 Page 객체 반환
   }
 
   @Override
   public Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable) {
     NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
     JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
-    
-    // And 검색을 위한 where 절 조회
-    openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords));
+    openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords)); // And 검색을 위한 where 절 조회
     return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
   }
 
@@ -318,8 +493,9 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
     return jpaQueryWithCountStart(aliasRecipe).leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
   }
 
-  // select 문에서 OpenRecipe와 count를 조회
+  // select 문으로 Query entity를 통해 OpenRecipe와 count를 조회
   private JPAQuery<Tuple> jpaQueryWithCountStart(NumberPath<Long> aliasRecipe) {
+    // 정렬 기준을 만들기 위해 설정한 NumberPath로 별칭 설정
     return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity, favoriteEntity.recipe.id.count().as(aliasRecipe));
   }
 
@@ -330,71 +506,64 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
   
   private Page<OpenRecipeEntity> pagingWithSortHandler(JPAQuery<Tuple> query, NumberPath<Long> aliasRecipe, Pageable pageable) {
     totalCountSetting(query.fetch().size());
-    
-    // JPAQuery page의 sort를 통해 정렬함 
-    pageSortSetting(query, aliasRecipe, pageable.getSort());
-    
+    pageSortSetting(query, aliasRecipe, pageable.getSort()); // JPAQuery page의 sort를 통해 정렬함
     List<Tuple> tupleResult = sqlTuplePageSetting(query, pageable);
 
-    // tuple로 조회된 데이터를 object[]로 전환해 0번째 인덱스의 값을 가져옴 (OpenRecipe 값) - 1번 인덱스는 count 값 그리고 stream을 통해 list를 생성
+    /*
+            tuple로 조회된 데이터를 toArray로 변환해 원하는 데이터 값(OpenRecipe 값)을 꺼냄 
+            tuple 내 데이터는 select에서 요청한 핃드의 순서와 같음
+            0 - openRecipeEntity, 1 - 레시피 좋아요 개수
+     */
     List<OpenRecipeEntity> result = tupleResult.stream().map(tuple -> (OpenRecipeEntity) tuple.toArray()[0]).collect(Collectors.toList());
     long count = TotalValue.getTotalCount();
     return new PageImpl<>(result, pageable, count);
   }
 
   private void pageSortSetting(JPQLQuery<Tuple> query, NumberPath<Long> aliasRecipe, Sort pageSort) {
-      
-      // page sort의 구체적인 방식으로 querydsl에서 지원하는 정렬보다 상세하게 설정하기 위해 사용
+    // QueryDSl에서 기본 정렬은 상세하게 할 수 없기 때문에 구식의 정렬 방식을 사용해 정렬 
     pageSort.stream().forEach(order -> {
       Order direction = order.isAscending() ? Order.ASC : Order.DESC;
       String prop = order.getProperty();
       PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
       
-      // 만약 prop이 id, 즉 기존의 정렬이라면 위처럼 openRecipeEntity에 있는 값이므로 PathBuilder를 통해 orderExpression을 생성해도 되지만
+      // order로 property, 정렬 필드 값이 무엇인가에 따라 사용하는 기준 필드가 다름
       if (prop.equals("favorite")) {
-        // 좋아요의 개수는 없으므로 numberPath를 통해 정렬
-        query.orderBy(aliasRecipe.desc());
+        query.orderBy(aliasRecipe.desc()); // 좋아요의 개수는 openRecipeEnitiy 필드에 없으므로 numberPath를 통해 정렬
       } else {
-        query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+        query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop))); // openRecipeEntity의 객체에 존재하는 값 - id로 정렬 기본 순서
       }
     });
   }
 
   private List<Tuple> sqlTuplePageSetting(JPAQuery<Tuple> openAPIDataHandle, Pageable pageable) {
-    log.info("page offset value : {} / page size value : {}", pageable.getOffset(), pageable.getPageSize());
-    
-    // offset 번째 page, size 설정 
-    openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
+    openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize()); // page 위치와 페이지 당 객체의 개수 설정
     return openAPIDataHandle.fetch();
   }
   
   private BooleanBuilder searchAndQueryBuilder(Search keywords) {
     BooleanBuilder queryResult = defaultBooleanBuilder();
-    
-    // and 조건문 설정
-    queryResult.and(detailQuery(keywords.getDetail())
+    queryResult.and(detailQuery(keywords.getDetail()) // and 조건문 설정 각 키워드별 함수
             .and(nameQuery(keywords.getName()))
             .and(partQuery(keywords.getPart()))
             .and(wayQuery(keywords.getWay()))
     );
 
-    // seq는 0L일 경우 조회가 안되기 때문에 0L 이상일 경우만 검색
+    // seq는 키 값이기 때문에 0L보다 커야 검색이 가능, 만일 값이 0L일 때 이 조건 때문에 전체 조건문이 만족되지 않을 수 있기 때문에 설정
     if (keywords.getSeq() > 0L) {
         queryResult.and(seqQuery(keywords.getSeq()));
     }
     return queryResult;
   }
-
-  // 기본적인 BooleanBuilder 생성으로 추가 조건 설정 전 사용
+  
   private BooleanBuilder defaultBooleanBuilder() {
-    BooleanExpression booleanExpression = openRecipeEntity.id.gt(0L);
+    BooleanExpression booleanExpression = openRecipeEntity.id.gt(0L); // gt 함수 : id - 개인키 값이 0L보다 큰 모든 값 조회 데이터 생성 시 1L부터 생성됨
     return new BooleanBuilder().and(booleanExpression);
   }
 
   // 검색어별 and 조건에 boolean expression 생성 함수
   private BooleanExpression nameQuery(String name) {
     return openRecipeEntity.rcpNm.contains(name);
-}
+  }
 
   private BooleanExpression detailQuery(String detail) {
     return openRecipeEntity.rcpPartsDtls.contains(detail);
@@ -418,15 +587,14 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
 ```java
 // API page 설정
 public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
-  /*
+  
+    /*
           API의 page 처리를 위한 객체
-          
           추상 클래스 PageResult를 구현
    */
 
   public APIPageResult(Page<EN> result, Function<EN, DTO> fn) {
-    // 추상화 객체의 생성자 사용
-    super(result, fn);
+    super(result, fn); // 추상화 객체의 생성자 사용
   }
 
   // 페이지 생성, 설정, 부모 객체의 함수 사용
@@ -447,8 +615,7 @@ public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
 @Getter
 @Setter
 public abstract class PageResult<DTO, EN> {
-  // 페이지 당 객체를 담은 list 변수
-  private List<DTO> dtoList;
+  private List<DTO> dtoList; // 페이지 당 실질적으로 사용되는 값이 들어가는 list 변수
 
   private int totalPage;
   private int nowPage;
@@ -456,8 +623,7 @@ public abstract class PageResult<DTO, EN> {
 
   // 기본 생성자
   public PageResult(Page<EN> result, Function<EN, DTO> fn) {
-    // DTO -> Entity로 변경해 list로 만듦
-    this.dtoList = result.stream().map(fn).collect(Collectors.toList());
+    this.dtoList = result.stream().map(fn).collect(Collectors.toList()); // DTO -> Entity로 변경해 list로 만듦
     totalPage = result.getTotalPages();
     makePageList(result.getPageable());
   }
@@ -1343,7 +1509,7 @@ public class HomeController {
 }
 ```
 
-#### 레시피 8가지 2줄로 변경 코드
+#### 레시피 8개 조회 2줄로 변경 코드
 ```java
 // searchWithPage interface로 way와 part를 위해 generator로 생성
 public interface SearchWithPageHandler<T> {
@@ -1507,21 +1673,21 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
 ```java
 public class MySqlJpaTemplates extends JPQLTemplates {
     
-    /*
-            기존의 JPQLTemplates에서 지원하는 random() 함수는 MySql에서는 rand() 함수로 지원
-            JPQLTemplates에서 rand를 사용하도록 부분만 임의로 함수 수정
-     */
-    public static final MySqlJpaTemplates DEFAULT = new MySqlJpaTemplates();
+  /*
+          기존의 JPQLTemplates에서 지원하는 random() 함수는 MySql에서는 rand() 함수로 지원
+          JPQLTemplates에서 rand를 사용하도록 부분만 임의로 함수 수정
+   */
+  public static final MySqlJpaTemplates DEFAULT = new MySqlJpaTemplates();
 
-    public MySqlJpaTemplates() {
-        this(DEFAULT_ESCAPE);
-        add(Ops.MathOps.RANDOM, "rand()");
-        add(Ops.MathOps.RANDOM2, "rand({0})");
-    }
+  public MySqlJpaTemplates() {
+      this(DEFAULT_ESCAPE);
+      add(Ops.MathOps.RANDOM, "rand()");
+      add(Ops.MathOps.RANDOM2, "rand({0})");
+  }
 
-    public MySqlJpaTemplates(char escape) {
-        super(escape);
-    }
+  public MySqlJpaTemplates(char escape) {
+      super(escape);
+  }
 }
 ```
 
@@ -1535,4 +1701,226 @@ public class MySqlJpaTemplates extends JPQLTemplates {
 ![](recipe/img/레시피_보기_모든레시피.png)
 <div style="text-align: center;">레시피 보기 모든 목록</div>
 
-<div style="text-align: center;">레시피 보기 모든 목록</div>
+#### recipeList.html
+```html
+<!-- 레시피 카테고리 검색 코드 -->
+<!-- form 태그의 th:method를 활용해 get 요청을 진행 action의 URL로 요청 - () 안의 내용은 query를 통해 검색이나 페이지의 내용을 설정함 -->
+<form class="ml-auto" th:action="@{/recipes(page=${ page }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" th:method="get">
+  <input type="hidden" name="size" value="28">
+  
+  <!-- 레시피 개수를 나타냄 -->
+  <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
+  <div id="collapse">
+      <div class="container">
+          <nav class="navbar navbar-default navbar-expand-lg">
+              <div class="container">
+                  <!-- 레시피명 검색 -->
+                  <div class="navbar-translate">
+                      <div class="navbar-brand">
+                          검색하기
+                          <div class="ripple-container"></div>
+                      </div>
+                  </div>
+                  <!-- 재료명 검색 -->
+                  <div class="collapse navbar-collapse">
+                      <div class="form-inline ml-auto">
+                          <label class="form-group bmd-form-group">
+                              <input type="text" name="name" th:name="name" class="input-group input-group-text" placeholder="음식 이름 ..." th:field="*{search.name}">
+                          </label>
+                          <button type="submit" class="btn btn-white btn-raised btn-fab btn-round">
+                              <i class="material-icons">search</i>
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </nav>
+          <div class="row">
+              <div class="col-md-12">
+                  <div id="accordion" role="tablist">
+                      <div class="card card-collapse">
+                          <div class="card-header" role="tab" id="headingOne">
+                              <h5 class="mb-0">
+                                  <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                      카테고리
+                                      <i class="material-icons">keyboard_arrow_down</i>
+                                  </a>
+                              </h5>
+                          </div>
+                          <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                              <div class="card-body">
+                                  <div class="row">
+                                      <div class="col-md-12 ml-auto mr-auto">
+                                          <div class="row">
+                                              <h5 class="col-md-4 title">식재료 검색</h5>
+                                              <div class="ol-md-4 form-inline ml-auto">
+                                                  <div class="form-group bmd-form-group">
+                                                      <div class="input-group-prepend">
+                                                          <label>
+                                                              <input type="text" name="detail" th:name="detail" class="form-control" placeholder="식재료 종류" th:field="*{search.detail}"/>
+                                                          </label>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="container">
+                                              <div class="row">
+                                                  <h5 class="title">조리 방식</h5>
+                                                  <div class="form-inline ml-auto">
+                                                      <div class="form-group bmd-form-group">
+                                                        
+                                                          <!-- DB에서 모든 레시피의 조리 방식을 group by해 가져와 선택가능하게 보여줌 -->
+                                                          <div class="form-check" th:each="way, wayStat : ${ ways }">
+                                                              <label class="form-check-label">
+                                                                  <input class="form-check-input" type="radio" th:field="*{search.way}" name="way" th:value="${ way.value }">
+                                                                  <span class="circle">
+                                                                  <span class="check"></span>
+                                                              </span>
+                                                                  [[ ${ way.value } ]]
+                                                              </label>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="ripple-container"></div>
+                                              </div>
+                                              <div class="row">
+                                                  <h5 class="title">음식 분류</h5>
+                                                  <div class="form-inline ml-auto">
+                                                      <div class="form-group bmd-form-group">
+
+                                                          <!-- DB에서 모든 레시피의 요리 분류를 group by해 가져와 선택가능하게 보여줌 -->
+                                                          <div class="form-check" th:each="part, partStat : ${ parts }">
+                                                              <label class="form-check-label">
+                                                                  <input type="radio" th:field="*{search.part}" name="part" th:value="${ part.value }" class="form-check-input">
+                                                                  <span class="circle">
+                                                                  <span class="check"></span>
+                                                              </span>
+                                                                  [[ ${ part.value } ]]
+                                                              </label>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="ripple-container"></div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <button type="submit" class="btn btn-success">
+                                          검색
+                                      </button>
+                                      <div class="col-lg-5 col-md-6 col-sm-12">
+                                          <select class="selectpicker" data-style="select-with-transition" title="Single Select" name="order" data-size="2">
+                                              <option value="d" th:selected="${ pageCall.order == 'd' }">등록순</option>
+                                              <option value="f" th:selected="${ pageCall.order == 'f' }">인기순</option>
+                                          </select>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</form>
+
+<!-- 레시피 목록 코드 -->
+<th:block th:if="${ #lists.size(recipeList.divideList) > 0 }">
+  <div class="row display-4" th:each="rowList : ${ recipeList.divideList }">
+    <div class="col-md-3 col-lg-3" th:each="recipe : ${ rowList }">
+      <div class="card card-blog">
+        
+        <!-- 좋아요와 개수 표시 -->
+        <div class="row col-lg-12 ml-auto mr-auto">
+          <!-- 좋아요를 표시한 사용자가 로그인한 경우 해당 이메일에 맞는 좋아요가 있는지 확인 -->
+          <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'" th:if="${ #arrays.contains(favoriteSeqList, recipe.recipeId) }">
+            <i class="material-icons">favorite</i>
+          </button>
+          <button type="button" class="btn btn-sm btn-light btn-link" style="pointer-events: none;" th:style="'pointer-events: none;'" th:unless="${ #arrays.contains(favoriteSeqList, recipe.recipeId) }">
+            <i class="material-icons">favorite</i>
+          </button>
+          <!-- 해당 레시피의 좋아요 개수 -->
+          <h4>[[ ${ recipe.count } ]]</h4>
+        </div>
+        <div th:if="${ recipe.recipeMainImage != '' }" class="front front-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.recipeMainImage } + ');'">
+          <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.recipeId }}">
+            <div class="card-body">
+            </div>
+          </a>
+        </div>
+        <div th:unless="${ recipe.recipeMainImage != '' }" class="front front-background" style="background-image: url('../../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
+          <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.recipeId }}">
+            <div class="card-body">
+            </div>
+          </a>
+        </div>
+        <div class="card-body">
+          <h6 class="card-category text-info">[[ ${ recipe.recipePart } ]]</h6>
+          <h4 class="card-title">
+            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">[[ ${ recipe.recipeName } ]]</a>
+          </h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+<th:block th:unless="${ #lists.size(recipeList.divideList) > 0 }">
+  <div class="row">
+    <div class="container">
+      <h4 class="content-center">검색결과가 없습니다</h4>
+    </div>
+  </div>
+</th:block>
+
+<!-- 페이지 처리 코드 -->
+<div class="subscribe-line">
+  <div class="pagination-area">
+    <ul class="pagination justify-content-center text-center">
+      <!-- 쿼리를 유지하기 위해 괄호 안에 각 변수를 적음 - 괄호 안의 내용은 쿼리 파라메터로 전달됨 -->
+      <li class="page-item" th:if="${ recipeList.firstPage }">
+        <a href="recipeList.html" th:href="@{/recipes(page=1, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xAB;&#xAB;</a>
+      </li>
+      <li class="page-item" th:if="${ recipeList.prevPage }">
+        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.startPage - 1 }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xAB;</a>
+      </li>
+
+      <!-- 매번 페이지가 선택될 경우 선택된 페이지를 나타냄 (현재 페이지) -->
+      <li th:class="'page-item' + ${ recipeList.nowPage == page ? ' active' : '' }" th:each="page : ${ recipeList.pageList }">
+        <a href="recipeList.html" th:href="@{/recipes(page=${ page }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">[[ ${ page } ]]</a>
+      </li>
+
+      <li class="page-item" th:if="${ recipeList.nextPage }">
+        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.endPage + 1 }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xBB;</a>
+      </li>
+      <li class="page-item" th:if="${ recipeList.lastPage }">
+        <a href="recipeList.html" th:href="@{/recipes(page=${ recipeList.totalPage }, size=${ pageCall.size }, name=${ search.name }, detail=${ search.detail}, way=${ search.way }, part=${ search.part })}" class="page-link">&#xBB;&#xBB;</a>
+      </li>
+    </ul>
+  </div>
+</div>
+```
+
+#### 레시피 카테고리 검색과 목록, 페이지 처리 코드
+카테고리를 통해 원하는 레시피를 검색할 수 있습니다. 레시피 이름부터 들어가는 재료의 이름, 음식 분류, 조리 과정을 설정해 검색할 수 있고,
+인기순, 기본순으로 정렬할 수 있습니다.
+
+가장 위에는 레시피의 개수를 표시하고 레시피는 최대 4개씩 6줄을 나타냅니다. 페이지는 총 개수에 따라 최대 10페이지 씩 나오며 << 와 >> 를
+통해 제일 첫번째 페이지와 제일 끝 페이지로 이동하고 < 와 > 를 통해 이전, 다음페이지로 이동합니다.
+
+![](recipe/img/레시피_보기_모든레시피_마지막.png)
+<div style="text-align: center;">레시피 보기 마지막 페이지</div>
+
+### 검색한 결과
+
+![](recipe/img/레시피_보기_검색레시피_결과2.png)
+<div style="text-align: center;">카테고리 검색 설정 후 검색 결과</div>
+
+![](recipe/img/레시피_보기_검색레시피_결과.png)
+<div style="text-align: center;">레시피 검색 결과</div>
+
+![](recipe/img/레시피_보기_검색레시피_없을시.png)
+<div style="text-align: center;">레시피 검색 결과 없을 경우</div>
+
+
+
+
+
