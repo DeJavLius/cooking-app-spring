@@ -125,7 +125,7 @@ public class OpenAPIController {
 }
 ```
 
-#### OpenAPI 관련 코드
+#### OpenAPI Handler
 ```java
 /*
         OpenAPIHandler 코드
@@ -193,7 +193,12 @@ public class OpenAPIHandler {
         }
     }
 }
+```
 
+공공데이터로부터 데이터를 가져와 사용가능한 객체로 담아 전달하는 객체로 데이터 불러오기, 
+
+#### OpenAPI Provider
+```java
 /*
         공공 데이터에 접속해 데이터를 요청하는 객체
         url과 해당 데이터 요청 API키 코드를 통해 데이터를 가져온다. 
@@ -234,7 +239,10 @@ class OpenAPIProvider {
     return openApi;
   }
 }
+```
 
+#### OpenAPI Parser
+```java
 /*
         받은 Json 공공 데이터의 String을 Object로 변환해 받음
         
@@ -255,7 +263,10 @@ class OpenAPIParser {
     return objectMapper.readValue(apiUrl, OpenAPIMeta.class).getOpenRecipe();
   }
 }
+```
 
+#### OpenAPI Delegator
+```java
 public class OpenAPIDelegator {
   public static OpenRecipe rowToOpenRecipe(Row row) {
     return OpenRecipe.builder()
