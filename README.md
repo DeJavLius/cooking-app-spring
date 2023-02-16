@@ -25,9 +25,12 @@
 
 - 로직 설계 : Notion, Figma
 
+프론트엔드, 백엔드 전부 제가 개발했습니다.
+
+프론트는 Bootstrap과 이미 개발된 template에 thymeleaf를 통해 수정했습니다.
+
 ## 사용 API
      http://www.foodsafetykorea.go.kr/api/openApiInfo.do?menu_grp=MENU_GRP31&menu_no=661&show_cnt=10&start_idx=1&svc_no=COOKRCP01
-
 ---
 
 # 요구사항
@@ -79,51 +82,11 @@
 
 ---
 
-# 구현
-
-## 레시피 상세정보
-![](recipe/img/레시피_상세보기_비로그인.png)
-<div style="text-align: center;">레시피 상세보기</div>
-
-![](recipe/img/레시피_상세보기_조리과정.png)
-<div style="text-align: center;">레시피 상세보기 조리과정</div>
-
-![](recipe/img/레시피_상세보기_관련_카테고리추천.png)
-<div style="text-align: center;">레시피 상세와 관련있는 레시피 추천</div>
-
-## 로그인
-![](recipe/img/레시피_로그인.png)
-<div style="text-align: center;">레시피 팝업 구글 로그인 지원</div>
-
----
-
-# 코드
+# 구현과 코드
 
 ## OpenAPI 값 받아오기
 
 ### 코드 상세
-
-#### OpenAPI 데이터 불러오기
-```java
-public class OpenAPIController {
-  /*
-          임시 API로 공공 데이터의 레시피 데이터를 가져와 저장
-  */
-  @GetMapping("/v2/save")
-  public String saveOpenAPI() {
-    List<OpenAPIRecipe> openAPIRecipes = openApiHandler.requestAllOpenAPI(); // 공공 데이터 (Json) 객체 리스트로 변환해 받음
-    
-    List<OpenRecipe> totalRecipes = new ArrayList<>();
-    // 다른 객체 내의 데이터를 저장을 위한 객체로 변환
-    for (OpenAPIRecipe cr : openAPIRecipes) {
-      totalRecipes.addAll(cr.getRow().stream().map(OpenAPIDelegator::rowToOpenRecipe).collect(Collectors.toList()));
-    }
-    openRecipeService.createAll(totalRecipes); // 데이터를 DB로 저장
-
-    return "데이터 저장 완료 원래 화면으로 돌아가세요. 테스트용 임시 url";
-  }
-}
-```
 
 #### OpenAPI Handler
 ```java
@@ -135,6 +98,7 @@ public class OpenAPIController {
 @Component
 public class OpenAPIHandler {
     private final OpenAPIProvider openApiProvider = OpenAPIProvider.getInstance();
+    // String 데이터를 객체로 집어 넣음
     private final OpenAPIParser apiParser = OpenAPIParser.getInstance();
     private final OpenAPIErrorHandler openApiErrorHandler = new OpenAPIErrorHandler();
 
@@ -158,9 +122,11 @@ public class OpenAPIHandler {
             openApiProvider.urlIndexRangeScan(search, endSearch);
             OpenAPIRecipe requestCR = cookRecipeRequest(openApiProvider.getApi().getAPIUrl());
 
+            // 검증된 뒤 객체에 담긴 레시피를 리스트에 추가 
             openAPIRecipes.add(requestCR);
             endSearch += MAXIMUM_REQUEST;
         }
+        // 조회된 모든 레시피 결과 반환
         return openAPIRecipes;
     }
 
@@ -195,7 +161,7 @@ public class OpenAPIHandler {
 }
 ```
 
-공공데이터로부터 데이터를 가져와 사용가능한 객체로 담아 전달하는 객체로 데이터 불러오기, 
+공공데이터로부터 데이터를 가져옴(OpenAPIProvider) -> 데이터 이상여부 확인(OpenAPIErrorHandler) -> 사용가능한 객체로 담아(OpenAPIParser, OpenAPIDelegator) 전달하는 객체로
 
 #### OpenAPI Provider
 ```java
@@ -210,7 +176,7 @@ class OpenAPIProvider {
 
   private OpenAPI openApi;
 
-  // 다른 클래스에서 객체 생성 불가능 - 오류는 생기지 않음
+  // 여러 객체가 필요하지 않기 때문에 다른 클래스에서 객체 생성 불가능하도록 설정
   private OpenAPIProvider() { }
 
   // 싱글턴 패턴으로 새로운 객체를 생성할 필요가 없기 때문에 인스턴스 생성을 해두고 해당 객체를 반환
@@ -237,30 +203,6 @@ class OpenAPIProvider {
 
   public OpenAPI getApi() {
     return openApi;
-  }
-}
-```
-
-#### OpenAPI Parser
-```java
-/*
-        받은 Json 공공 데이터의 String을 Object로 변환해 받음
-        
-        ObjectMapper를 통해 만들어둔 클래스를 활용해 String을 객체로 전환
- */
-class OpenAPIParser {
-  private static final OpenAPIParser INSTANCE = new OpenAPIParser();
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
-
-  private OpenAPIParser() { }
-
-  public static OpenAPIParser getInstance() {
-    return INSTANCE;
-  }
-
-  public OpenAPIRecipe parseURLToCookRecipe(URL apiUrl) throws IOException {
-    return objectMapper.readValue(apiUrl, OpenAPIMeta.class).getOpenRecipe();
   }
 }
 ```
@@ -333,6 +275,56 @@ public class OpenAPIDelegator {
 }
 ```
 
+해당 open API는 오류 발생 시 result 객체에 특정 코드를 담음, 해당 코드에 따라, 요청 데이터가 row에 있는지에 따라 오류 출력하는 클래스
+
+#### OpenAPI Delegator
+```java
+public class OpenAPIErrorHandler {
+  // 시작 인덱스와 끝 인덱스가 반대로 된 경우와 더이상 데이터가 없는 경우
+  public OpenAPIRecipe cookRecipeRightValueCheck(OpenAPIRecipe openAPIRecipe) {
+    if (openAPIRecipe.getResult().getMsg().equals(OpenAPICode.ERROR_334.getCode())) {
+      log.error("wrong index position : start index is bigger then end index");
+      throw new IllegalArgumentException();
+    } else if (openAPIRecipe.getResult().getMsg().equals(OpenAPICode.INFO_200.getCode())) {
+      log.error("no more data found : API data is no more");
+      throw new IllegalArgumentException();
+    } else {
+      return cookRecipeNullCheck(openAPIRecipe);
+    }
+  }
+
+  // 데이터가 아무것도 없이 비어있는 경우
+  private OpenAPIRecipe cookRecipeNullCheck(OpenAPIRecipe openAPIRecipe) {
+  if (openAPIRecipe.getResult().getMsg().isEmpty()) {
+      log.error("no data found : object has no value error");
+      throw new NullPointerException();
+    } else {
+      return openAPIRecipe;
+    }
+  }
+
+  // 데이터가 아무것도 없이 비어있는 경우
+  public OpenAPIRecipe cookRecipeValueCheck(OpenAPIRecipe openAPIRecipe) {
+    if (openAPIRecipe.getRow().isEmpty()) {
+      log.error("empty value requested : value is lost");
+      throw new NullPointerException();
+    } else {
+      return openAPIRecipe;
+    }
+  }
+
+  // 데이터가 아무것도 없이 비어있는 경우
+  public OpenAPIRecipe cookRecipeInnerValueCheck(OpenAPIRecipe openAPIRecipe) {
+    if (openAPIRecipe.getRow().get(0).getRcpSeq() == null) {
+      log.error("empty value requested : inside Row value is lost");
+      throw new NullPointerException();
+    } else {
+      return openAPIRecipe;
+    }
+  }
+}
+```
+
 ## API
 ### 앱 / 어플 통신용 API 구현
 - 웹에서 API를 구현해 앱과 iOS에 레시피 데이터를 JSON을 통해 전달
@@ -379,7 +371,7 @@ public class OpenAPIController {
   }
 
   /*
-          레시피를 검색 조건에 따라 조회하는 API로 page, size, order에 Search 객체를 parameter로 지원
+          레시피를 검색 조건에 따라 조회하는 API로 page, size, order과 Search 객체를 parameter로 지원
           Search는 id, 이름, 조리 방법, 요리 구분, 식재료를 조건으로 설정, and 검색
    */
   @GetMapping(value = "/v1/search/find-only", produces = "application/json; charset=UTF-8")
@@ -389,14 +381,6 @@ public class OpenAPIController {
 
     // 페이지 설정과 검색 조건을 담은 객체를 전달
     APIPageResult<OpenRecipe, OpenRecipeEntity> openRecipeAPIPageResult = openRecipePageWithSearchService.searchAndAPIDataSources(searchWithPageRequest.getSearch(), searchWithPageRequest.detailOfSort(sort));
-
-    boolean isEnd = page == TotalValue.getTotalCount();
-    Meta metaInfo = MetaDelegator.metaGenerator(isEnd, openRecipeAPIPageResult.getTotalPage(), TotalValue.getTotalCount());
-
-    return RecipeData.builder()
-            .meta(metaInfo)
-            .openRecipes(openRecipeAPIPageResult.getDtoList())
-            .build();
   }
 
   /*
@@ -418,12 +402,6 @@ public class OpenAPIController {
 
 #### OpenRecipePageWithSearchService
 ```java
-public interface OpenRecipePageWithSearchService {
-  APIPageResult<OpenRecipe, OpenRecipeEntity> allAPIDataSources(PageRequest pageRequest); // 모든 레시피 조회
-  APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest); // 레시피 검색 조회 가능
-  List<OpenRecipe> mostAndroidRecipe(); // 좋아요된 인기순 레시피 앱에 보내기 위한 Json 리스트 생성
-}
-
 @Service
 public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchService {
   @Override
@@ -440,7 +418,7 @@ public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchServi
   @Override
   public APIPageResult<OpenRecipe, OpenRecipeEntity> searchAndAPIDataSources(Search search, PageRequest pageRequest) {
     Function<OpenRecipeEntity, OpenRecipe> function = (OpenRecipeConverter::entityToDto);
-
+    
     // 검색 기능을 추가한 DB 조회용 API Search 객체에 검색할 단어를 담아 전달
     Page<OpenRecipeEntity> openRecipeEntities = openRecipePageWithSearchRepository.openAPISearchAndPageHandling(search, pageRequest);
     return new APIPageResult<>(openRecipeEntities, function);
@@ -463,12 +441,6 @@ public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchServi
 
 #### OpenRecipePageWithSearchRepository
 ```java
-public interface OpenRecipePageWithSearchRepository {
-  Page<OpenRecipeEntity> openAPIPageHandling(Pageable pageable); // API 전달을 위해 page 처리된 (offset, limit) 결과의 리스트 객체를 반환
-  // 검색 조건 where 절에 and 조건으로 원하는 결과에 맞는 page 처리된 (offset, limit) 결과의 리스트 객체를 반환
-  Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable);
-}
-
 @Repository
 public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository {
   @PersistenceContext
@@ -488,6 +460,7 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
      */
     NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
     JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe); // select시 필드가 여러값이기 때문에 단일 객체가 아닌 tuple로 조회
+    
     return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable); // 최종적으로 데이터를 담은 Page 객체 반환
   }
 
@@ -495,6 +468,7 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
   public Page<OpenRecipeEntity> openAPISearchAndPageHandling(Search searchKeywords, Pageable pageable) {
     NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
     JPAQuery<Tuple> openAPIDataHandle = withSelectInit(aliasRecipe);
+    
     openAPIDataHandle.where(searchAndQueryBuilder(searchKeywords)); // And 검색을 위한 where 절 조회
     return pagingWithSortHandler(openAPIDataHandle, aliasRecipe, pageable);
   }
@@ -594,11 +568,37 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
 }
 ```
 
-#### Page
+페이지 처리를 위한 객체
+
+#### Abstract page
+```java
+// Page Result 추상화 객체
+@Getter
+@Setter
+public abstract class PageResult<DTO, EN> {
+  private List<DTO> dtoList; // 페이지 당 실질적으로 사용되는 값이 들어가는 list 변수
+
+  private int totalPage;
+  private int nowPage;
+  private boolean firstPage, lastPage;
+
+  // 기본 생성자
+  public PageResult(Page<EN> result, Function<EN, DTO> fn) {
+    this.dtoList = result.stream().map(fn).collect(Collectors.toList()); // DTO -> Entity로 변경해 list로 만듦
+    totalPage = result.getTotalPages();
+    makePageList(result.getPageable());
+  }
+  
+  public abstract void makePageList(Pageable pageable);
+  public abstract void setPage(Pageable pageable);
+}
+```
+
+#### API Page
 ```java
 // API page 설정
 public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
-  
+    
     /*
           API의 page 처리를 위한 객체
           추상 클래스 PageResult를 구현
@@ -620,27 +620,6 @@ public class APIPageResult<DTO, EN> extends PageResult<DTO, EN> {
   public void setPage(Pageable pageable) {
     super.setNowPage(pageable.getPageNumber() + 1);
   }
-}
-
-// Page Result 추상화 객체
-@Getter
-@Setter
-public abstract class PageResult<DTO, EN> {
-  private List<DTO> dtoList; // 페이지 당 실질적으로 사용되는 값이 들어가는 list 변수
-
-  private int totalPage;
-  private int nowPage;
-  private boolean firstPage, lastPage;
-
-  // 기본 생성자
-  public PageResult(Page<EN> result, Function<EN, DTO> fn) {
-    this.dtoList = result.stream().map(fn).collect(Collectors.toList()); // DTO -> Entity로 변경해 list로 만듦
-    totalPage = result.getTotalPages();
-    makePageList(result.getPageable());
-  }
-  
-  public abstract void makePageList(Pageable pageable);
-  public abstract void setPage(Pageable pageable);
 }
 ```
 
@@ -690,6 +669,105 @@ API에서 기존 공공데이터의 페이지 처리가 없는 문제를 해결�
 
 ### 코드 상세
 
+Firebase 설정 Config
+
+#### Configuration
+```java
+@Configuration
+public class FirebaseConfig {
+  private final ApplicationContext applicationContext;
+    
+  /*
+          Firebase 사용을 위한 설정 파일
+          Firebase를 사용하기 위해 받은 Json 파일로 인증을 하고 클라우드 DB에 접속
+   */
+  
+  private final ApplicationContext applicationContext;
+
+  public FirebaseConfig(final ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
+
+  @PostConstruct
+  public void init() {
+    firebaseApp();
+  }
+
+  private void firebaseApp() {
+    try {
+      // Firebase 기본 설정 - Json 파일, 프로젝트 이름 설정
+      FirebaseOptions options = FirebaseOptions.builder()
+              .setCredentials(GoogleCredentials.fromStream(this.firebaseSettingFromJsonFileInput()))
+              .setStorageBucket("ecorecipes-5f00b.appspot.com")
+              .build();
+
+      // Firebase 사용
+      FirebaseApp.initializeApp(options);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+  
+  // 기본적으로 사용되는 파일 읽는 방식으로 로컬 테스트에서 사용할 때는 문제 없음
+  private FileInputStream firebaseSettingFromJsonFile() throws FileNotFoundException {
+    return new FileInputStream("src/main/resources/ecorecipes-5f00b-firebase-adminsdk-c962f-26f07a6fa6.json");
+  }
+
+  // 기존의 방식으로는 서버에서 부팅을 위해 jar로 만들 경우 (혹은 war) 해당 파일을 읽지 못하는 문제 발생
+  // 따라서 jar인 상태에도 파일을 가져올 수 있도록 ApplicationContext를 사용해 특정 위치의 파일을 가져오도록 설정 
+  private InputStream firebaseSettingFromJsonFileInput() throws IOException {
+    return this.applicationContext.getResource("classpath:ecorecipes-5f00b-firebase-adminsdk-c962f-26f07a6fa6.json").getInputStream();
+  }
+}
+```
+
+Firebase에서 쿼리로 넘어오는 uid로부터 이메일을 얻기 위해 사용
+
+#### Firebase Manager
+```java
+/*
+        Firebase를 사용해 로그인하는 앱, iOS의 사용자의 좋아요 데이터를 저장하기 위한 
+ */
+@Component
+public interface FirebaseUserManager {
+  // 해당 사용자가 존재하는지 확인
+  boolean isAppUserByUid(String uid);
+
+  // 해당 유저의 email 값을 조회
+  String findEmailByUid(String uid);
+}
+
+public class FirebaseUserManagerImpl implements FirebaseUserManager {
+    
+  // 사용자 존재 확인
+  @Override
+  public boolean isAppUserByUid(String uid) {
+    try {
+      // Authentication 사용 시 유저 데이터를 조회 할 수 있는 클래스 제공
+      UserRecord userByUid = FirebaseAuth.getInstance().getUser(uid);
+      return !userByUid.getUid().isEmpty();
+    } catch (FirebaseAuthException e) {
+      log.error("Can't found user value in Firebase", e);
+      return false;
+    }
+  }
+
+  // 사용자의 이메일 확인
+  @Override
+  public String findEmailByUid(String uid) {
+    try {
+      UserRecord userByUid = FirebaseAuth.getInstance().getUser(uid);
+      return userByUid.getEmail();
+    } catch (FirebaseAuthException e) {
+        log.error("Can't found user value in Firebase", e);
+        return "";
+    }
+  }
+}
+```
+
+좋아요를 응답하고 받는 API
+
 #### Controller
 ```java
 @RequestMapping("/api/v1/favorites")
@@ -701,7 +779,6 @@ public class RecipeAPIController {
     
   /*
           모바일 API
-          
           사용자의 좋아요 전달 (GET)
           uid를 받으면 firebase에서 유저의 email을 조회해 서버 DB에 사용자의 좋아요를 찾아 Json으로 응답
    */
@@ -757,32 +834,6 @@ public class RecipeAPIController {
             .favoriteRecipes(favoriteRecipeSerialization(savedValues))
             .build();
   }
-
-  /*
-          사용자의 좋아요 취소 (POST)
-          uid와 id 값을 받아 해당 데이터가 있다면 삭제
-   */
-  @PostMapping("/delete/choose")
-  public FavoriteData deleteFavoriteRecipe(@RequestParam String uid, @RequestParam Long recipeSeq) {
-    List<Favorite> deleteCheck = new ArrayList<>();
-
-    if (firebaseUserManager.isAppUserByUid(uid)) {
-      String email = firebaseUserManager.findEmailByUid(uid);
-      
-      // 사용자가 좋아요를 했는지 확인
-      Favorite recipe = favoriteService.findRecipe(recipeSeq, email);
-      
-      // 좋아요 삭제
-      favoriteService.delete(recipe);
-
-      deleteCheck = favoriteService.findByEmail(email);
-    }
-
-    return FavoriteData.builder()
-            .count(deleteCheck.size())
-            .favoriteRecipes(favoriteRecipeSerialization(deleteCheck))
-            .build();
-  }
   
   // 좋아요 데이터 조회 후 변경
   private List<FavoriteRecipe> favoriteRecipeSerialization(List<Favorite> values) {
@@ -800,108 +851,8 @@ public class RecipeAPIController {
 }
 ```
 
-#### Configuration
+#### Service
 ```java
-@Configuration
-public class FirebaseConfig {
-  private final ApplicationContext applicationContext;
-    
-  /*
-          Firebase 사용을 위한 설정 파일
-          
-          Firebase를 사용하기 위해 받은 Json 파일로 인증을 하고 클라우드 DB에 접속
-   */
-  
-  private final ApplicationContext applicationContext;
-
-  public FirebaseConfig(final ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  @PostConstruct
-  public void init() {
-    firebaseApp();
-  }
-
-  private void firebaseApp() {
-    try {
-      // Firebase 기본 설정 - Json 파일, 프로젝트 이름 설정
-      FirebaseOptions options = FirebaseOptions.builder()
-              .setCredentials(GoogleCredentials.fromStream(this.firebaseSettingFromJsonFileInput()))
-              .setStorageBucket("ecorecipes-5f00b.appspot.com")
-              .build();
-
-      // Firebase 사용
-      FirebaseApp.initializeApp(options);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-  
-  // 기본적으로 사용되는 파일 읽는 방식으로 로컬 테스트에서 사용할 때는 문제 없음
-  private FileInputStream firebaseSettingFromJsonFile() throws FileNotFoundException {
-    return new FileInputStream("src/main/resources/ecorecipes-5f00b-firebase-adminsdk-c962f-26f07a6fa6.json");
-  }
-
-  // 기존의 방식으로는 서버에서 부팅을 위해 jar로 만들 경우 (혹은 war) 해당 파일을 읽지 못하는 문제 발생
-
-  // 따라서 jar인 상태에도 파일을 가져올 수 있도록 ApplicationContext를 사용해 특정 위치의 파일을 가져오도록 설정 
-  private InputStream firebaseSettingFromJsonFileInput() throws IOException {
-    return this.applicationContext.getResource("classpath:ecorecipes-5f00b-firebase-adminsdk-c962f-26f07a6fa6.json").getInputStream();
-  }
-}
-```
-
-#### Firebase Manager
-```java
-/*
-        Firebase를 사용해 로그인하는 앱, iOS의 사용자의 좋아요 데이터를 저장하기 위한 
- */
-@Component
-public interface FirebaseUserManager {
-  // 해당 사용자가 존재하는지 확인
-  boolean isAppUserByUid(String uid);
-
-  // 해당 유저의 email 값을 조회
-  String findEmailByUid(String uid);
-}
-
-public class FirebaseUserManagerImpl implements FirebaseUserManager {
-    
-  // 사용자 존재 확인
-  @Override
-  public boolean isAppUserByUid(String uid) {
-    try {
-      // Authentication 사용 시 유저 데이터를 조회 할 수 있는 클래스 제공
-      UserRecord userByUid = FirebaseAuth.getInstance().getUser(uid);
-      return !userByUid.getUid().isEmpty();
-    } catch (FirebaseAuthException e) {
-      log.error("Can't found user value in Firebase", e);
-      return false;
-    }
-  }
-
-  // 사용자의 이메일 확인
-  @Override
-  public String findEmailByUid(String uid) {
-    try {
-      UserRecord userByUid = FirebaseAuth.getInstance().getUser(uid);
-      return userByUid.getEmail();
-    } catch (FirebaseAuthException e) {
-        log.error("Can't found user value in Firebase", e);
-        return "";
-    }
-  }
-}
-```
-
-#### Service, Repository
-```java
-// 레시피 Service Interface
-public interface OpenRecipeService {
-  OpenRecipe findByRecipeSeq(Long recipeSeq);
-}
-
 @RequiredArgsConstructor
 @Service
 public class RecipeAndSearchServiceImpl implements OpenRecipeService {
@@ -913,39 +864,13 @@ public class RecipeAndSearchServiceImpl implements OpenRecipeService {
     // Java의 map을 활용해 entity를 dto로 변경하고 불러온 값에 데이터가 없다면 빈 dto 반환
     return findOpenRecipe.map(OpenRecipeConverter::entityToDto).orElse(OpenRecipe.builder().build());
   }
-
-  @Override
-  public void delete(OpenRecipe openRecipe) {
-    OpenRecipeEntity deleteData = OpenRecipeConverter.dtoToEntity(openRecipe);
-
-    // 데이터 삭제 JPA 사용
-    openRecipeRepository.delete(deleteData);
-  }
 }
 
 // 좋아요 Service Interface
 public interface FavoriteService {
-  // 조건에 맞는 좋아요 조회
-  Favorite findRecipe(Long recipeSeq, String email);
-  
-  // 계정 중에 좋아요한 모든 레시피 좋아요 조회
-  List<Favorite> findByEmail(String email);
-
-  // 좋아요 생성
-  Favorite create(Favorite favoriteRecipe);
-
   // entity에서 dto로 변경하는 함수
   default Favorite entityToDto(FavoriteEntity favoriteEntity) {
-    return Favorite.builder()
-            .id(favoriteEntity.getId())
-            .recipeId(favoriteEntity.getRecipe().getId())
-            .recipeSeq(favoriteEntity.getRecipe().getRcpSeq())
-            .recipeMainImage(favoriteEntity.getRecipe().getAttFileNoMain())
-            .recipeName(favoriteEntity.getRecipe().getRcpNm())
-            .recipePart(favoriteEntity.getRecipe().getRcpPat2())
-            .recipeWay(favoriteEntity.getRecipe().getRcpWay2())
-            .userEmail(favoriteEntity.getUserEmail())
-            .build();
+      // 아래의 함수와 OpenRecipe로부터 값을 얻는것 외엔 일치하기 때문에 생략
   }
 
   default Favorite entityToDto(FavoriteEntity favoriteEntity, OpenRecipeEntity openRecipeEntity) {
@@ -1011,19 +936,19 @@ public class FavoriteServiceImpl implements FavoriteService {
    */
   @Override
   public Favorite findRecipe(Long recipeSeq, String email) {
-      // 좋아요 없는 경우 id 0L만 넣은 빈 객체 전달
-      Favorite favorite = Favorite.builder().id(0L).build();
-  
-      // Querydsl을 사용해 tuple로 값을 가져왔기 때문에 배열로 변경해 사용
-      Object[] foundRawValue = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email);
-      
-      if (foundRawValue != null) {
-        // Object[]는 각자 select 문에서 조회하기로 한 필드를 순서대로 담고 있다.
-        FavoriteEntity favoriteEntity = (FavoriteEntity) foundRawValue[0];
-        OpenRecipeEntity openRecipeEntity = (OpenRecipeEntity) foundRawValue[1];
-        favorite = entityToDto(favoriteEntity, openRecipeEntity);
-      }
-      return favorite;
+    // 좋아요 없는 경우 id 0L만 넣은 빈 객체 전달
+    Favorite favorite = Favorite.builder().id(0L).build();
+
+    // Querydsl을 사용해 tuple로 값을 가져왔기 때문에 배열로 변경해 사용
+    Object[] foundRawValue = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email);
+    
+    if (foundRawValue != null) {
+      // Object[]는 각자 select 문에서 조회하기로 한 필드를 순서대로 담고 있다.
+      FavoriteEntity favoriteEntity = (FavoriteEntity) foundRawValue[0];
+      OpenRecipeEntity openRecipeEntity = (OpenRecipeEntity) foundRawValue[1];
+      favorite = entityToDto(favoriteEntity, openRecipeEntity);
+    }
+    return favorite;
   }
 
   /*
@@ -1052,25 +977,16 @@ public class FavoriteServiceImpl implements FavoriteService {
     return favoriteList;
   }
 }
+```
 
-// 레시피 Repository interface
-public interface FavoriteRepository {
-  List<Object[]> findFavoriteByEmail(String email);
-
-  Object[] findFavoriteByRecipeSeqAndEmail(Long recipeSeq, String email);
-}
-
+#### Repository
+```java
 // 레시피 Repository 구현체
 @Repository
 public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements FavoriteRepository, FavoriteRankRepository {
   // QueryDSL 생성 객체
   private final QFavoriteEntity favoriteEntity = QFavoriteEntity.favoriteEntity;
   private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
-
-  // QueryDSL 설정 생성자, 해당 설정을 하면 QuerydslRepositorySupport의 생성자에 PathBuilderFactory가 query 구문 생성을 도와준다.
-  public FavoriteRepositoryImpl() {
-    super(FavoriteEntity.class);
-  }
 
   @Override
   public List<Object[]> findFavoriteByEmail(String email) {
@@ -1136,42 +1052,9 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
 
     <nav class="navbar navbar-color-on-scroll navbar-transparent fixed-top  navbar-expand-lg" color-on-scroll="100" id="sectionsNav">
         <div class="container">
-            <div class="navbar-translate">
-                <a class="navbar-brand" href="index.html" th:href="@{/}">
-                    Recipes
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="navbar-toggler-icon"></span>
-                    <span class="navbar-toggler-icon"></span>
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
+            ... 중략 ...
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ml-auto">
-                    <li class="dropdown nav-item">
-                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                            <i class="material-icons">dinner_dining</i> 레시피
-                        </a>
-                        <div class="dropdown-menu dropdown-with-icons">
-                            <a href="./index.html" class="dropdown-item" th:href="@{/}">
-                                <i class="material-icons">store</i> 메인화면
-                            </a>
-                            <a href="./recipe/recipeList.html" class="dropdown-item" th:href="@{/recipes}">
-                                <i class="material-icons">restaurant_menu</i> 레시피 보기
-                            </a>
-                        </div>
-                    </li>
-                    <li class="dropdown nav-item" th:if="${ user != null }">
-                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                            <i class="material-icons">account_circle</i> 나의 메뉴
-                        </a>
-                        <div class="dropdown-menu dropdown-with-icons">
-                            <a href="user/userInfo.html" th:href="@{/cookers/info}" class="dropdown-item">
-                                <i class="material-icons">assignment</i> 나의 정보
-                            </a>
-                        </div>
-                    </li>
                     <!-- 지정한 데이터 (user의 값)이 없는 경우 로그인 버튼, 로그인이 되어 있는 경우 로그아웃 버튼-->
                     <li class="button-container nav-item iframe-extern" th:if="${ user == null }">
                         <button class="btn btn-sm btn-block btn-round" data-toggle="modal" data-target="#loginModal">
@@ -1183,6 +1066,7 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
                             로그아웃
                         </a>
                     </li>
+                  
                 </ul>
             </div>
         </div>
@@ -1204,6 +1088,7 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
                             </div>
                         </div>
                     </div>
+                    <!-- 실질적으로 로그인하는 구글 링크 -->
                     <div class="modal-body">
                         <div class="card-body">
                             <a href="index.html" th:href="@{http://www.inndiary.xyz/oauth2/authorization/google}" id="google" class="btn btn-google btn-round">
@@ -1309,60 +1194,7 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
       <div class="row display-4" th:if="${ #lists.size(rank_recipes) >= 2 }">
         
           <div class="col-md-3 col-lg-3" th:each="recipe : ${ rank_recipes[1] }" th:object="${ recipe }">
-              <div class="rotating-card-container manual-flip">
-                  <div class="card card-rotate">
-                      <div th:if="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
-                          <div class="card-body">
-                              <h5 class="card-title card-category card-category-social text-success">
-                                  [[ *{ recipeName } ]]
-                              </h5>
-                              <div class="stats text-center">
-                                  <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
-                                      <i class="material-icons">refresh</i> 자세히
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                      <div th:unless="*{ recipeMainImage == '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg');" th:style="'background-image: url(' + *{ recipeMainImage } + ');'">
-                          <div class="card-body">
-                              <h5 class="card-title card-category card-category-social text-success">
-                                  [[ *{ recipeName } ]]
-                              </h5>
-                              <div class="stats text-center">
-                                  <button type="button" name="button" class="btn btn-success btn-fill btn-round btn-rotate">
-                                      <i class="material-icons">refresh</i> 자세히
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="back">
-                          <div class="card-body">
-                              <button type="button" class="btn btn-sm btn-light btn-link btn-rose" style="pointer-events: none;" th:style="'pointer-events: none;'">
-                                  <i class="material-icons">favorite</i>
-                              </button>
-                              <p>[[ *{ count } ]]</p>
-                              <h5 class="card-title">
-                                  [[ *{ recipeName } ]]
-                              </h5>
-                              <div class="stats text-center">
-                                  <p>
-                                      조리방식 : [[ *{ recipeWay } ]]
-                                  </p>
-                                  <p>
-                                      조리분류 : [[ *{ recipePart } ]]
-                                  </p>
-                              </div>
-                              <br>
-                              <a type="button" th:href="@{'/recipes/detail/' + *{ recipeId }}">
-                                  <i class="material-icons">subject</i> 자세히보기
-                              </a>
-                              <button type="button" name="button" class="btn btn-link btn-round btn-rotate">
-                                  <i class="material-icons">refresh</i> 돌아가기
-                              </button>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+              ... 위의 코드와 동일 ...
           </div>
         
       </div>
@@ -1378,71 +1210,6 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
           </div>
       </div>
   </th:block>
-</div>
-
-<!-- 좋아요 관련 레시피 추천 - 조리 관련과 분류 관련 음식 레시피 추천 무작위 4가지 -->
-<div class="section section-pricing pricing-5 iframe-extern">
-  
-  <div class="container">
-    <div class="title">
-      <h2>[[ ${ way } ]]</h2> <h3 id="recommendWayRecipe"> 조리 관련 음식 레시피입니다.</h3>
-    </div>
-    <div class="row display-4">
-      <div class="col-md-3 col-lg-3" th:each="recipe : ${ wayList }">
-        <div class="card card-plain">
-          <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
-            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
-              <div class="card-body">
-                <h4 class="card-title card-category card-category-social text-success">
-                  [[ ${ recipe.name } ]]
-                </h4>
-              </div>
-            </a>
-          </div>
-          <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
-            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
-              <div class="card-body">
-                <h4 class="card-title card-category card-category-social text-success">
-                  [[ ${ recipe.name } ]]
-                </h4>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="container">
-    <div class="title">
-      <h2>[[ ${ part } ]]</h2> <h3 id="recommendPartRecipe"> 관련 추천 음식 레시피입니다.</h3>
-    </div>
-    <div class="row display-4">
-      <div class="col-md-3 col-lg-3" th:each="recipe : ${ partList }">
-        <div class="card card-plain">
-          <div th:if="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(' + ${ recipe.image } + ');'">
-            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
-              <div class="card-body">
-                <h4 class="card-title card-category card-category-social text-success">
-                  [[ ${ recipe.name } ]]
-                </h4>
-              </div>
-            </a>
-          </div>
-          <div th:unless="${ recipe.image != '' }" class="front front-background" style="background-image: url('../static/assets/img/image_placeholder.jpg')" th:style="'background-image: url(/assets/img/image_placeholder.jpg);'">
-            <a href="#" th:href="@{'/recipes/detail/' + ${ recipe.id }}">
-              <div class="card-body">
-                <h4 class="card-title card-category card-category-social text-success">
-                  [[ ${ recipe.name } ]]
-                </h4>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
 </div>
 ```
 
@@ -1523,6 +1290,7 @@ public class HomeController {
 #### 레시피 8개 조회 2줄로 변경 코드
 ```java
 // searchWithPage interface로 way와 part를 위해 generator로 생성
+// generator로 생성한 이유는 2줄로 변경하는 코드가 좋아요 뿐만 아니라 레시피에도 적용되기 때문이다.
 public interface SearchWithPageHandler<T> {
     List<List<T>> pageRowRank(List<T> list);
 }
@@ -1557,14 +1325,8 @@ public class SearchWithPageHandlerImpl<T> implements SearchWithPageHandler<T> {
 }
 ```
 
-#### Service, Repository
+#### Service
 ```java
-// 좋아요 순위 Service interface
-public interface FavoriteRankService {
-  // 좋아요 인기순 상위 8개 조회
-  List<Favorite> mostFavoriteRecipe();
-}
-
 // 좋아요 순위 Service 구현체
 @RequiredArgsConstructor
 @Service
@@ -1580,20 +1342,27 @@ public class FavoriteServiceImpl implements FavoriteRankService {
   }
 }
 
-// 좋아요 순위 Repository interface
-public interface FavoriteRankRepository {
-  List<Object[]> findWithRankFavoriteRecipe();
-}
+// 레시피 추천 Service 구현체
+@Service
+@RequiredArgsConstructor
+public class RecipeAndSearchServiceImpl implements RecipeRecommendService {
+  private final RecipeTupleRepository recipeTupleRepository;
 
+  @Override
+  public List<Recommend> findRecommendRecipe(Search search) {
+    List<Object[]> objects = recipeTupleRepository.sameRecommendRecipe(search);
+    return objects.stream().map(objs -> Recommend.builder().id((Long) objs[0]).image((String) objs[1]).name((String) objs[2]).build()).collect(Collectors.toList());
+  }
+}
+```
+
+#### Repository
+```java
 // 좋아요 순위 Repository 구현체
 @Repository
 public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements FavoriteRankRepository {
   private final QFavoriteEntity favoriteEntity = QFavoriteEntity.favoriteEntity;
   private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
-
-  public FavoriteRepositoryImpl() {
-    super(FavoriteEntity.class);
-  }
 
   // 좋아요 많은 순 상위 8가지를 조회
   @Override
@@ -1613,55 +1382,27 @@ public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements
   private JPQLQuery<Tuple> orderFavoriteRecipe(JPQLQuery<Tuple> selectQuery) {
     // 8가지로 제한
     int rankTotal = 8;
-    
     // 레시피에서 서로 다른 레시피를 구분하기 좋은 필드는 id와 rcpSeq가 있음. 그중 rcpSeq로 group by
     // 정렬은 count가 제일 많은 순서
     return selectQuery.groupBy(favoriteEntity.recipe.rcpSeq).orderBy(favoriteEntity.recipe.id.count().desc()).limit(rankTotal);
   }
 }
 
-// 레시피 추천 Service interface
-public interface RecipeRecommendService {
-  List<Recommend> findRecommendRecipe(Search search);
-}
-
-// 레시피 추천 Service 구현체
-@Service
-@RequiredArgsConstructor
-public class RecipeAndSearchServiceImpl implements RecipeRecommendService {
-  private final RecipeTupleRepository recipeTupleRepository;
-
-  @Override
-  public List<Recommend> findRecommendRecipe(Search search) {
-    List<Object[]> objects = recipeTupleRepository.sameRecommendRecipe(search);
-    return objects.stream().map(objs -> Recommend.builder().id((Long) objs[0]).image((String) objs[1]).name((String) objs[2]).build()).collect(Collectors.toList());
-  }
-}
-
-// 레시피 추천 Repository interface
-public interface RecipeTupleRepository {
-  List<Object[]> sameRecommendRecipe(Search search);
-}
-
 // 레시피 추천 Repository 구현체
 @Repository
-public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository, RecipeTupleRepository {
+public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements RecipeTupleRepository {
   @PersistenceContext
   private EntityManager entityManager;
 
   private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
   private final QFavoriteEntity favoriteEntity = QFavoriteEntity.favoriteEntity;
 
-  public RecipeTupleAndPageWithSearchRepositoryImpl() {
-    super(OpenRecipeEntity.class);
-  }
-
   // 키워드와 같은 카테고리를 가진 레시피 중 4가지를 무작위로 조회
   @Override
   public List<Object[]> sameRecommendRecipe(Search search) {
     JPAQuery<Tuple> recipeRecommend = jpaQuerySelectRecommendRandInit();
     recipeRecommend.where(searchAndQueryBuilder(search));
-    
+
     // 무작위 4가지를 가져오기 위해 사용
     recipeRecommend.orderBy(NumberExpression.random().asc()).limit(4);
     List<Tuple> fetch = recipeRecommend.fetch();
@@ -1679,6 +1420,9 @@ public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslReposito
   }
 }
 ```
+
+JPA와 MySql은 rand 함수가 제대로 지원되지 않아 적용하지 못하는 부분이 존재한다. 그렇기 때문에 해당 설정을 해주어야 제대로 랜덤으로 값이 나온다.
+다른 방법으로는 매번 조회 후 무작위로 값을 정해주는 방식인데, 값이 많아질 수록 너무 오래 걸린다.
 
 #### MySql용 추가 설정
 ```java
@@ -1723,116 +1467,56 @@ public class MySqlJpaTemplates extends JPQLTemplates {
   <h3 class="title text-center">총 [[ ${ recipeTotal } ]]개의 레시피</h3>
   <div id="collapse">
       <div class="container">
-          <nav class="navbar navbar-default navbar-expand-lg">
-              <div class="container">
-                  <!-- 레시피명 검색 -->
-                  <div class="navbar-translate">
-                      <div class="navbar-brand">
-                          검색하기
-                          <div class="ripple-container"></div>
-                      </div>
-                  </div>
-                  <!-- 재료명 검색 -->
-                  <div class="collapse navbar-collapse">
-                      <div class="form-inline ml-auto">
-                          <label class="form-group bmd-form-group">
-                              <input type="text" name="name" th:name="name" class="input-group input-group-text" placeholder="음식 이름 ..." th:field="*{search.name}">
-                          </label>
-                          <button type="submit" class="btn btn-white btn-raised btn-fab btn-round">
-                              <i class="material-icons">search</i>
-                          </button>
-                      </div>
-                  </div>
-              </div>
-          </nav>
-          <div class="row">
-              <div class="col-md-12">
-                  <div id="accordion" role="tablist">
-                      <div class="card card-collapse">
-                          <div class="card-header" role="tab" id="headingOne">
-                              <h5 class="mb-0">
-                                  <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                      카테고리
-                                      <i class="material-icons">keyboard_arrow_down</i>
-                                  </a>
-                              </h5>
-                          </div>
-                          <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-                              <div class="card-body">
-                                  <div class="row">
-                                      <div class="col-md-12 ml-auto mr-auto">
-                                          <div class="row">
-                                              <h5 class="col-md-4 title">식재료 검색</h5>
-                                              <div class="ol-md-4 form-inline ml-auto">
-                                                  <div class="form-group bmd-form-group">
-                                                      <div class="input-group-prepend">
-                                                          <label>
-                                                              <input type="text" name="detail" th:name="detail" class="form-control" placeholder="식재료 종류" th:field="*{search.detail}"/>
-                                                          </label>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div class="container">
-                                              <div class="row">
-                                                  <h5 class="title">조리 방식</h5>
-                                                  <div class="form-inline ml-auto">
-                                                      <div class="form-group bmd-form-group">
+        
+                            <!-- 일부 코드 파일 확인 -->
                                                         
-                                                          <!-- DB에서 모든 레시피의 조리 방식을 group by해 가져와 선택가능하게 보여줌 -->
-                                                          <div class="form-check" th:each="way, wayStat : ${ ways }">
-                                                              <label class="form-check-label">
-                                                                  <input class="form-check-input" type="radio" th:field="*{search.way}" name="way" th:value="${ way.value }">
-                                                                  <span class="circle">
-                                                                  <span class="check"></span>
-                                                              </span>
-                                                                  [[ ${ way.value } ]]
-                                                              </label>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                  <div class="ripple-container"></div>
-                                              </div>
-                                              <div class="row">
-                                                  <h5 class="title">음식 분류</h5>
-                                                  <div class="form-inline ml-auto">
-                                                      <div class="form-group bmd-form-group">
+                        <!-- DB에서 모든 레시피의 조리 방식을 group by해 가져와 선택가능하게 보여줌 -->
+                        <div class="form-check" th:each="way, wayStat : ${ ways }">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" th:field="*{search.way}" name="way" th:value="${ way.value }">
+                                <span class="circle">
+                                <span class="check"></span>
+                            </span>
+                                [[ ${ way.value } ]]
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="ripple-container"></div>
+            </div>
+            <div class="row">
+                <h5 class="title">음식 분류</h5>
+                <div class="form-inline ml-auto">
+                    <div class="form-group bmd-form-group">
 
-                                                          <!-- DB에서 모든 레시피의 요리 분류를 group by해 가져와 선택가능하게 보여줌 -->
-                                                          <div class="form-check" th:each="part, partStat : ${ parts }">
-                                                              <label class="form-check-label">
-                                                                  <input type="radio" th:field="*{search.part}" name="part" th:value="${ part.value }" class="form-check-input">
-                                                                  <span class="circle">
-                                                                  <span class="check"></span>
-                                                              </span>
-                                                                  [[ ${ part.value } ]]
-                                                              </label>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                  <div class="ripple-container"></div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <button type="submit" class="btn btn-success">
-                                          검색
-                                      </button>
-                                      <div class="col-lg-5 col-md-6 col-sm-12">
-                                          <select class="selectpicker" data-style="select-with-transition" title="Single Select" name="order" data-size="2">
-                                              <option value="d" th:selected="${ pageCall.order == 'd' }">등록순</option>
-                                              <option value="f" th:selected="${ pageCall.order == 'f' }">인기순</option>
-                                          </select>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-</form>
+                        <!-- DB에서 모든 레시피의 요리 분류를 group by해 가져와 선택가능하게 보여줌 -->
+                        <div class="form-check" th:each="part, partStat : ${ parts }">
+                            <label class="form-check-label">
+                                <input type="radio" th:field="*{search.part}" name="part" th:value="${ part.value }" class="form-check-input">
+                                <span class="circle">
+                                <span class="check"></span>
+                            </span>
+                                [[ ${ part.value } ]]
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="ripple-container"></div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">
+        검색
+    </button>
+    <!-- 정렬 기준 정하기 -->
+    <div class="col-lg-5 col-md-6 col-sm-12">
+        <select class="selectpicker" data-style="select-with-transition" title="Single Select" name="order" data-size="2">
+            <option value="d" th:selected="${ pageCall.order == 'd' }">등록순</option>
+            <option value="f" th:selected="${ pageCall.order == 'f' }">인기순</option>
+        </select>
+    </div>
+  
+<!-- 생략 -->
 
 <!-- 레시피 목록 코드 -->
 <th:block th:if="${ #lists.size(recipeList.divideList) > 0 }">
@@ -1931,7 +1615,574 @@ public class MySqlJpaTemplates extends JPQLTemplates {
 ![](recipe/img/레시피_보기_검색레시피_없을시.png)
 <div style="text-align: center;">레시피 검색 결과 없을 경우</div>
 
+#### Controller
+```java
+@RequestMapping("/recipes")
+@RequiredArgsConstructor
+@Controller
+public class RecipeController {
+  private final OpenRecipePageWithSearchService openRecipePageWithSearchService;
+  private final RecipeRecommendService recipeRecommendService;
+  private final OpenRecipeService openRecipeService;
+  private final RecipeService recipeService;
+  private final FavoriteService favoriteService;
+  private final FavoriteRankService favoriteRankService;
+  private final SearchWithPageHandler<OpenRecipe> searchWithPageHandler;
 
+  // 사용자와 페이지 요청 시 받아들이는 객체, 검색어 객체, 데이터를 전달할 model 객체
+  @GetMapping
+  public String showAllRecipes(@LoginSession SessionUser user, PageCall pageCall, Search search, Model model) {
+    List<Way> ways = recipeService.recipeWayValueFound();
+    List<Part> parts = recipeService.recipePartValueFound();
+    // 레시피의 조리 방식과 요리 분류가 DB에서 조회됨, DB에서 조회될 때 All 값은 없으므로 추가
+    ways.add(0, new Way("All"));
+    parts.add(0, new Part("All"));
 
+    // 정렬의 기준을 위해 f - 좋아요 많은 순서 d - id, 즉 sequence number 순서
+    Sort sort = pageCall.getOrder().equals("f") ? Sort.by("favorite").descending() : Sort.by("id").ascending();
+    // All 일경우 "" 빈값을 통해 and 검색을 하지 않음 표시
+    Search value = Search.builder().name(search.getName()).seq(search.getSeq()).detail(search.getDetail()).part(search.getPart().equals("All") ? "" : search.getPart()).way(search.getWay().equals("All") ? "" : search.getWay()).build();
+    SearchWithPageRequest searchWithPageRequest = searchWithPageHandler.choosePageWithSearch(search, pageCall.getPage(), pageCall.getSize());
+    RecipePageResult<Favorite, Object[]> recipePageResult = openRecipePageWithSearchService.searchTuplePageWithSortRecipes(value, searchWithPageHandler.searchPageWithSort(searchWithPageRequest, sort));
+    
+    List<Long> favoriteSeq = new ArrayList<>();
+    if (user != null) {
+      // 만일 로그인 되어 있을 시 사용자가 좋아요한 모든 값을 가져와 표시함. 
+      favoriteSeq = favoriteRankService.usersFavoriteOnlySeq(user.getEmail());
+    }
 
+    model.addAttribute("user", user);
+    model.addAttribute("ways", ways);
+    model.addAttribute("parts", parts);
+    model.addAttribute("favoriteSeqList", favoriteSeq);
+    model.addAttribute("recipeTotal", TotalValue.getTotalCount());
+    model.addAttribute("recipeList", recipePageResult);
+    return "recipe/recipeList";
+  }
+}
+```
 
+#### Service
+```java
+public interface OpenRecipePageWithSearchService {
+  RecipePageResult<Favorite, Object[]> searchTuplePageWithSortRecipes(Search search, PageRequest pageRequest);
+}
+
+public interface RecipeService {
+  default List<RecipeManual> recipeManualSplit(OpenRecipe openRecipe) {
+    List<RecipeManual> recipeManuals = new ArrayList<>();
+
+    if (!openRecipe.getManual01().isEmpty()) {
+      recipeManuals.add(new RecipeManual(openRecipe.getManual01()));
+    }
+    // ... 2 - 19까지 반복
+    if (!openRecipe.getManual20().isEmpty()) {
+      recipeManuals.add(new RecipeManual(openRecipe.getManual20()));
+    }
+
+    return recipeManuals;
+  }
+
+  default List<RecipeManualImg> recipeManualImgSplit(OpenRecipe openRecipe) {
+    List<RecipeManualImg> recipeManualImages = new ArrayList<>();
+
+    if (!openRecipe.getManualImg01().isEmpty()) {
+      recipeManualImages.add(new RecipeManualImg(openRecipe.getManualImg01()));
+    }
+    // ... 2 - 19까지 반복
+    if (!openRecipe.getManualImg20().isEmpty()) {
+      recipeManualImages.add(new RecipeManualImg(openRecipe.getManualImg20()));
+    }
+
+    return recipeManualImages;
+  }
+
+  // 각각 조리 방법과 요리 분류 조회
+  List<Way> recipeWayValueFound();
+  List<Part> recipePartValueFound();
+}
+
+@Service
+@RequiredArgsConstructor
+public class RecipeAndSearchServiceImpl implements OpenRecipePageWithSearchService, RecipeService {
+  private final OpenRecipePageWithSearchRepository openRecipePageWithSearchRepository;
+  private final RecipeTupleRepository recipeTupleRepository;
+
+  // 레시피 데이터를 조회할 때 당장 필요한 일부분만 가져옴 - 사진, 이름, 분류, 좋아요 개수 정도
+  @Override
+  public RecipePageResult<Favorite, Object[]> searchTuplePageWithSortRecipes(Search search, PageRequest pageRequest) {
+    Page<Object[]> recipeDetails = openRecipePageWithSearchRepository.recipeSearchAndPageSeparateHandling(search, pageRequest);
+    Function<Object[], Favorite> fn = (entity -> Favorite.builder().recipeId((Long) entity[0]).recipeMainImage((String) entity[1]).recipePart((String) entity[2]).recipeName((String) entity[3]).count((Long) entity[4]).build());
+    return new RecipePageResult<>(recipeDetails, fn);
+  }
+
+  @Override
+  public List<Way> recipeWayValueFound() {
+    return recipeTupleRepository.recipeWayExtract().stream().map(Way::new).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<Part> recipePartValueFound() {
+    return recipeTupleRepository.recipePartExtract().stream().map(Part::new).collect(Collectors.toList());
+  }
+}
+```
+
+#### Repository
+```java
+@Repository
+public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements OpenRecipePageWithSearchRepository, RecipeTupleRepository {
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+  private final QFavoriteEntity favoriteEntity = QFavoriteEntity.favoriteEntity;
+
+  // 레시피 목록의 데이터를 가져옴, 목록에 표시되는 제한적인 데이터만 가져옴
+  @Override
+  public Page<Object[]> recipeSearchAndPageSeparateHandling(Search searchKeywords, Pageable pageable) {
+      NumberPath<Long> aliasRecipe = Expressions.numberPath(Long.class, "id");
+      JPAQuery<Tuple> tupleJPAQuery = separateSelectInit(aliasRecipe);
+      tupleJPAQuery.where(searchAndQueryBuilder(searchKeywords));
+      return tuplePagingWithSortHandler(tupleJPAQuery, aliasRecipe, pageable);
+  }
+
+  // 조리 방식 DB에서 조회
+  @Override
+  public List<String> recipeWayExtract() {
+      JPAQuery<String> recipeWayList = jpaQuerySelectWayInit();
+      recipeWayList.groupBy(openRecipeEntity.rcpWay2);
+      return recipeWayList.fetch();
+  }
+
+  // 요리 분류 DB에서 조회
+  @Override
+  public List<String> recipePartExtract() {
+      JPAQuery<String> recipeWayList = jpaQuerySelectPartInit();
+      recipeWayList.groupBy(openRecipeEntity.rcpPat2);
+      return recipeWayList.fetch();
+  }
+  // Group by를 통해 중복 생략
+
+  // 데이터 개수 파악을 위해 group by
+  private JPAQuery<Tuple> separateSelectInit(NumberPath<Long> aliasRecipe) {
+      return jpaQuerySeparateStart(aliasRecipe).leftJoin(favoriteEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id)).groupBy(openRecipeEntity.id);
+  }
+
+  // 레시피의 일부분만 가져옴, 정렬을 위해 count를 NumberPath로 저장
+  private JPAQuery<Tuple> jpaQuerySeparateStart(NumberPath<Long> aliasRecipe) {
+      return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity.id, openRecipeEntity.attFileNoMain, openRecipeEntity.rcpPat2, openRecipeEntity.rcpNm, favoriteEntity.recipe.id.count().as(aliasRecipe));
+  }
+
+  private JPAQuery<String> jpaQuerySelectWayInit() {
+      return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity.rcpWay2);
+  }
+
+  private JPAQuery<String> jpaQuerySelectPartInit() {
+      return jpaQueryOpenInit().from(openRecipeEntity).select(openRecipeEntity.rcpPat2);
+  }
+
+  private JPAQuery<OpenRecipeEntity> jpaQueryOpenInit() {
+      return new JPAQuery<>(entityManager);
+  }
+
+  private Page<Object[]> tuplePagingWithSortHandler(JPAQuery<Tuple> query, NumberPath<Long> aliasRecipe, Pageable pageable) {
+      totalCountSetting(query.fetch().size());
+      pageSortSetting(query, aliasRecipe, pageable.getSort());
+
+      List<Tuple> tuples = sqlTuplePageSetting(query, pageable);
+      List<Object[]> result = tuples.stream().map(Tuple::toArray).collect(Collectors.toList());
+      long count = TotalValue.getTotalCount();
+      return new PageImpl<>(result, pageable, count);
+  }
+
+  private void totalCountSetting(int count) {
+      if (TotalValue.getTotalCount() != count) {
+          TotalValue.setTotalCount(count);
+      }
+  }
+
+  private void pageSortSetting(JPQLQuery<Tuple> query, NumberPath<Long> aliasRecipe, Sort pageSort) {
+      pageSort.stream().forEach(order -> {
+          Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+          String prop = order.getProperty();
+          PathBuilder orderByExpression = new PathBuilder(OpenRecipeEntity.class, "openRecipeEntity");
+          if (prop.equals("favorite")) {
+              query.orderBy(aliasRecipe.desc());
+          } else {
+              query.orderBy(new OrderSpecifier(direction, orderByExpression.get(prop)));
+          }
+      });
+  }
+
+  private List<Tuple> sqlTuplePageSetting(JPAQuery<Tuple> openAPIDataHandle, Pageable pageable) {
+      openAPIDataHandle.offset(pageable.getOffset()).limit(pageable.getPageSize());
+      return openAPIDataHandle.fetch();
+  }
+
+  // 위의 API 요청의 where 절 코드와 같음 
+}
+```
+
+#### 레시피 데이터의 조회를 쉽게 카테고리 설정 검색
+레시피의 데이터를 일일이 찾으면 힘듭니다. 카테고리에서 원하는 레시피의 재료나 조리방식, 요리 분류, 이름 등을 통해 원하는 레시피를 찾을 수 있습니다.
+데이터가 없는 경우 아예 표시되지 않습니다. 레시피를 좋아요가 많은순, 일반적인 순서로 정렬할 수 있습니다.
+
+## 레시피 상세정보
+![](recipe/img/레시피_상세보기_비로그인.png)
+<div style="text-align: center;">레시피 상세보기</div>
+
+![](recipe/img/레시피_상세보기_조리과정.png)
+<div style="text-align: center;">레시피 상세보기 조리과정</div>
+
+![](recipe/img/레시피_상세보기_관련_카테고리추천.png)
+<div style="text-align: center;">레시피 상세와 관련있는 레시피 추천</div>
+
+#### recipeDetail.html
+```html
+<!-- Ajax를 활용해 좋아요 구현 -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    // 좋아요 시 해당 Ajax 함수가 실행, Post 요청으로 좋아요 추가, 삭제
+    function favoriteSend() {
+        const user =$("#user").val();
+        const recipeId =$("#recipeId").val();
+        const FavoriteRecipe = {
+            id : null,
+            recipeId : recipeId,
+            userEmail : user
+        };
+        $.ajax({
+            url: "/api/v1/ajax/favorite",
+            data: FavoriteRecipe,
+            type: 'POST',
+        }).done(function (data){
+            $("#favoriteCheck").replaceWith(data);
+        });
+    }
+
+    function noLogin() {
+        alert("로그인 후 좋아요를 할 수 있습니다.");
+    }
+    /*]]>*/
+</script>
+
+<!-- 해당 form이 로그인 한 경우만 동작, 숨겨진 값에 따라 좋아요를 설정 -->
+<form th:if="${ user != null }">
+  <input type="hidden" id="recipeId" th:value="${ recipe.id }">
+  <input type="hidden" id="recipeSeq" th:value="${ recipe.rcpSeq }">
+  <input type="hidden" id="user" th:value="${ user.email }">
+  <div id="favoriteCheck">
+    <button type="button" onclick="favoriteSend()" rel="tooltip" th:class="'btn btn-light btn-link' + ${ isFavorite ? ' btn-rose' : ' btn-default' }">
+      <i class="material-icons">favorite</i>
+    </button>
+  </div>
+</form>
+<form th:unless="${ user != null }">
+  <div id="noFavoriteCheck">
+    <button type="button" onclick="noLogin()" rel="tooltip" class="btn btn-light btn-link btn-default">
+      <i class="material-icons">favorite</i>
+    </button>
+  </div>
+</form>
+```
+
+좋아요를 Ajax로 구현, 비동기식으로 앱에서 동일 계정으로 로그인한채로 좋아요를 취소하거나 누를경우 바로 반영됨
+
+#### Controller
+```java
+@RequestMapping("/recipes")
+@RequiredArgsConstructor
+@Controller
+public class RecipeController {
+    private final RecipeRecommendService recipeRecommendService;
+    private final OpenRecipeService openRecipeService;
+    private final RecipeService recipeService;
+    private final FavoriteService favoriteService;
+
+    // 레시피 상세보기
+    @GetMapping("/detail/{id}")
+    public String detailRecipe(@PathVariable Long id, @LoginSession SessionUser user, Model model) {
+        boolean isFavorite = false;
+        OpenRecipe recipe = openRecipeService.findRecipe(id);
+
+        if (user != null) {
+            Favorite recipeFavorite = favoriteService.findRecipe(recipe.getRcpSeq(), user.getEmail());
+            
+            // 처음으로 레시피 상세보기로 진입하면 좋아요 상태인지 확인
+            if (recipeFavorite.getId() > 0L) {
+                isFavorite = true;
+            }
+        }
+
+        List<RecipeManual> recipeManuals = recipeService.recipeManualSplit(recipe);
+        List<RecipeManualImg> recipeManualImages = recipeService.recipeManualImgSplit(recipe);
+
+        Search part = Search.builder().part(recipe.getRcpPat2()).build();
+        
+        // 하단의 해당 레시피와 관련된 무작위 레시피 4가지 추천
+        List<Recommend> recommends = recommendRecipeList(part);
+
+        model.addAttribute("user", user);
+        model.addAttribute("recipe", recipe);
+        model.addAttribute("isFavorite", isFavorite);
+        model.addAttribute("recipeManuals", recipeManuals);
+        model.addAttribute("recipeManualImages", recipeManualImages);
+        model.addAttribute("relativeList", recommends);
+        return "recipe/recipeDetail";
+    }
+
+    private List<Recommend> recommendRecipeList(Search search) {
+        return recipeRecommendService.findRecommendRecipe(search);
+    }
+}
+
+@RequestMapping("/api/v1/ajax")
+@RequiredArgsConstructor
+@Controller
+public class FavoriteAPIController {
+  private final UserService userService;
+  private final FavoriteService favoriteService;
+  private final OpenRecipeService openRecipeService;
+
+  @PostMapping("/favorite")
+  public String webOneFavoriteRecipe(Favorite favorite, Model model) {
+    boolean isFavorite = false;
+
+    // 유저의 이메일이 사용자 DB에 있는지 확인
+    if (userService.isUserExist(favorite.getUserEmail())) {
+      OpenRecipe recipe = openRecipeService.findRecipe(favorite.getRecipeId());
+      Favorite find = favoriteService.findRecipe(recipe.getRcpSeq(), favorite.getUserEmail());
+      
+      // 좋아요 상태가 아니면 좋아요로
+      if (find.getId() == 0L) {
+        Favorite saved = favoriteService.create(favoriteRecipeValue(favorite, recipe));
+        isFavorite = true;
+      } else {
+        // 좋아요 상태면 삭제
+        favoriteService.delete(find);
+      }
+    }
+
+    model.addAttribute("isFavorite", isFavorite);
+    return "recipe/recipeDetail :: #favoriteCheck";
+  }
+
+  // 해당 값이 추가되기 전에 레시피의 값과 동일하게 설정
+  private Favorite favoriteRecipeValue(Favorite favorite, OpenRecipe openRecipe) {
+    favorite.setRecipeId(openRecipe.getId());
+    favorite.setRecipeSeq(openRecipe.getRcpSeq());
+    favorite.setRecipeName(openRecipe.getRcpNm());
+    favorite.setRecipeMainImage(openRecipe.getAttFileNoMain());
+    favorite.setRecipeWay(openRecipe.getRcpWay2());
+    favorite.setRecipePart(openRecipe.getRcpPat2());
+
+    return favorite;
+  }
+}
+```
+
+#### Service
+````java
+public interface RecipeRecommendService {
+  List<Recommend> findRecommendRecipe(Search search);
+}
+
+// RecipeService 위의 목록과 동일, 생략
+@Service
+@RequiredArgsConstructor
+public class RecipeAndSearchServiceImpl implements OpenRecipeService, RecipeRecommendService {
+    private final OpenRecipeRepository openRecipeRepository;
+    private final RecipeTupleRepository recipeTupleRepository;
+    
+    @Override
+    public OpenRecipe findRecipe(Long id) {
+        Optional<OpenRecipeEntity> find = openRecipeRepository.findById(id);
+
+        return find.map(OpenRecipeConverter::entityToDto).orElse(OpenRecipe.builder().build());
+    }
+
+    @Override
+    public List<Recommend> findRecommendRecipe(Search search) {
+        List<Object[]> objects = recipeTupleRepository.sameRecommendRecipe(search);
+        return objects.stream().map(objs -> Recommend.builder().id((Long) objs[0]).image((String) objs[1]).name((String) objs[2]).build()).collect(Collectors.toList());
+    }
+}
+
+@RequiredArgsConstructor
+@Service
+public class FavoriteServiceImpl implements FavoriteService {
+  private final FavoriteSimpleRepository favoriteSimpleRepository;
+  private final FavoriteRankRepository favoriteRankRepository;
+  private final FavoriteRepository favoriteRepository;
+
+  @Override
+  public Favorite findRecipe(Long recipeSeq, String email) {
+    Favorite favorite = Favorite.builder().id(0L).build();
+
+    Object[] foundRawValue = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email);
+    if (foundRawValue != null) {
+      FavoriteEntity favoriteEntity = (FavoriteEntity) foundRawValue[0];
+      OpenRecipeEntity openRecipeEntity = (OpenRecipeEntity) foundRawValue[1];
+      favorite = entityToDto(favoriteEntity, openRecipeEntity);
+    }
+    return favorite;
+  }
+}
+````
+
+#### Repository
+```java
+@Repository
+public class RecipeTupleAndPageWithSearchRepositoryImpl extends QuerydslRepositorySupport implements RecipeTupleRepository {
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+
+  // 동일한 카테고리 (요리 분류, 조리 방식)을 가진 레시피 무작위 4개 조회
+  @Override
+  public List<Object[]> sameRecommendRecipe(Search search) {
+    JPAQuery<Tuple> recipeRecommend = jpaQuerySelectRecommendRandInit();
+    recipeRecommend.where(searchAndQueryBuilder(search));
+    recipeRecommend.orderBy(NumberExpression.random().asc()).limit(4);
+    List<Tuple> fetch = recipeRecommend.fetch();
+    return fetch.stream().map(Tuple::toArray).collect(Collectors.toList());
+  }
+
+  private JPAQuery<Tuple> jpaQuerySelectRecommendRandInit() {
+    return jpaQueryMySqlTemplateInit().from(openRecipeEntity).select(openRecipeEntity.id, openRecipeEntity.attFileNoMain, openRecipeEntity.rcpNm);
+  }
+
+  private JPAQuery<OpenRecipeEntity> jpaQueryMySqlTemplateInit() {
+    return new JPAQuery<>(entityManager, MySqlJpaTemplates.DEFAULT);
+  }
+  
+  // 동일한 where 구문 생략
+}
+
+@Repository
+public class FavoriteRepositoryImpl extends QuerydslRepositorySupport implements FavoriteRepository {
+  private final QFavoriteEntity favoriteEntity = QFavoriteEntity.favoriteEntity;
+  private final QOpenRecipeEntity openRecipeEntity = QOpenRecipeEntity.openRecipeEntity;
+
+  public FavoriteRepositoryImpl() {
+    super(FavoriteEntity.class);
+  }
+
+  // 좋아요를 한적 있는지 조회
+  @Override
+  public Object[] findFavoriteByRecipeSeqAndEmail(Long recipeSeq, String email) {
+    JPQLQuery<Tuple> selectFavoriteRecipe = selectFavoriteRecipe(from(favoriteEntity));
+    selectFavoriteRecipe.where(favoriteEntity.recipe.rcpSeq.eq(recipeSeq).and(favoriteEntity.userEmail.eq(email)));
+    Tuple tuple = selectFavoriteRecipe.fetchFirst();
+
+    if (tuple != null) {
+      return tuple.toArray();
+    }
+    return null;
+  }
+
+  private JPQLQuery<Tuple> selectFavoriteRecipe(JPQLQuery<FavoriteEntity> query) {
+    return query.select(favoriteEntity, openRecipeEntity)
+            .leftJoin(openRecipeEntity).on(favoriteEntity.recipe.id.eq(openRecipeEntity.id))
+            .from(favoriteEntity);
+  }
+}
+```
+
+#### 레시피 상세보기
+레시피의 조리 과정과 영양소 정보, 하단에는 카테고리와 관련있는 무작위 4가지 레시피를 추천합니다.
+
+## 나의 정보 좋아요 레시피
+![](recipe/img/레시피_사용자.png)
+<div style="text-align: center;">레시피 상세보기</div>
+
+#### Controller
+```java
+@RequestMapping("/cookers")
+@RequiredArgsConstructor
+@Controller
+public class UserController {
+    private final FavoriteRankService favoriteRankService;
+    private final SearchWithPageHandler<Favorite> searchWithPageHandler;
+    private final UserService userService;
+
+    @GetMapping("/info")
+    public String userInfo(Model model, @LoginSession SessionUser user) {
+        if (user != null) {
+            User foundUser = userService.findByEmail(user.getEmail());
+            List<Favorite> favorites = favoriteRankService.usersFavoriteRecipe(foundUser.getEmail());
+            List<List<Favorite>> lists = searchWithPageHandler.pageRowRank(favorites);
+
+            model.addAttribute("user", foundUser);
+            model.addAttribute("usersFavorite", lists);
+            return "user/userInfo";
+        }
+        return "index";
+    }
+}
+```
+
+#### Service
+```java
+@RequiredArgsConstructor
+@Service
+public class FavoriteServiceImpl implements FavoriteRankService {
+    private final FavoriteSimpleRepository favoriteSimpleRepository;
+    private final FavoriteRankRepository favoriteRankRepository;
+    private final FavoriteRepository favoriteRepository;
+
+    @Override
+    public Favorite findRecipe(Long recipeSeq, String email) {
+        Favorite favorite = Favorite.builder().id(0L).build();
+
+        Object[] foundRawValue = favoriteRepository.findFavoriteByRecipeSeqAndEmail(recipeSeq, email);
+        if (foundRawValue != null) {
+            FavoriteEntity favoriteEntity = (FavoriteEntity) foundRawValue[0];
+            OpenRecipeEntity openRecipeEntity = (OpenRecipeEntity) foundRawValue[1];
+            favorite = entityToDto(favoriteEntity, openRecipeEntity);
+        }
+        return favorite;
+    }
+
+    @Override
+    public List<Favorite> mostFavoriteRecipe() {
+        List<Object[]> allFavorite = favoriteRankRepository.findWithRankFavoriteRecipe();
+        return valueNotFoundCheck(allFavorite);
+    }
+
+    @Override
+    public List<Favorite> usersFavoriteRecipe(String email) {
+        List<Object[]> allFavorite = favoriteRankRepository.findRankFavoriteRecipeByEmail(email);
+        return valueNotFoundCheck(allFavorite);
+    }
+
+    @Override
+    public List<Long> usersFavoriteOnlySeq(String email) {
+        return favoriteRankRepository.findRankFavoriteRecipeByEmailOnlySeq(email);
+    }
+
+    // 값의 문제 없음을 확인
+    private List<Favorite> valueNotFoundCheck(List<Object[]> found) {
+        List<Favorite> favoriteList = new ArrayList<>();
+
+        if (found != null) {
+            for (Object[] values : found) {
+                Favorite f = entityToDto((FavoriteEntity) values[0], (OpenRecipeEntity) values[1]);
+                f.setCount((Long) values[2]);
+                favoriteList.add(f);
+            }
+        } else {
+            favoriteList.add(Favorite.builder().id(0L).build());
+        }
+        return favoriteList;
+    }
+}
+```
+
+#### Repository
+````java
+
+````
